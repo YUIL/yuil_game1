@@ -1,0 +1,97 @@
+package com.yuil.game.entity;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
+import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
+
+public class BtObjectFactory {
+	ModelBuilder modelBuilder = new ModelBuilder();
+	Vector3 tempVector = new Vector3();
+	
+	Model defaultBallModel;
+	Model defaultGroundModel;
+	
+	public BtObjectFactory(boolean haveDefaultModel){
+		if (haveDefaultModel) {
+			defaultBallModel=modelBuilder.createSphere(1f, 1f, 1f,
+					10, 10, new Material(ColorAttribute.createDiffuse(Color.RED),
+							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+					Usage.Position | Usage.Normal);
+			defaultGroundModel= modelBuilder.createRect(
+					20f,
+					0f,
+					-20f,
+					-20f,
+					0f,
+					-20f,
+					-20f,
+					0f,
+					20f,
+					20f,
+					0f,
+					20f,
+					0,
+					1,
+					0,
+					new Material(ColorAttribute.createDiffuse(Color.BLUE), ColorAttribute.createSpecular(Color.WHITE), FloatAttribute
+						.createShininess(16f)), Usage.Position | Usage.Normal);
+		}
+		
+	}
+	
+	public BtObject createBall() {
+		btCollisionShape collisionShape = new btSphereShape(0.5f);
+		return createBtObject(defaultBallModel, collisionShape, 1, MathUtils.random() * 10, MathUtils.random() * 10+100, MathUtils.random() * 10);
+	}
+	
+	public BtObject createBallNoModel() {
+		btCollisionShape collisionShape = new btSphereShape(0.5f);
+		return createBtObject(collisionShape, 1, MathUtils.random() * 10, MathUtils.random() * 10+100, MathUtils.random() * 10);
+	}
+	public BtObject createGround(){
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 20));
+		return createBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
+	}
+	
+	public BtObject createBtObject(Model model,btCollisionShape collisionShape,float mass,float x,float y,float z){
+		
+		BtObject btObject=createBtObject(collisionShape, mass, x, y, z);
+		
+		ModelInstance instance=new ModelInstance(model);
+		
+		btObject.getRigidBody().userData=instance;
+		
+		return btObject;
+		
+	}
+	
+public BtObject createBtObject(btCollisionShape collisionShape,float mass,float x,float y,float z){	
+		Vector3 inertia=new Vector3();
+		collisionShape.calculateLocalInertia(mass, inertia);
+
+		btRigidBodyConstructionInfo rigidBodyConstructionInfo=new btRigidBodyConstructionInfo(mass, null, collisionShape, inertia);
+		btDefaultMotionState motionState = new btDefaultMotionState();
+		
+		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1,1,1)));
+		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
+		rigidBody.setMotionState(motionState);
+		
+		return new BtObject(rigidBody,motionState,collisionShape,rigidBodyConstructionInfo);
+		
+	}
+}

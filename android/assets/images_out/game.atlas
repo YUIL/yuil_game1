@@ -1,0 +1,153 @@
+
+game.png
+size: 1024,256
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+battle_ditu
+  rotate: false
+  xy: 2, 218
+  size: 700, 36
+  orig: 700, 36
+  offset: 0, 0
+  index: -1
+biaoti_ditu
+  rotate: false
+  xy: 2, 166
+  size: 256, 50
+  orig: 256, 50
+  offset: 0, 0
+  index: -1
+biaotiditu
+  rotate: false
+  xy: 260, 145
+  size: 160, 34
+  orig: 160, 34
+  offset: 0, 0
+  index: -1
+biaotiditu
+  rotate: false
+  xy: 704, 183
+  size: 160, 34
+  orig: 160, 34
+  offset: 0, 0
+  index: 2
+biaotiditu
+  rotate: false
+  xy: 422, 120
+  size: 160, 34
+  orig: 160, 34
+  offset: 0, 0
+  index: 3
+blood
+  rotate: false
+  xy: 866, 201
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bossxue
+  rotate: false
+  xy: 584, 142
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 1
+bossxue
+  rotate: false
+  xy: 422, 167
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 2
+bossxue
+  rotate: false
+  xy: 104, 48
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 3
+bossxue
+  rotate: false
+  xy: 164, 152
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 4
+bossxue
+  rotate: false
+  xy: 704, 169
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 5
+bossxue
+  rotate: false
+  xy: 886, 221
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: 6
+bossxuecao
+  rotate: false
+  xy: 104, 62
+  size: 150, 40
+  orig: 150, 40
+  offset: 0, 0
+  index: -1
+bossxuedi
+  rotate: false
+  xy: 704, 219
+  size: 180, 35
+  orig: 180, 35
+  offset: 0, 0
+  index: -1
+bossxuedi
+  rotate: false
+  xy: 260, 181
+  size: 180, 35
+  orig: 180, 35
+  offset: 0, 0
+  index: 2
+bossxuedi2
+  rotate: false
+  xy: 886, 235
+  size: 76, 19
+  orig: 76, 19
+  offset: 0, 0
+  index: -1
+button
+  rotate: false
+  xy: 2, 104
+  size: 160, 60
+  orig: 160, 60
+  offset: 0, 0
+  index: 0
+button
+  rotate: false
+  xy: 442, 156
+  size: 160, 60
+  orig: 160, 60
+  offset: 0, 0
+  index: 1
+button_+
+  rotate: false
+  xy: 604, 168
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+button_-
+  rotate: false
+  xy: 654, 168
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+button_1beibao
+  rotate: false
+  xy: 2, 2
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
