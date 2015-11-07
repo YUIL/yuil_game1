@@ -8,6 +8,7 @@ import com.yuil.game.net.message.MESSAGE_ARRAY;
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.MessageHandler;
 import com.yuil.game.net.message.MessageType;
+import com.yuil.game.net.message.MessageUtil;
 import com.yuil.game.net.message.SINGLE_MESSAGE;
 import com.yuil.game.net.udp.ClientSocket;
 import com.yuil.game.net.udp.Session;
@@ -99,7 +100,7 @@ public class NetSocketTest extends BaseTest {
 				@Override
 				public void disposeUdpMessage(Session session, byte[] data) {
 					// TODO Auto-generated method stub
-					int type=MessageType.getType(data);
+					int type=MessageUtil.getType(data);
 					byte[] src=DataUtil.subByte(data, data.length-Message.TYPE_LENGTH, Message.TYPE_LENGTH);
 					System.out.println("server recv:"+MessageType.values()[type]);
 					

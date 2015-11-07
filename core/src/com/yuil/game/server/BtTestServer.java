@@ -1,15 +1,36 @@
 package com.yuil.game.server;
 
+import java.net.BindException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.yuil.game.entity.BtObjectFactory;
 import com.yuil.game.entity.BtWorld;
+import com.yuil.game.entity.message.ADD_BALL;
+import com.yuil.game.entity.message.EntityMessageType;
+import com.yuil.game.net.message.MESSAGE_ARRAY;
+import com.yuil.game.net.message.Message;
+import com.yuil.game.net.message.MessageHandler;
+import com.yuil.game.net.message.MessageType;
+import com.yuil.game.net.message.MessageUtil;
+import com.yuil.game.net.udp.Session;
+import com.yuil.game.net.udp.UdpMessageListener;
+import com.yuil.game.net.udp.UdpSocket;
+import com.yuil.game.util.Log;
 
-public class BtTestServer {
+public class BtTestServer implements UdpMessageListener{
 
+	UdpSocket udpSocket;
+	BroadCastor broadCastor;
 	BtWorld physicsWorld=new BtWorld();
 	volatile Thread gameWorldThread;
 	
 	BtObjectFactory btObjectFactory=new BtObjectFactory(false);
-	
+	Map<Integer, MessageHandler> messageHandlerMap=new HashMap<Integer, MessageHandler>();
+	MessageProcessor messageProcessor;
+	ExecutorService threadPool = Executors.newSingleThreadExecutor();
 	
 	public static void main(String[] args) {
 		BtTestServer btTestServer=new BtTestServer();
@@ -18,11 +39,22 @@ public class BtTestServer {
 
 	
 	public BtTestServer(){
-		physicsWorld.addPhysicsObject(btObjectFactory.createBallNoModel());
+		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
+		try {
+			udpSocket=new UdpSocket(9091);
+		} catch (BindException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		udpSocket.setUdpMessageListener(this);
+		broadCastor=new BroadCastor(udpSocket);
+		messageProcessor=new MessageProcessor();
 	}
 	public void start(){
+		Log.println("start");
 		gameWorldThread=new Thread(new WorldLogic());
 		gameWorldThread.start();
+		udpSocket.start();
 	}
 	
 	class WorldLogic implements Runnable{
@@ -36,9 +68,78 @@ public class BtTestServer {
 				if (System.currentTimeMillis()-lastUpdateTime>interval) {
 					lastUpdateTime=System.currentTimeMillis();
 					physicsWorld.update(interval);
+					//broadCastor.broadCast_GAME_MESSAGE(data, false);
 				}
 			}
 		}
 		
 	}
+	
+	class MessageProcessor extends com.yuil.game.net.udp.MessageProcessor{
+		public  MessageProcessor() {
+			initMessageHandle();
+		}
+		@Override
+		public void run() {
+			int typeOrdinal = MessageUtil.getType(data);
+			System.out.println("type:" + EntityMessageType.values()[typeOrdinal]);
+			byte[] src =MessageUtil.getMessageBytes(data);
+		
+			messageHandlerMap.get(typeOrdinal).handle(src);
+		}
+		void initMessageHandle(){
+			messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
+				
+				@Override
+				public void handle(byte[] src) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+			
+			messageHandlerMap.put(EntityMessageType.ADD_BALL.ordinal(), new MessageHandler() {
+				
+				@Override
+				public void handle(byte[] src) {
+					// TODO Auto-generated method stub
+					ADD_BALL message=new ADD_BALL(src);
+					physicsWorld.addPhysicsObject(btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ()));
+					broadCastor.broadCast_SINGLE_MESSAGE(message, false);
+				}
+			});
+
+		}
+	}
+
+	@Override
+	public void disposeUdpMessage(Session session, byte[] data) {
+
+		if (data.length<Message.TYPE_LENGTH) {
+			return;
+		}
+		int typeOrdinal = MessageUtil.getType(data);
+		//System.out.println("type:" + GameMessageType.values()[typeOrdinal]);
+		byte[] src =MessageUtil.getMessageBytes(data);
+		
+		switch (MessageType.values()[typeOrdinal]) {
+		case MESSAGE_ARRAY:
+			MESSAGE_ARRAY message_ARRAY=new MESSAGE_ARRAY(src);
+			for (byte[] data1:message_ARRAY.gameMessages) {
+				disposeSingleMessage(session, data1);
+			}
+			break;
+		case SINGLE_MESSAGE:
+			disposeSingleMessage(session, src);
+			break;
+		default:
+			break;
+		}		
+	}
+	void disposeSingleMessage(Session session, byte[] data){
+		messageProcessor.setSession(session);
+		messageProcessor.setData(data);
+		threadPool.execute(messageProcessor);
+	}
+	
+	
 }

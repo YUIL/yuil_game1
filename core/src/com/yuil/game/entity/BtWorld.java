@@ -45,7 +45,8 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		Vector3 v3=new Vector3();
 
 		for (BtObject btObject : physicsObjects.values()) {
-			btObject.update();
+			//System.out.println(btObject.rigidBody.getWorldTransform());
+			//btObject.update();
 			btObject.rigidBody.getWorldTransform().getTranslation(v3);
 			if (v3.y<-100){
 				removePhysicsObject(btObject);

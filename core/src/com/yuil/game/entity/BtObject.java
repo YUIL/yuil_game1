@@ -1,6 +1,5 @@
 package com.yuil.game.entity;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
@@ -23,15 +22,15 @@ public class BtObject extends PhysicsObject implements Disposable{
 		// TODO Auto-generated constructor stub
 	}
 
-	public BtObject(btRigidBody rigidBody, btDefaultMotionState motionState,
+	public BtObject(long id,btRigidBody rigidBody, btDefaultMotionState motionState,
 			btCollisionShape collisionShape, btRigidBodyConstructionInfo rigidBodyConstructionInfo) {
 		super();
-
+		this.id=id;
 		this.rigidBody = rigidBody;
 		this.motionState = motionState;
 		this.collisionShape = collisionShape;
 		this.rigidBodyConstructionInfo = rigidBodyConstructionInfo;
-		this.id=new java.util.Random().nextLong();
+		
 	}
 
 	public void update(){
@@ -140,9 +139,6 @@ public class BtObject extends PhysicsObject implements Disposable{
 		}
 	}
 
-	@Override
-	public void setPosition() {
-		// TODO Auto-generated method stub
-		
-	}
+	
+	
 }

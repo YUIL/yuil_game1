@@ -1,5 +1,7 @@
 package com.yuil.game.entity;
 
+import java.util.Random;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -22,76 +24,112 @@ import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
 public class BtObjectFactory {
 	ModelBuilder modelBuilder = new ModelBuilder();
 	Vector3 tempVector = new Vector3();
-	
-	Model defaultBallModel;
-	Model defaultGroundModel;
-	
-	public BtObjectFactory(boolean haveDefaultModel){
+	Random random=new Random();
+
+	public Model defaultBallModel;
+	public Model defaultGroundModel;
+
+	public BtObjectFactory(boolean haveDefaultModel) {
 		if (haveDefaultModel) {
-			defaultBallModel=modelBuilder.createSphere(1f, 1f, 1f,
-					10, 10, new Material(ColorAttribute.createDiffuse(Color.RED),
+			defaultBallModel = modelBuilder.createSphere(1f, 1f, 1f, 10,
+					10, new Material(ColorAttribute.createDiffuse(Color.RED),
 							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 					Usage.Position | Usage.Normal);
-			defaultGroundModel= modelBuilder.createRect(
-					20f,
-					0f,
-					-20f,
-					-20f,
-					0f,
-					-20f,
-					-20f,
-					0f,
-					20f,
-					20f,
-					0f,
-					20f,
-					0,
+			defaultGroundModel = modelBuilder.createRect(20f, 0f, -20f, -20f, 0f, -20f, -20f, 0f, 20f, 20f, 0f, 20f, 0,
 					1,
-					0,
-					new Material(ColorAttribute.createDiffuse(Color.BLUE), ColorAttribute.createSpecular(Color.WHITE), FloatAttribute
-						.createShininess(16f)), Usage.Position | Usage.Normal);
+					0, new Material(ColorAttribute.createDiffuse(Color.BLUE),
+							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(16f)),
+					Usage.Position | Usage.Normal);
 		}
-		
+
 	}
-	
+
+	public BtObject createRenderableBall() {
+		btCollisionShape collisionShape = new btSphereShape(0.5f);
+		return createRenderableBtObject(defaultBallModel, collisionShape, 1, MathUtils.random() * 10,
+				MathUtils.random() * 10 + 100, MathUtils.random() * 10);
+	}
+
 	public BtObject createBall() {
 		btCollisionShape collisionShape = new btSphereShape(0.5f);
-		return createBtObject(defaultBallModel, collisionShape, 1, MathUtils.random() * 10, MathUtils.random() * 10+100, MathUtils.random() * 10);
-	}
-	
-	public BtObject createBallNoModel() {
-		btCollisionShape collisionShape = new btSphereShape(0.5f);
-		return createBtObject(collisionShape, 1, MathUtils.random() * 10, MathUtils.random() * 10+100, MathUtils.random() * 10);
-	}
-	public BtObject createGround(){
-		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 20));
-		return createBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
-	}
-	
-	public BtObject createBtObject(Model model,btCollisionShape collisionShape,float mass,float x,float y,float z){
-		
-		BtObject btObject=createBtObject(collisionShape, mass, x, y, z);
-		
-		ModelInstance instance=new ModelInstance(model);
-		
-		btObject.getRigidBody().userData=instance;
-		
+		BtObject btObject=new BtObject();
+		initBtObject(btObject,collisionShape, 1, MathUtils.random() * 10, MathUtils.random() * 10 + 100,
+				MathUtils.random() * 10);
 		return btObject;
-		
+	}
+
+	public BtObject createRenderableGround() {
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 20));
+		return createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
 	}
 	
-public BtObject createBtObject(btCollisionShape collisionShape,float mass,float x,float y,float z){	
-		Vector3 inertia=new Vector3();
+	public BtObject createGround() {
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 20));
+		BtObject btObject=new BtObject();
+		initBtObject(btObject, collisionShape, 0, 0, 0, 0);
+		return btObject;
+	}
+
+	public RenderableBtObject createRenderableBtObject(Model model, btCollisionShape collisionShape, float mass, float x, float y,
+			float z) {
+
+		RenderableBtObject btObject = new RenderableBtObject();
+		initBtObject(btObject, collisionShape, mass, x, y, z);
+		
+		ModelInstance instance = new ModelInstance(model);
+		btObject.setInstance(instance);;
+
+		return btObject;
+
+	}
+
+	public void initBtObject(BtObject btObject, btCollisionShape collisionShape, float mass, float x, float y,float z){
+		Vector3 inertia = new Vector3();
 		collisionShape.calculateLocalInertia(mass, inertia);
 
-		btRigidBodyConstructionInfo rigidBodyConstructionInfo=new btRigidBodyConstructionInfo(mass, null, collisionShape, inertia);
+		btRigidBodyConstructionInfo rigidBodyConstructionInfo = new btRigidBodyConstructionInfo(mass, null,
+				collisionShape, inertia);
 		btDefaultMotionState motionState = new btDefaultMotionState();
-		
-		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1,1,1)));
+
+		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1, 1, 1)));
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		
-		return new BtObject(rigidBody,motionState,collisionShape,rigidBodyConstructionInfo);
-		
+		btObject.setId(random.nextLong());
+		btObject.setRigidBody(rigidBody);
+		btObject.setMotionState(motionState);
+		btObject.setCollisionShape(collisionShape);
+		btObject.setRigidBodyConstructionInfo(rigidBodyConstructionInfo);
+	}
+/*	public BtObject createBtObject(btCollisionShape collisionShape, float mass, float x, float y, float z) {
+		Vector3 inertia = new Vector3();
+		collisionShape.calculateLocalInertia(mass, inertia);
+
+		btRigidBodyConstructionInfo rigidBodyConstructionInfo = new btRigidBodyConstructionInfo(mass, null,
+				collisionShape, inertia);
+		btDefaultMotionState motionState = new btDefaultMotionState();
+
+		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1, 1, 1)));
+		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
+		rigidBody.setMotionState(motionState);
+
+		return new BtObject(random.nextLong(),rigidBody, motionState, collisionShape, rigidBodyConstructionInfo);
+
+	}*/
+	
+	public btCollisionShape getDefaultSphereShape(){
+		return new btSphereShape(0.5f);
+	}
+	
+	public btCollisionShape getDefaultGroundShape(){
+		return new btBoxShape(tempVector.set(20, 0, 20));
+	}
+
+	public BtObject createBtObject(btCollisionShape defaultSphereShape, int mass, float x,
+			float y, float z) {
+		// TODO Auto-generated method stub
+		BtObject btObject=new BtObject();
+		initBtObject(btObject, defaultSphereShape, mass, x, y, z);
+		return btObject;
 	}
 }

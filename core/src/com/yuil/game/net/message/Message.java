@@ -1,7 +1,5 @@
 package com.yuil.game.net.message;
 
-
-
 public interface Message{
 
 	public static final int TYPE_LENGTH=1;

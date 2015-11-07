@@ -130,4 +130,19 @@ public class DataUtil {
 		return data & 0x0FFFFFFFFl;
 	}
 
+	public static int appendBytes(byte[] dest,float f,int offset){
+		System.arraycopy(floatToBytes(f), 0, dest, offset, 4);;
+		return offset+4;
+	}
+	
+	public static int appendBytes(byte[] dest,int i,int offset){
+		System.arraycopy(intToBytes(i), 0, dest, offset, 4);
+		return offset+4;
+	}
+	
+	public static int appendBytes(byte[] dest,long l,int offset){
+		System.arraycopy(longToBytes(l), 0, dest, offset, 8);
+		return offset+8;
+	}
+	
 }
