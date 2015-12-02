@@ -4,6 +4,8 @@ import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.yuil.game.net.MessageListener;
+import com.yuil.game.net.Session;
 import com.yuil.game.net.message.MESSAGE_ARRAY;
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.MessageHandler;
@@ -11,8 +13,7 @@ import com.yuil.game.net.message.MessageType;
 import com.yuil.game.net.message.MessageUtil;
 import com.yuil.game.net.message.SINGLE_MESSAGE;
 import com.yuil.game.net.udp.ClientSocket;
-import com.yuil.game.net.udp.Session;
-import com.yuil.game.net.udp.UdpMessageListener;
+import com.yuil.game.net.udp.UdpSession;
 import com.yuil.game.net.udp.UdpSocket;
 import com.yuil.game.util.DataUtil;
 
@@ -28,7 +29,7 @@ public class NetSocketTest extends BaseTest {
 
 	Server server;
 	Client client;
-	static long time;
+	static volatile long time;
 
 	public NetSocketTest() throws BindException {
 		server = new Server();
@@ -95,16 +96,18 @@ public class NetSocketTest extends BaseTest {
 			messageHandlerMap=new HashMap<Integer,MessageHandler>();
 			initMessageHandlerMap();
 			
-			udpSocket.setUdpMessageListener(new UdpMessageListener() {
+			udpSocket.setMessageListener(new MessageListener() {
 
 				@Override
-				public void disposeUdpMessage(Session session, byte[] data) {
+				public void recvMessage(Session session, byte[] data) {
+					time=System.nanoTime()-time;
+					System.out.println("time:"+time);
 					// TODO Auto-generated method stub
-					int type=MessageUtil.getType(data);
+					/*int type=MessageUtil.getType(data);
 					byte[] src=DataUtil.subByte(data, data.length-Message.TYPE_LENGTH, Message.TYPE_LENGTH);
 					System.out.println("server recv:"+MessageType.values()[type]);
 					
-					messageHandlerMap.get(type).handle(src);
+					messageHandlerMap.get(type).handle(src);*/
 				}
 			});
 			udpSocket.start();
@@ -139,9 +142,9 @@ public class NetSocketTest extends BaseTest {
 		ClientSocket clientSocket;
 
 		public Client() throws BindException {
-			clientSocket = new ClientSocket(9092, "127.0.0.1", 9091, new UdpMessageListener() {
+			clientSocket = new ClientSocket(9092, "127.0.0.1", 9091, new MessageListener() {
 				@Override
-				public void disposeUdpMessage(Session session, byte[] data) {
+				public void recvMessage(Session session, byte[] data) {
 					// TODO Auto-generated method stub
 					// System.out.println("data:"+data);
 				}
@@ -150,7 +153,8 @@ public class NetSocketTest extends BaseTest {
 
 		public void sendTest() {
 			System.out.println("send");
-			clientSocket.send("asd".getBytes(), false);
+			time=System.nanoTime();
+			clientSocket.send("1".getBytes(), false);
 		}
 
 	}

@@ -1,31 +1,33 @@
 package com.yuil.game.net.udp;
 
+import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Random;
 
+import com.yuil.game.net.MessageListener;
+import com.yuil.game.net.NetSocket;
+import com.yuil.game.net.Session;
 import com.yuil.game.net.message.Message;
-import com.yuil.game.net.udp.Session;
-import com.yuil.game.net.udp.UdpMessageListener;
 
-public class ClientSocket implements UdpMessageListener {
+public class ClientSocket implements MessageListener {
 	volatile String remoteIp = null;
 	volatile int remotePort;
-	volatile UdpSocket udpSocket;
+	volatile NetSocket netSocket;
 	volatile Session session;
-	UdpMessageListener listenner = null;
+	MessageListener listenner = null;
 
 	public ClientSocket() {
 		super();
 	}
 
-	public ClientSocket(int port, String remoteIp, int remotePort, UdpMessageListener listener) {
+	public ClientSocket(int port, String remoteIp, int remotePort, MessageListener listener) {
 		super();
 		this.remoteIp = remoteIp;
 		this.remotePort = remotePort;
 		this.listenner = listener;
 		if (initUdpServer(port)) {
-			udpSocket.start();
+			netSocket.start();
 		}
 	}
 
@@ -33,8 +35,8 @@ public class ClientSocket implements UdpMessageListener {
 		if (port < 30000) {
 			try {
 				System.out.println("try start at port:" + port);
-				udpSocket = new UdpSocket(port);
-				udpSocket.setUdpMessageListener(this);
+				netSocket = new UdpSocket(port);
+				netSocket.setMessageListener(this);
 				return true;
 			} catch (BindException e) {
 				System.out.println(port + " exception!");
@@ -51,34 +53,39 @@ public class ClientSocket implements UdpMessageListener {
 
 
 	public synchronized boolean send(byte[] bytes,boolean isImmediately) {
-		if (udpSocket == null) {
+		if (netSocket == null) {
 			System.err.println("updServer==null");
 			return false;
 		} else {
 			if (session == null) {
 				System.err.println("session==null");
-				session = udpSocket.createSession(new Random().nextLong(), new InetSocketAddress(remoteIp, remotePort));
+				session = netSocket.createSession(new Random().nextLong(), new InetSocketAddress(remoteIp, remotePort));
 				System.out.println("session id:" + session.getId());
 			}
-			return udpSocket.send(bytes, session,isImmediately);
+			return netSocket.send(bytes, session,isImmediately);
 		}
 	}
-	public UdpSocket getUdpSocket() {
-		return this.udpSocket;
+	public NetSocket getUdpSocket() {
+		return this.netSocket;
 	}
 
 	public void close() {
-		if (udpSocket != null) {
-			udpSocket.close();
+		if (netSocket != null) {
+			try {
+				netSocket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@Override
-	public void disposeUdpMessage(Session session, byte[] data) {
+	public void recvMessage(Session session, byte[] data) {
 		// TODO Auto-generated method stub
 		if(listenner!=null)
 			if (data.length > Message.TYPE_LENGTH) {
-				listenner.disposeUdpMessage(session, data);
+				listenner.recvMessage(session, data);
 			}
 	}
 }

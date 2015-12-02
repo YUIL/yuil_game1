@@ -10,19 +10,20 @@ import com.yuil.game.entity.BtObjectFactory;
 import com.yuil.game.entity.BtWorld;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.EntityMessageType;
+import com.yuil.game.net.MessageListener;
+import com.yuil.game.net.NetSocket;
+import com.yuil.game.net.Session;
 import com.yuil.game.net.message.MESSAGE_ARRAY;
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.MessageHandler;
 import com.yuil.game.net.message.MessageType;
 import com.yuil.game.net.message.MessageUtil;
-import com.yuil.game.net.udp.Session;
-import com.yuil.game.net.udp.UdpMessageListener;
 import com.yuil.game.net.udp.UdpSocket;
 import com.yuil.game.util.Log;
 
-public class BtTestServer implements UdpMessageListener{
+public class BtTestServer implements MessageListener{
 
-	UdpSocket udpSocket;
+	NetSocket netSocket;
 	BroadCastor broadCastor;
 	BtWorld physicsWorld=new BtWorld();
 	volatile Thread gameWorldThread;
@@ -41,20 +42,20 @@ public class BtTestServer implements UdpMessageListener{
 	public BtTestServer(){
 		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
 		try {
-			udpSocket=new UdpSocket(9091);
+			netSocket=new UdpSocket(9091);
 		} catch (BindException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		udpSocket.setUdpMessageListener(this);
-		broadCastor=new BroadCastor(udpSocket);
+		netSocket.setMessageListener(this);
+		broadCastor=new BroadCastor(netSocket);
 		messageProcessor=new MessageProcessor();
 	}
 	public void start(){
 		Log.println("start");
 		gameWorldThread=new Thread(new WorldLogic());
 		gameWorldThread.start();
-		udpSocket.start();
+		netSocket.start();
 	}
 	
 	class WorldLogic implements Runnable{
@@ -75,7 +76,7 @@ public class BtTestServer implements UdpMessageListener{
 		
 	}
 	
-	class MessageProcessor extends com.yuil.game.net.udp.MessageProcessor{
+	class MessageProcessor extends com.yuil.game.net.MessageProcessor{
 		public  MessageProcessor() {
 			initMessageHandle();
 		}
@@ -112,7 +113,7 @@ public class BtTestServer implements UdpMessageListener{
 	}
 
 	@Override
-	public void disposeUdpMessage(Session session, byte[] data) {
+	public void recvMessage(Session session, byte[] data) {
 
 		if (data.length<Message.TYPE_LENGTH) {
 			return;

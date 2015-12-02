@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class BaseTest {
-	Map<String,Instruction> instructionMap =new HashMap<String, Instruction>();
+	protected Map<String,Instruction> instructionMap =new HashMap<String, Instruction>();
 	boolean stoped=false;
 	public void startInput(){
 		

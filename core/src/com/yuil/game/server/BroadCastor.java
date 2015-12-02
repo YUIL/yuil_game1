@@ -1,15 +1,15 @@
 package com.yuil.game.server;
 
+import com.yuil.game.net.NetSocket;
+import com.yuil.game.net.Session;
 import com.yuil.game.net.message.MESSAGE_ARRAY;
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.SINGLE_MESSAGE;
-import com.yuil.game.net.udp.Session;
-import com.yuil.game.net.udp.UdpSocket;
 
 public class BroadCastor {
-	UdpSocket udpSocket;
-	public BroadCastor(UdpSocket udpSocket){
-		this.udpSocket=udpSocket;
+	NetSocket netSocket;
+	public BroadCastor(NetSocket netSocket){
+		this.netSocket=netSocket;
 	}
 
 	public  void broadCast_SINGLE_MESSAGE(Message message, boolean isImmediately) {
@@ -25,8 +25,8 @@ public class BroadCastor {
 	}
 	
 	public  void broadCast(byte[] bytes, boolean isImmediately) {
-		for (Session session:udpSocket.sessions.values()) {
-			udpSocket.send(bytes, session, isImmediately);
+		for (Session session:netSocket.getSessions()) {
+			netSocket.send(bytes, session, isImmediately);
 		}
 	}
 }

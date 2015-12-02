@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -26,6 +27,8 @@ import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
+import com.yuil.game.net.MessageListener;
+import com.yuil.game.net.Session;
 import com.yuil.game.net.message.MESSAGE_ARRAY;
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.MessageHandler;
@@ -33,11 +36,9 @@ import com.yuil.game.net.message.MessageType;
 import com.yuil.game.net.message.MessageUtil;
 import com.yuil.game.net.message.SINGLE_MESSAGE;
 import com.yuil.game.net.udp.ClientSocket;
-import com.yuil.game.net.udp.Session;
-import com.yuil.game.net.udp.UdpMessageListener;
 import com.yuil.game.util.Log;
 
-public class TestScreen extends Screen2D implements UdpMessageListener{
+public class TestScreen extends Screen2D implements MessageListener{
 	ClientSocket clientSocket;
 	Map<Integer, MessageHandler> messageHandlerMap=new HashMap<Integer, MessageHandler>();
 
@@ -116,7 +117,7 @@ public class TestScreen extends Screen2D implements UdpMessageListener{
 	}
 
 	@Override
-	public void disposeUdpMessage(Session session, byte[] data) {
+	public void recvMessage(Session session, byte[] data) {
 		// TODO Auto-generated method stub
 		if (data.length<Message.TYPE_LENGTH) {
 			return;
@@ -203,12 +204,17 @@ public class TestScreen extends Screen2D implements UdpMessageListener{
 	}
 
 	protected void zJustPressAction() {
-		Log.println("zJustPressAction");
+		
+		Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
+		sound.play(1f,1f,1f);
+		Random random=new Random();
+		
+		//Log.println("zJustPressAction");
 		ADD_BALL add_BALL=new ADD_BALL();
-		add_BALL.setId(new Random().nextLong());
-		add_BALL.setX(10);
-		add_BALL.setY(10);
-		add_BALL.setZ(10);
+		add_BALL.setId(random.nextLong());
+		add_BALL.setX(10+random.nextInt(10));
+		add_BALL.setY(10+random.nextInt(10));
+		add_BALL.setZ(10+random.nextInt(10));
 		sendSingleMessage(add_BALL);
 	}
 

@@ -1,5 +1,7 @@
 package com.yuil.game.entity.message;
 
+import java.nio.ByteBuffer;
+
 import com.yuil.game.net.message.Message;
 import com.yuil.game.net.message.MessageUtil;
 import com.yuil.game.util.DataUtil;
@@ -11,6 +13,7 @@ public class ADD_BALL implements Message {
 	float y;
 	float z;
 	
+	long time=0;
 	
 	
 	public ADD_BALL() {
@@ -68,17 +71,27 @@ public class ADD_BALL implements Message {
 
 	@Override
 	public byte[] toBytes() {
-
 		byte[] dest=new byte[8+4+4+4+Message.TYPE_LENGTH];		
+		MessageUtil.bytesAppendType(dest, this.type);
 		
 		int offset=Message.TYPE_LENGTH;
-		MessageUtil.bytesAppendType(dest, this.type);
-		offset=DataUtil.appendBytes(dest, this.getId(), offset);
-		offset=DataUtil.appendBytes(dest, this.getX(), offset);
-		offset=DataUtil.appendBytes(dest, this.getY(), offset);
-		offset=DataUtil.appendBytes(dest, this.getZ(), offset);
+		
+		offset=DataUtil.appendBytes(dest, this.id, offset);
+		offset=DataUtil.appendBytes(dest, this.x, offset);
+		offset=DataUtil.appendBytes(dest, this.y, offset);
+		offset=DataUtil.appendBytes(dest, this.z, offset);
 		
 		return dest;
+		
+		
+	/*	ByteBuffer byteBuffer=ByteBuffer.allocate(8+4+4+4+Message.TYPE_LENGTH);
+		byteBuffer.put((byte)this.type);
+		byteBuffer.putLong(this.id);
+		byteBuffer.putFloat(this.x);
+		byteBuffer.putFloat(this.y);
+		byteBuffer.putFloat(this.z);
+	
+		return byteBuffer.array();*/
 	}
 
 }

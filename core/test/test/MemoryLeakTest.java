@@ -1,6 +1,6 @@
 package test;
 
-import com.yuil.game.net.udp.Session;
+import com.yuil.game.net.udp.UdpSession;
 import com.yuil.game.net.udp.UdpMessage;
 
 public class MemoryLeakTest {

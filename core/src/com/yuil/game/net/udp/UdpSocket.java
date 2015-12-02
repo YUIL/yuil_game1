@@ -1,6 +1,5 @@
 package com.yuil.game.net.udp;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.DatagramPacket;
@@ -8,32 +7,30 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.yuil.game.net.NetSocket;
+import com.yuil.game.net.Session;
+import com.yuil.game.net.MessageListener;
 import com.yuil.game.util.DataUtil;
 import com.yuil.game.util.Log;
 
-public class UdpSocket implements Closeable {
+public class UdpSocket implements NetSocket{
 
 	int maxSessionDelayTime = 30000;
-	// public volatile int currentSendMessageNum = 0;
 	public DatagramSocket datagramSocket;
 	public volatile boolean stoped = false;
-	// public volatile Map<Long, Session> sessionMap = new HashMap<Long,
-	// Session>();
-	public volatile Map<Long, Session> sessions = new ConcurrentHashMap<Long, Session>();
-	// SendServicer sendServicer = null;
+	public volatile Map<Long, UdpSession> sessions = new ConcurrentHashMap<Long, UdpSession>();
 	ReceiveServicer receiveServicer = null;
-	GuardThread guard = null;
 	ExecutorService sendThreadPool;
-	Thread sendThread;
 	Thread reciveThread;
 	Thread guardThread;
-	UdpMessageListener udpMessageListener;
+	MessageListener messageListener;
 	private static final UdpMessage CLOSE_MESSAGE=new UdpMessage((byte)0);
 	
 	
@@ -44,26 +41,29 @@ public class UdpSocket implements Closeable {
 	volatile long sendDataLength = 0;
 	volatile long resendDataLength = 0;
 
-	public UdpMessageListener getUdpMessageListener() {
-		return udpMessageListener;
+	public MessageListener getMessageListener() {
+		return messageListener;
 	}
 
-	public void setUdpMessageListener(UdpMessageListener udpMessageListener) {
-		this.udpMessageListener = udpMessageListener;
+	public void setMessageListener(MessageListener messageListener) {
+		this.messageListener = messageListener;
 	}
 
 	
 
-	public synchronized Session findSession(long sessionId) {
-
+	public synchronized UdpSession findSession(long sessionId) {
 		return sessions.get(sessionId);
 	}
+	
+	public  Session createSession(long sessionId, InetSocketAddress address) {
+		return (Session)createUdpSession(sessionId, address);
+	}
 
-	public synchronized Session createSession(long sessionId, InetSocketAddress address) {
-		Session session = new Session(sessionId);
+	public  UdpSession createUdpSession(long sessionId, InetSocketAddress address) {
+		UdpSession session = new UdpSession(sessionId);
 		session.setContactorAddress(address);
 		session.setSendThread(new SendServicer(session));
-		sessions.put(session.id, session);
+		sessions.put(session.getId(), session);
 		return session;
 	}
 
@@ -101,33 +101,30 @@ public class UdpSocket implements Closeable {
 			 * if (session.currentSendUdpMessage(null) != null) {
 			 * currentSendMessageNum--; }
 			 */
-			sessions.remove(session.id);
+			sessions.remove(session.getId());
 		}
 
 	}
 
 	public void start() {
 
-		// sendServicer = new SendServicer();
 		receiveServicer = new ReceiveServicer();
-		guard = new GuardThread();
+		GuardThread guard = new GuardThread();
 		guard.nextCheckTime = System.currentTimeMillis() + guard.interval;
 
-		// sendThread = new Thread(sendServicer);
 		reciveThread = new Thread(receiveServicer);
 		guardThread = new Thread(guard);
 
-		// sendThread.start();
 		reciveThread.start();
 		guardThread.start();
 
 	}
 	
-
+	@Override
 	public void close() {
 		System.out.println("close socket");
 
-		for (Session session:sessions.values()) {
+		for (UdpSession session:sessions.values()) {
 			if (send(CLOSE_MESSAGE, session, false)) {
 				try {
 					Thread.currentThread();
@@ -143,6 +140,7 @@ public class UdpSocket implements Closeable {
 		datagramSocket.close();
 	}
 
+	@Override
 	public boolean send(byte[] data, Session session, boolean isImmediately) {
 		// System.out.println("udpserver send");
 		UdpMessage message = new UdpMessage();
@@ -150,10 +148,10 @@ public class UdpSocket implements Closeable {
 		message.setType((byte) 1);
 		message.setLength(data.length);
 		message.setData(data);
-		return send(message, session, isImmediately);
+		return send(message, (UdpSession)session, isImmediately);
 	}
 
-	public boolean send(UdpMessage message, Session session, boolean isImmediately) {
+	public boolean send(UdpMessage message, UdpSession session, boolean isImmediately) {
 
 		if (isImmediately) {
 			if (session.getSendMessageBuffer().size() != 0) {
@@ -172,7 +170,7 @@ public class UdpSocket implements Closeable {
 
 	}
 
-	public boolean send(UdpMessage message, Session session) {
+	public boolean send(UdpMessage message, UdpSession session) {
 		session.getSendMessageBuffer().offer(message);
 		if (!session.isSending) {
 			session.isSending = true;
@@ -193,7 +191,7 @@ public class UdpSocket implements Closeable {
 			while (!stoped) {
 				if (System.currentTimeMillis() >= nextCheckTime) {
 					nextCheckTime += interval;
-					Iterator<Map.Entry<Long, Session>> entries = sessions.entrySet().iterator();  
+					Iterator<Map.Entry<Long, UdpSession>> entries = sessions.entrySet().iterator();  
 					while (entries.hasNext()) {  
 						 Session session=entries.next().getValue();
 						/*if(System.currentTimeMillis()-session.getLastSendTime()>session.maxUnusedTime
@@ -221,6 +219,7 @@ public class UdpSocket implements Closeable {
 
 		}
 
+		@SuppressWarnings("unused")
 		private void report() {
 			reportTimes++;
 			Log.print(reportTimes);
@@ -241,9 +240,9 @@ public class UdpSocket implements Closeable {
 	}
 
 	public class SendServicer implements Runnable {
-		volatile Session session;
+		volatile UdpSession session;
 
-		public SendServicer(Session session) {
+		public SendServicer(UdpSession session) {
 			this.session = session;
 		}
 
@@ -322,7 +321,7 @@ public class UdpSocket implements Closeable {
 			sendUdpMessage(datagramSocket, session.getContactorAddress(), message);
 		}
 
-		public synchronized void sendUdpMessage(Session session, UdpMessage message) {
+		public synchronized void sendUdpMessage(UdpSession session, UdpMessage message) {
 			// System.out.println("timeOutMulti:"+session.timeOutMultiple);
 			session.setLastSendTime(System.currentTimeMillis());
 			sendUdpMessage(datagramSocket, session.getContactorAddress(), message);
@@ -350,12 +349,13 @@ public class UdpSocket implements Closeable {
 
 	public class ReceiveServicer implements Runnable {
 
-		volatile Session session;
+		volatile UdpSession session;
 		final int bytesLength = 65515;
 		// byte[] bytes1 = new byte[bytesLength];
-		byte[] recvBuf = new byte[bytesLength];
-		UdpMessage recvMessageBuf = new UdpMessage();
-		UdpMessage responseMessage = new UdpMessage();
+		final byte[] recvBuf = new byte[bytesLength];
+		final DatagramPacket recvPacket = new DatagramPacket(recvBuf, recvBuf.length);
+		final UdpMessage recvMessageBuf = new UdpMessage();
+		final UdpMessage responseMessage = new UdpMessage();
 
 		// UdpMessage responseMessage;
 		@Override
@@ -372,7 +372,7 @@ public class UdpSocket implements Closeable {
 				// System.arraycopy(bytes1, 0, recvBuf, 0,
 				// bytesLength);//因为只收UdpMessage所以没用了
 
-				DatagramPacket recvPacket = new DatagramPacket(recvBuf, recvBuf.length);
+				
 
 				try {
 					// System.out.println("recv...");
@@ -396,7 +396,7 @@ public class UdpSocket implements Closeable {
 
 					session = findSession(recvMessageBuf.getSessionId());
 					if (session == null) {
-						session = createSession(recvMessageBuf.getSessionId(),
+						session = createUdpSession(recvMessageBuf.getSessionId(),
 								new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort()));
 						// System.out.println(session.toString());
 					}
@@ -410,8 +410,8 @@ public class UdpSocket implements Closeable {
 						if (recvMessageBuf.getSequenceId() == session.lastRecvSequenceId + 1) {
 							// session.getRecvMessageQueue().add(recvMessageBuf);
 							session.lastRecvSequenceId = recvMessageBuf.getSequenceId();
-							if (udpMessageListener != null&&recvMessageBuf.length>0) {
-								udpMessageListener.disposeUdpMessage(session, recvMessageBuf.getData());
+							if (messageListener != null&&recvMessageBuf.length>0) {
+								messageListener.recvMessage(session, recvMessageBuf.getData());
 							}
 							responseMessage.setSequenceId(recvMessageBuf.getSequenceId());
 							responseMessage.setType((byte) 2);
@@ -458,5 +458,11 @@ public class UdpSocket implements Closeable {
 			
 		}
 
+	}
+
+	@Override
+	public Collection<? extends  Session> getSessions() {
+		// TODO Auto-generated method stub
+		return sessions.values();
 	}
 }
