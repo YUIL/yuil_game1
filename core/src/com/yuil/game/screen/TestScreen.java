@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.BtObject;
@@ -24,6 +26,8 @@ import com.yuil.game.entity.PhysicsWorld;
 import com.yuil.game.entity.RenderableBtObject;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.EntityMessageType;
+import com.yuil.game.entity.message.REMOVE_BTOBJECT;
+import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
@@ -38,10 +42,11 @@ import com.yuil.game.net.message.SINGLE_MESSAGE;
 import com.yuil.game.net.udp.ClientSocket;
 import com.yuil.game.util.Log;
 
+import io.netty.buffer.ByteBuf;
+
 public class TestScreen extends Screen2D implements MessageListener{
 	ClientSocket clientSocket;
 	Map<Integer, MessageHandler> messageHandlerMap=new HashMap<Integer, MessageHandler>();
-
 	
 	
 	PhysicsWorld physicsWorld;
@@ -54,14 +59,22 @@ public class TestScreen extends Screen2D implements MessageListener{
 	ModelBatch modelBatch=new ModelBatch();
 	BtObjectFactory btObjectFactory=new BtObjectFactory(true);
 	
-	long interval=50;
-	long lastTime=0;
+	long interval=100;
+	long nextTime=0;
+	
+	Random random=new Random();
+
+	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
+	ADD_BALL add_BALL=new ADD_BALL();
+	
+	BtObject btObject;
+	Matrix4 tempMatrix4=new Matrix4();
+	UPDATE_BTRIGIDBODY tempMessage;
 	public TestScreen(MyGame game) {
 		super(game);
 		clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
 		initMessageHandle();
 		
-		// TODO Auto-generated constructor stub
 		GuiFactory guiFactory = new GuiFactory();
 		String guiXmlPath = "gui/TestScreen.xml";
 		guiFactory.setStage(stage, guiXmlPath);
@@ -72,7 +85,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 		
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(btObjectFactory.createRenderableGround());
-
+	
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
 		final float height = Gdx.graphics.getHeight();
@@ -85,8 +98,10 @@ public class TestScreen extends Screen2D implements MessageListener{
 		camera.update();
 		camController = new CameraInputController(camera);
 		
-		setUpInput();
+		setupInput();
 		InputManager.setInputProcessor(stage,camController);
+		
+		nextTime=System.currentTimeMillis();
 	}
 
 	@Override
@@ -96,13 +111,14 @@ public class TestScreen extends Screen2D implements MessageListener{
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
 
-		/*if (System.currentTimeMillis()-lastTime>interval){
-			lastTime=System.currentTimeMillis();
-			physicsWorld.addPhysicsObject(btObjectFactory.createBall());
-		}*/
-
+		if (System.currentTimeMillis()>=nextTime){
+			nextTime+=interval;
+			//physicsWorld.update(interval);
+			/*physicsWorld.addPhysicsObject(btObjectFactory.createBall());*/
+		//	zJustPressAction();
+		}
+		
 		physicsWorld.update(delta);
-
 		
 		modelBatch.begin(camera);
 
@@ -117,19 +133,19 @@ public class TestScreen extends Screen2D implements MessageListener{
 	}
 
 	@Override
-	public void recvMessage(Session session, byte[] data) {
+	public void recvMessage(Session session, ByteBuf data) {
 		// TODO Auto-generated method stub
-		if (data.length<Message.TYPE_LENGTH) {
+		if (data.array().length<Message.TYPE_LENGTH) {
 			return;
 		}
-		int typeOrdinal = MessageUtil.getType(data);
+		int typeOrdinal = MessageUtil.getType(data.array());
 		//System.out.println("type:" + GameMessageType.values()[typeOrdinal]);
-		byte[] src =MessageUtil.getMessageBytes(data);
+		ByteBuf src =MessageUtil.getMessageByteBuf(data);
 		
 		switch (MessageType.values()[typeOrdinal]) {
 		case MESSAGE_ARRAY:
 			MESSAGE_ARRAY message_ARRAY=new MESSAGE_ARRAY(src);
-			for (byte[] data1:message_ARRAY.gameMessages) {
+			for (ByteBuf data1:message_ARRAY.gameMessages) {
 				disposeSingleMessage(session, data1);
 			}
 			break;
@@ -141,17 +157,17 @@ public class TestScreen extends Screen2D implements MessageListener{
 		}		
 	}
 	
-	void disposeSingleMessage(Session session, byte[] data){
-		if (data.length<Message.TYPE_LENGTH) {
+	void disposeSingleMessage(Session session, ByteBuf data){
+		if (data.array().length<Message.TYPE_LENGTH) {
 			return;
 		}
-		int typeOrdinal = MessageUtil.getType(data);
+		int typeOrdinal = MessageUtil.getType(data.array());
 		//System.out.println("type:" + GameMessageType.values()[typeOrdinal]);
-		byte[] src =MessageUtil.getMessageBytes(data);
+		ByteBuf src =MessageUtil.getMessageByteBuf(data);
 		
 		messageHandlerMap.get(typeOrdinal).handle(src);
 	}
-	void setUpInput(){
+	void setupInput(){
 		stage.getRoot().findActor("A").addListener(new ActorInputListenner() {
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				aJustUpAction();
@@ -180,7 +196,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 		});
 		stage.getRoot().findActor("X").addListener(new ActorInputListenner() {
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-
+				delJustPressAction();
 			}
 		});
 		stage.getRoot().findActor("G").addListener(new ActorInputListenner() {
@@ -194,6 +210,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 		stage.getRoot().findActor("W").addListener(new ActorInputListenner() {
 
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				wJustPressAction() ;
 			}
 		});
 
@@ -205,22 +222,24 @@ public class TestScreen extends Screen2D implements MessageListener{
 
 	protected void zJustPressAction() {
 		
-		Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
-		sound.play(1f,1f,1f);
-		Random random=new Random();
+		sound.play();
 		
 		//Log.println("zJustPressAction");
-		ADD_BALL add_BALL=new ADD_BALL();
 		add_BALL.setId(random.nextLong());
-		add_BALL.setX(10+random.nextInt(10));
+		/*add_BALL.setX(10+random.nextInt(10));
 		add_BALL.setY(10+random.nextInt(10));
-		add_BALL.setZ(10+random.nextInt(10));
+		add_BALL.setZ(10+random.nextInt(10));*/
+		add_BALL.setX(10);
+		add_BALL.setY(10);
+		add_BALL.setZ(10);
 		sendSingleMessage(add_BALL);
 	}
 
 	protected void dJustPressAction() {
 		// TODO Auto-generated method stub
-		
+		if(btObject!=null){
+			btObject.getRigidBody().applyForce(new Vector3(100,0,0), btObject.getPosition());
+		}
 	}
 
 	protected void dJustUpAction() {
@@ -230,7 +249,11 @@ public class TestScreen extends Screen2D implements MessageListener{
 
 	protected void aJustPressAction() {
 		// TODO Auto-generated method stub
-		
+		//btObject=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, random.nextFloat(), random.nextFloat()+10 ,random.nextFloat());
+		btObject=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultPlayerModel,btObjectFactory.getDefaultCylinderShape(), 1, random.nextFloat(), random.nextFloat()+10 ,random.nextFloat());
+
+		btObject.setId(random.nextLong());
+		physicsWorld.addPhysicsObject(btObject);
 	}
 
 	protected void aJustUpAction() {
@@ -238,31 +261,66 @@ public class TestScreen extends Screen2D implements MessageListener{
 		
 	}
 	
+	protected void wJustPressAction() {
+		if(btObject!=null){
+			physicsWorld.updatePhysicsObject(tempMessage);
+		}
+	}
+
+	protected void wJustUpAction() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	protected void delJustPressAction() {
+		if(btObject!=null){
+			tempMessage=new UPDATE_BTRIGIDBODY(btObject);
+		}
+		
+	}
+
+	protected void delJustUpAction() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 	void sendSingleMessage(Message message){
-		clientSocket.send(SINGLE_MESSAGE.getBytes(message.toBytes()), false);
+		clientSocket.send(SINGLE_MESSAGE.get(message.get().array()).array(), false);
 	}
 	void sendSingleMessage(byte[] data){
-		clientSocket.send(SINGLE_MESSAGE.getBytes(data), false);
+		clientSocket.send(SINGLE_MESSAGE.get(data).array(), false);
 	}
 	
 	void initMessageHandle(){
 		messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
 			
 			@Override
-			public void handle(byte[] src) {
+			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				
 			}
 		});
 		
 		messageHandlerMap.put(EntityMessageType.ADD_BALL.ordinal(), new MessageHandler() {
-			
+			ADD_BALL message=new ADD_BALL();
 			@Override
-			public void handle(byte[] src) {
+			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
-				ADD_BALL message=new ADD_BALL(src);
-				physicsWorld.addPhysicsObject(btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ()));
+				message.set(src);
+				BtObject btObject=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ());
+				btObject.setId(message.getId());
+				physicsWorld.addPhysicsObject(btObject);
+			}
+		});
+		
+		messageHandlerMap.put(EntityMessageType.REMOVE_BTOBJECT.ordinal(), new MessageHandler() {
+			REMOVE_BTOBJECT message=new REMOVE_BTOBJECT();
+			@Override
+			public void handle(ByteBuf src) {
+				// TODO Auto-generated method stub
+				message.set(src);
+				physicsWorld.removePhysicsObject(physicsWorld.getPhysicsObjects().get(message.getId()));
 			}
 		});
 

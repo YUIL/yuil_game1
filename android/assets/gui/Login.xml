@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stage>
+    <actor id="1" type="textArea" name="userName" text="11111111111111111111111111111118">
+        <x>100</x>
+        <y>200</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="login" text="login">
+        <x>100</x>
+        <y>100</y>
+        <skin name="default"></skin>
+    </actor>
+        
+</stage>

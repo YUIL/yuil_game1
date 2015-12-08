@@ -14,6 +14,7 @@ public class BtObject extends PhysicsObject implements Disposable{
 	btDefaultMotionState motionState;
 	btCollisionShape collisionShape;
 	btRigidBodyConstructionInfo  rigidBodyConstructionInfo;
+	public Object userData;
 	
 	private Vector3 position=new Vector3();
 
@@ -33,12 +34,7 @@ public class BtObject extends PhysicsObject implements Disposable{
 		
 	}
 
-	public void update(){
-		/*if (instance!=null){
-			rigidBody.getWorldTransform(instance.transform);
-
-		}
-*/
+	public void update(float delta){
 	}
 	public  Matrix4 getTransform(){
 		return this.rigidBody.getWorldTransform();
@@ -92,21 +88,6 @@ public class BtObject extends PhysicsObject implements Disposable{
 	public void setCollisionShape(btCollisionShape collisionShape) {
 		this.collisionShape = collisionShape;
 	}
-
-
-
-
-/*	public ModelInstance getInstance() {
-		return instance;
-	}
-
-
-
-
-	public void setInstance(ModelInstance instance) {
-		this.instance = instance;
-	}
-*/
 
 
 

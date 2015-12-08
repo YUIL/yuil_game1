@@ -2,6 +2,9 @@ package com.yuil.game.net.message;
 
 import com.yuil.game.util.DataUtil;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.UnpooledByteBufAllocator;
+
 public class SINGLE_MESSAGE implements Message{
 	public final int type=MessageType.SINGLE_MESSAGE.ordinal();
 	
@@ -11,36 +14,28 @@ public class SINGLE_MESSAGE implements Message{
 		super();
 	}
 	
-	public SINGLE_MESSAGE(byte[] src) {
+	public SINGLE_MESSAGE(ByteBuf buf) {
 		super();
-		this.init(src);
+		this.set(buf);
 	}
 
 
 	@Override
-	public void init(byte[] src) {
+	public Message set(ByteBuf buf) {
 		// TODO Auto-generated method stub
-		this.data=src;
+		this.data=buf.array();
+		return this;
 	}
 
 	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		int offset=0;
-		byte[] dest=new byte[data.length+Message.TYPE_LENGTH];
-		byte[] src=DataUtil.intToBytes(this.type);
-		System.arraycopy(src, 0, dest, offset, Message.TYPE_LENGTH);offset+=Message.TYPE_LENGTH;
-		src=data;
-		System.arraycopy(src, 0, dest, offset, src.length);	
-		return dest;
+	public ByteBuf get() {
+		return get(this.data);
 	}
-	public static byte[] getBytes(byte[] data){
-		int offset=0;
-		byte[] dest=new byte[data.length+Message.TYPE_LENGTH];
-		byte[] src=DataUtil.intToBytes(MessageType.SINGLE_MESSAGE.ordinal());
-		System.arraycopy(src, 0, dest, offset, Message.TYPE_LENGTH);offset+=Message.TYPE_LENGTH;
-		src=data;
-		System.arraycopy(src, 0, dest, offset, src.length);	
-		return dest;
+	public static ByteBuf get(byte[] data){
+		ByteBuf buf=UnpooledByteBufAllocator.DEFAULT.heapBuffer(data.length+Message.TYPE_LENGTH);
+		buf.writeByte(MessageType.SINGLE_MESSAGE.ordinal());
+		buf.writeBytes(data);
+		return buf;
+		
 	}
 }

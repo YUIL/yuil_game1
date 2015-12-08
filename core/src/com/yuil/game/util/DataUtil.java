@@ -74,14 +74,14 @@ public class DataUtil {
 			b[i] = (byte) (fbit >> (24 - i * 8));
 		}
 
-		// 翻转数组
+
 		int len = b.length;
-		// 建立一个与源数组元素类型相同的数组
+
 		byte[] dest = new byte[len];
-		// 为了防止修改源数组，将源数组拷贝一份副本
+
 		System.arraycopy(b, 0, dest, 0, len);
 		byte temp;
-		// 将顺位第i个与倒数第i个交换
+
 		for (int i = 0; i < len / 2; ++i) {
 			temp = dest[i];
 			dest[i] = dest[len - i - 1];
@@ -115,18 +115,15 @@ public class DataUtil {
 		return (short) (((src[1] << 8) | src[0] & 0xff));
 	}
 
-	public static int getUnsignedNum(byte data) { // 将data字节型数据转换为0~255 (0xFF
-													// 即BYTE)。
+	public static int getUnsignedNum(byte data) { 
 		return data & 0x0FF;
 	}
 
-	public static int getUnsignedNum(short data) { // 将data字节型数据转换为0~65535
-													// (0xFFFF 即 WORD)。
+	public static int getUnsignedNum(short data) { 
 		return data & 0x0FFFF;
 	}
 
-	public static long getUnsignedNum(int data) { // 将int数据转换为0~4294967295
-													// (0xFFFFFFFF即DWORD)。
+	public static long getUnsignedNum(int data) {
 		return data & 0x0FFFFFFFFl;
 	}
 

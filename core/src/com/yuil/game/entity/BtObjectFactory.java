@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btCylinderShape;
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
@@ -28,6 +29,7 @@ public class BtObjectFactory {
 
 	public Model defaultBallModel;
 	public Model defaultGroundModel;
+	public Model defaultPlayerModel;
 
 	public BtObjectFactory(boolean haveDefaultModel) {
 		if (haveDefaultModel) {
@@ -40,6 +42,7 @@ public class BtObjectFactory {
 					0, new Material(ColorAttribute.createDiffuse(Color.BLUE),
 							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(16f)),
 					Usage.Position | Usage.Normal);
+			defaultPlayerModel=modelBuilder.createCylinder(1f, 2f, 1f, 10, new Material(ColorAttribute.createDiffuse(Color.OLIVE)), Usage.Position | Usage.Normal);
 		}
 
 	}
@@ -94,6 +97,7 @@ public class BtObjectFactory {
 		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1, 1, 1)));
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
+		rigidBody.userData=btObject;
 		
 		btObject.setId(random.nextLong());
 		btObject.setRigidBody(rigidBody);
@@ -123,6 +127,10 @@ public class BtObjectFactory {
 	
 	public btCollisionShape getDefaultGroundShape(){
 		return new btBoxShape(tempVector.set(20, 0, 20));
+	}
+	
+	public btCollisionShape getDefaultCylinderShape(){
+		return new btCylinderShape(tempVector.set(0.5f,1f,0.5f));
 	}
 
 	public BtObject createBtObject(btCollisionShape defaultSphereShape, int mass, float x,

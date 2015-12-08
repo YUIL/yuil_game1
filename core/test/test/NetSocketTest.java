@@ -18,7 +18,7 @@ import com.yuil.game.net.udp.UdpSocket;
 import com.yuil.game.util.DataUtil;
 
 public class NetSocketTest extends BaseTest {
-
+/*
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		NetSocketTest netSocketTest = new NetSocketTest();
@@ -103,11 +103,11 @@ public class NetSocketTest extends BaseTest {
 					time=System.nanoTime()-time;
 					System.out.println("time:"+time);
 					// TODO Auto-generated method stub
-					/*int type=MessageUtil.getType(data);
+					int type=MessageUtil.getType(data);
 					byte[] src=DataUtil.subByte(data, data.length-Message.TYPE_LENGTH, Message.TYPE_LENGTH);
 					System.out.println("server recv:"+MessageType.values()[type]);
 					
-					messageHandlerMap.get(type).handle(src);*/
+					messageHandlerMap.get(type).handle(src);
 				}
 			});
 			udpSocket.start();
@@ -157,5 +157,5 @@ public class NetSocketTest extends BaseTest {
 			clientSocket.send("1".getBytes(), false);
 		}
 
-	}
+	}*/
 }

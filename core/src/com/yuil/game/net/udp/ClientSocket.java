@@ -10,6 +10,12 @@ import com.yuil.game.net.NetSocket;
 import com.yuil.game.net.Session;
 import com.yuil.game.net.message.Message;
 
+import io.netty.buffer.ByteBuf;
+
+/**
+ * @author i008
+ *
+ */
 public class ClientSocket implements MessageListener {
 	volatile String remoteIp = null;
 	volatile int remotePort;
@@ -21,6 +27,12 @@ public class ClientSocket implements MessageListener {
 		super();
 	}
 
+	/**
+	 * @param port 本地端口，如已占用会自动尝试其他大于输入参数的端口
+	 * @param remoteIp 远程IP地址
+	 * @param remotePort 远程端口
+	 * @param listener 消息监听器
+	 */
 	public ClientSocket(int port, String remoteIp, int remotePort, MessageListener listener) {
 		super();
 		this.remoteIp = remoteIp;
@@ -81,10 +93,10 @@ public class ClientSocket implements MessageListener {
 	}
 
 	@Override
-	public void recvMessage(Session session, byte[] data) {
+	public void recvMessage(Session session, ByteBuf data) {
 		// TODO Auto-generated method stub
 		if(listenner!=null)
-			if (data.length > Message.TYPE_LENGTH) {
+			if (data.array().length > Message.TYPE_LENGTH) {
 				listenner.recvMessage(session, data);
 			}
 	}

@@ -8,6 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.yuil.game.net.Session;
 import com.yuil.game.net.udp.UdpSocket.SendServicer;
 
+import io.netty.buffer.ByteBuf;
+
 
 public class UdpSession extends Session{
 	
@@ -23,7 +25,7 @@ public class UdpSession extends Session{
 	volatile UdpMessage currentSendMessage;
 	public   int lastSendSequenceId;
 	public  int lastRecvSequenceId;
-	volatile Queue<UdpMessage> sendMessageBuffer = new LinkedBlockingQueue<UdpMessage>();
+	volatile Queue<ByteBuf> sendMessageBuffer = new LinkedBlockingQueue<ByteBuf>();
 	public volatile int sendMessageBufferMaxSize=100;
 	
 	public UdpSession(){
@@ -65,11 +67,11 @@ public class UdpSession extends Session{
 		this.sendMessageBufferMaxSize = sendMessageBufferMaxSize;
 	}
 
-	public Queue<UdpMessage> getSendMessageBuffer() {
+	public Queue<ByteBuf> getSendMessageBuffer() {
 		return sendMessageBuffer;
 	}
 
-	public void setSendMessageBuffer(Queue<UdpMessage> sendMessageBuffer) {
+	public void setSendMessageBuffer(Queue<ByteBuf> sendMessageBuffer) {
 		this.sendMessageBuffer = sendMessageBuffer;
 	}
 

@@ -34,9 +34,7 @@ public class GuiFactory {
     }
     
     
-    /**
-     * 从XML中解析一个Stage对象
-     */
+
 /*    public Stage getStageFromXml(String guiXmlPath, Skin skin) {
         Stage stage = new Stage(new ScreenViewport());
         setStageFromXml(stage, guiXmlPath, skin);
@@ -75,9 +73,7 @@ public class GuiFactory {
 
     }
 
-    /**
-     * 从XML中读取并配置一个Stage对象
-     */
+
     public void setStage(Stage stage, String guiXmlPath, Skin skin) {
         Element root = null;
         try {
@@ -90,9 +86,7 @@ public class GuiFactory {
 
     }
 
-    /**
-     * 根据Name从XML中得到一个Actor
-     */
+
     public Actor getActor(String guiXmlPath, String name, Skin skin) {
 
         Element root = null;
@@ -127,9 +121,7 @@ public class GuiFactory {
         return null;
     }
 
-    /**
-     * 从Element中解析一个Drawble对象
-     */
+
     protected Drawable getDrawable(Element elm) {
         return new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal(elm.getChildByName("path").getText())),
@@ -139,18 +131,14 @@ public class GuiFactory {
                 Integer.parseInt(elm.getChildByName("h").getText())));
     }
 
-    /**
-     * 从Element中读取并设置actor的一般属性
-     */
+
     protected void setActorAttribute(Actor actor, Element actorElm) {
         actor.setX(Float.parseFloat(actorElm.getChildByName("x").getText()));
         actor.setY(Float.parseFloat(actorElm.getChildByName("y").getText()));
         actor.setName(actorElm.getAttribute("name"));
     }
 
-    /**
-     * 从Element中解析一个Button对象
-     */
+
     private Button getButton(Element actorElm, Skin skin) {
 
         Button button;
@@ -192,9 +180,7 @@ public class GuiFactory {
         }
     }
 
-    /**
-     * 从Element中解析一个TextButton对象
-     */
+
     private TextButton getTextButton(Element actorElm, Skin skin) {
 
         TextButton textButton = null;
@@ -220,9 +206,7 @@ public class GuiFactory {
 
     }
 
-    /**
-     * 从Element中解析一个TextArea对象
-     */
+
     private TextArea getTextArea(Element actorElm, Skin skin) {
 
         TextArea textArea;
@@ -238,9 +222,7 @@ public class GuiFactory {
 
     }
 
-    /**
-     * 从Element中解析一个Label对象
-     */
+
     private Label getLabel(Element actorElm, Skin skin) {
 
         Label lable;
