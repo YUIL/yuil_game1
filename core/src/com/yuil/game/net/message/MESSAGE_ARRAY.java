@@ -47,6 +47,7 @@ public class MESSAGE_ARRAY implements Message {
 	
 	@Override
 	public Message set(ByteBuf buf) {
+		buf.readByte();
 		messageNum=buf.readShort();
 		messageLengths=new int[messageNum];
 		for (int i = 0; i <messageNum; i++) {

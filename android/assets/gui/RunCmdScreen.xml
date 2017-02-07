@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stage>
+    
+    
+    <actor id="1" type="label" name="console" text="console">
+        <x>450</x>
+        <y>250</y>
+        <skin name="default"></skin>
+    </actor>
+
+     <actor id="1" type="textButton" name="ButtonA" text="ButtonA">
+        <x>100</x>
+        <y>400</y>
+        <skin name="default"></skin>
+    </actor>
+    
+      <actor id="2" type="textButton" name="ButtonB" text="ButtonB">
+        <x>300</x>
+        <y>400</y>
+        <skin name="default"></skin>
+    </actor>    
+
+      <actor id="3" type="textButton" name="ButtonC" text="ButtonC">
+        <x>100</x>
+        <y>300</y>
+        <skin name="default"></skin>
+    </actor>
+    
+     <actor id="4" type="textButton" name="ButtonD" text="ButtonD">
+        <x>300</x>
+        <y>300</y>
+        <skin name="default"></skin>
+    </actor>
+    
+    <actor id="1" type="textButton" name="ButtonE" text="ButtonE">
+        <x>100</x>
+        <y>200</y>
+        <skin name="default"></skin>
+    </actor>
+    
+      <actor id="2" type="textButton" name="ButtonF" text="ButtonF">
+        <x>300</x>
+        <y>200</y>
+        <skin name="default"></skin>
+    </actor>    
+
+      <actor id="3" type="textButton" name="ButtonG" text="ButtonG">
+        <x>100</x>
+        <y>100</y>
+        <skin name="default"></skin>
+    </actor>
+    
+     <actor id="4" type="textButton" name="ButtonH" text="ButtonH">
+        <x>300</x>
+        <y>100</y>
+        <skin name="default"></skin>
+    </actor>
+</stage>

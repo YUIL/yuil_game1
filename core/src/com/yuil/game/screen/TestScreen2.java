@@ -46,7 +46,7 @@ import com.yuil.game.util.Log;
 
 import io.netty.buffer.ByteBuf;
 
-public class TestScreen extends Screen2D implements MessageListener{
+public class TestScreen2 extends Screen2D implements MessageListener{
 	ClientSocket clientSocket;
 	Map<Integer, MessageHandler> messageHandlerMap=new HashMap<Integer, MessageHandler>();
 	
@@ -65,24 +65,25 @@ public class TestScreen extends Screen2D implements MessageListener{
 	long nextTime=0;
 	
 	Random random=new Random();
-
+	
+	long playerId;
+	BtObject playerObject;
+	
 	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
-	ADD_BALL add_BALL=new ADD_BALL();
 	APPLY_FORCE apply_FORCE=new APPLY_FORCE();
 	
 	
-	BtObject btObject;
 	Matrix4 tempMatrix4=new Matrix4();
 	UPDATE_BTRIGIDBODY tempMessage;
 	
 	boolean isLogin=false;
-	public TestScreen(MyGame game) {
+	public TestScreen2(MyGame game) {
 		super(game);
 		clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
 		initMessageHandle();
 		
 		GuiFactory guiFactory = new GuiFactory();
-		String guiXmlPath = "gui/TestScreen.xml";
+		String guiXmlPath = "gui/TestScreen2.xml";
 		guiFactory.setStage(stage, guiXmlPath);
 
 		lights = new Environment();
@@ -112,6 +113,19 @@ public class TestScreen extends Screen2D implements MessageListener{
 
 	@Override
 	public void render(float delta) {
+		
+		if(playerObject==null){
+			if (playerId!=0){
+				playerObject=(BtObject) physicsWorld.getPhysicsObjects().get(playerId);
+			}
+		}else{
+			//System.out.println("x:"+playerObject.getPosition().x);
+			camera.position.set(playerObject.getPosition().x, 15f, playerObject.getPosition().z+20);
+			//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
+			camera.update();
+		}
+		
+		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1.f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -240,16 +254,10 @@ public class TestScreen extends Screen2D implements MessageListener{
 	protected void zJustPressAction() {
 		if(isLogin){
 			//sound.play();
-			
-			Log.println("zJustPressAction");
-			add_BALL.setId(random.nextLong());
-			add_BALL.setX(10+random.nextInt(10));
-			add_BALL.setY(10+random.nextInt(10));
-			add_BALL.setZ(10+random.nextInt(10));
-			/*add_BALL.setX(10);
-			add_BALL.setY(10);
-			add_BALL.setZ(10);
-			*/sendSingleMessage(add_BALL);
+			if (playerId==0){
+				ADD_PLAYER add_player=new ADD_PLAYER();
+				sendSingleMessage(add_player);
+			}
 		}else{
 			TEST message=new TEST();
 			sendSingleMessage(message);
@@ -259,9 +267,9 @@ public class TestScreen extends Screen2D implements MessageListener{
 
 	protected void dJustPressAction() {
 		// TODO Auto-generated method stub
-		if(btObject!=null){
-			apply_FORCE.setX(100);
-			apply_FORCE.setId(btObject.getId());
+		if(playerId!=0){
+			apply_FORCE.setX(10);
+			apply_FORCE.setId(playerId);
 			sendSingleMessage(apply_FORCE);
 		}
 	}
@@ -278,9 +286,9 @@ public class TestScreen extends Screen2D implements MessageListener{
 //
 //		btObject.setId(random.nextLong());
 //		physicsWorld.addPhysicsObject(btObject);
-		if(btObject!=null){
-			apply_FORCE.setX(-100);
-			apply_FORCE.setId(btObject.getId());
+		if(playerId!=0){
+			apply_FORCE.setX(-10);
+			apply_FORCE.setId(playerId);
 			sendSingleMessage(apply_FORCE);
 		}
 	}
@@ -295,11 +303,6 @@ public class TestScreen extends Screen2D implements MessageListener{
 //		if(btObject!=null){
 //			physicsWorld.updatePhysicsObject(tempMessage);
 //		}
-		if(btObject!=null){
-			apply_FORCE.setY(100);
-			apply_FORCE.setId(btObject.getId());
-			sendSingleMessage(apply_FORCE);
-		}
 	}
 
 	protected void wJustUpAction() {
@@ -311,17 +314,9 @@ public class TestScreen extends Screen2D implements MessageListener{
 //		if(btObject!=null){
 //			physicsWorld.updatePhysicsObject(tempMessage);
 //		}
-		if(btObject!=null){
-			apply_FORCE.setY(-100);
-			apply_FORCE.setId(btObject.getId());
-			sendSingleMessage(apply_FORCE);
-		}
 	}
 	
 	protected void delJustPressAction() {
-		if(btObject!=null){
-			tempMessage=new UPDATE_BTRIGIDBODY(btObject);
-		}
 		
 	}
 
@@ -341,6 +336,16 @@ public class TestScreen extends Screen2D implements MessageListener{
 	}
 	
 	void initMessageHandle(){
+		messageHandlerMap.put(EntityMessageType.ADD_PLAYER.ordinal(), new MessageHandler() {
+			ADD_PLAYER message=new ADD_PLAYER();
+			@Override
+			public void handle(ByteBuf src) {
+				// TODO Auto-generated method stub
+				message.set(src);
+				System.out.println("added player");
+				playerId=message.getId();
+			}
+		});
 		messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
 			
 			@Override
@@ -360,7 +365,8 @@ public class TestScreen extends Screen2D implements MessageListener{
 				BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ());
 				btObject1.setId(message.getId());
 				physicsWorld.addPhysicsObject(btObject1);
-				btObject=btObject1;
+				
+				
 			}
 		});
 		
@@ -390,6 +396,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
+				System.out.println("asdasdasd");
 				message.set(src);
 				physicsWorld.updatePhysicsObject(message);
 			}

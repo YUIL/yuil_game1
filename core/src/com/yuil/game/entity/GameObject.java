@@ -1,5 +1,5 @@
 package com.yuil.game.entity;
 
-public class GameObject {
 
+public abstract class GameObject implements Transformational{
 }

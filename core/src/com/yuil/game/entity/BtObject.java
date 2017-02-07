@@ -120,6 +120,13 @@ public class BtObject extends PhysicsObject implements Disposable{
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "BtObject [rigidBody=" + rigidBody + ", motionState=" + motionState + ", collisionShape="
+				+ collisionShape + ", rigidBodyConstructionInfo=" + rigidBodyConstructionInfo + ", userData=" + userData
+				+ ", position=" + position + "]";
+	}
+
 	
 	
 }

@@ -18,7 +18,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.utils.Disposable;
+import com.yuil.game.entity.message.APPLY_FORCE;
 import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.server.BtTestServer2;
 
 public class BtWorld extends PhysicsWorld implements Disposable{
 	
@@ -26,6 +28,9 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 	Queue<BtObject> addPhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
 	Queue<BtObject> removePhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
 	Queue<UPDATE_BTRIGIDBODY> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTRIGIDBODY>();
+	Queue<APPLY_FORCE> applyForceQueue=new  ConcurrentLinkedQueue<APPLY_FORCE>();
+
+	
 	btCollisionConfiguration collisionConfiguration;
 	btCollisionDispatcher dispatcher;
 	btBroadphaseInterface broadphase;
@@ -52,7 +57,6 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 	
 	public void update(float delta){
 
-		collisionWorld.stepSimulation(delta,5);
 		collisionDetect();
 		for (BtObject btObject : physicsObjects.values()) {
 			//System.out.println(btObject.rigidBody.getWorldTransform());
@@ -76,23 +80,42 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 			}
 		}
 
+		for (int i = 0; i < applyForceQueue.size(); i++) {
+			APPLY_FORCE message=applyForceQueue.poll();
+			BtObject btObject=physicsObjects.get(message.getId());
+			
+			if (btObject!=null){
+				tempVector3.x=message.getX();
+				tempVector3.y=message.getY();
+				tempVector3.z=message.getZ();
+				btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+				BtTestServer2.btObjectBroadCastQueue.add(btObject);
+				
+			}
+				
+		}
+		
+		
 		for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
 			UPDATE_BTRIGIDBODY message=updatePhysicsObjectQueue.poll();
 			BtObject btObject=physicsObjects.get(message.getId());
 			if (btObject!=null){
 				tempMatrix4.set(message.getTransformVal());
 				btObject.getRigidBody().setWorldTransform(tempMatrix4);
+				
 				tempVector3.x=message.getLinearVelocityX();
 				tempVector3.y=message.getLinearVelocityY();
 				tempVector3.z=message.getLinearVelocityZ();
 				btObject.getRigidBody().setLinearVelocity(tempVector3);
+				
 				tempVector3.x=message.getAngularVelocityX();
 				tempVector3.y=message.getAngularVelocityY();
 				tempVector3.z=message.getAngularVelocityZ();
 				btObject.getRigidBody().setAngularVelocity(tempVector3);
-			}
-			
+			}	
 		}
+		collisionWorld.stepSimulation(delta,5);
+
 		
 	}
 	
@@ -160,6 +183,12 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
 		// TODO Auto-generated method stub
 		this.updatePhysicsObjectQueue.add(message);
+	}
+
+	@Override
+	public void applyForce(APPLY_FORCE message) {
+		// TODO Auto-generated method stub
+		this.applyForceQueue.add(message);
 	}
 
 }

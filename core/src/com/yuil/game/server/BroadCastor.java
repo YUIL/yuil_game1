@@ -17,7 +17,6 @@ public class BroadCastor {
 	
 	public  void broadCast_SINGLE_MESSAGE(Message message, boolean isImmediately) {
 		broadCast(SINGLE_MESSAGE.get(message.get().array()), isImmediately);
-		message.get().release();
 	}
 	public  void broadCast_SINGLE_MESSAGE(ByteBuf message, boolean isImmediately) {
 		broadCast(SINGLE_MESSAGE.get(message.array()), isImmediately);
@@ -33,8 +32,14 @@ public class BroadCastor {
 	}
 	
 	public  void broadCast(ByteBuf data, boolean isImmediately) {
+		System.out.println("broadcast");
+
 		for (Session session:netSocket.getSessions()) {
+			data.retain();
 			netSocket.send(data, session, isImmediately);
+		}
+		if(netSocket.getSessions().size()>1){
+			data.release();
 		}
 	}
 }

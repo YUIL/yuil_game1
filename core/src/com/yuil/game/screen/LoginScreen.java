@@ -49,8 +49,8 @@ public class LoginScreen extends Screen2D {
 			public void touchUp(InputEvent event, float x, float y,
 					int pointer, int button) {
 				//(MyGdxGame)game).openId;
-				MyGame.openId=((TextArea) stage.getRoot().findActor("userName")).getText();
-				game.setScreen(new TestScreen(game));
+				//MyGame.openId=((TextArea) stage.getRoot().findActor("userName")).getText();
+				game.setScreen(new TestScreen2(game));
 				
 			}
 		});

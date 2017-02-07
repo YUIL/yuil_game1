@@ -23,6 +23,8 @@ public class SINGLE_MESSAGE implements Message{
 	@Override
 	public Message set(ByteBuf buf) {
 		// TODO Auto-generated method stub
+		buf.readByte();
+		buf.discardReadBytes();
 		this.data=buf.array();
 		return this;
 	}

@@ -7,7 +7,7 @@ public class Bullet extends AliveObject{
 
 	public Bullet() {
 		super();
-		this.h=1;
+		this.h=20;
 		// TODO Auto-generated constructor stub
 	}
 

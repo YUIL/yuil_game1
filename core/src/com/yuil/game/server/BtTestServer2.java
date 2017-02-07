@@ -1,14 +1,19 @@
 package com.yuil.game.server;
 
 import java.net.BindException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.CollisionJNI;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
@@ -20,6 +25,7 @@ import com.yuil.game.entity.BtWorld;
 import com.yuil.game.entity.Bullet;
 import com.yuil.game.entity.AliveObject;
 import com.yuil.game.entity.message.ADD_BALL;
+import com.yuil.game.entity.message.ADD_PLAYER;
 import com.yuil.game.entity.message.APPLY_FORCE;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.REMOVE_BTOBJECT;
@@ -39,13 +45,17 @@ import com.yuil.game.util.Log;
 
 import io.netty.buffer.ByteBuf;
 
-public class BtTestServer implements MessageListener {
+public class BtTestServer2 implements MessageListener {
 
 	NetSocket netSocket;
 	BroadCastor broadCastor;
 	BtWorld physicsWorld = new BtWorld();
 	volatile Thread gameWorldThread;
 
+	Random random=new Random();
+	List<Long> playerList=new ArrayList();
+	Vector3 tempVector3=new Vector3(0,0,-20);
+	
 	BtObjectFactory btObjectFactory = new BtObjectFactory(false);
 	Map<Integer, MessageHandler> messageHandlerMap = new HashMap<Integer, MessageHandler>();
 	MessageProcessor messageProcessor;
@@ -120,11 +130,11 @@ public class BtTestServer implements MessageListener {
 	    }
 	}
 	public static void main(String[] args) {
-		BtTestServer btTestServer = new BtTestServer();
+		BtTestServer2 btTestServer = new BtTestServer2();
 		btTestServer.start();
 	}
 
-	public BtTestServer() {
+	public BtTestServer2() {
 		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
 		contactListener=new MyContactListener();
 		
@@ -157,13 +167,29 @@ public class BtTestServer implements MessageListener {
 			nextUpdateTime=System.currentTimeMillis();
 			while (true) {
 				if (System.currentTimeMillis() >= nextUpdateTime  ) {
+					
+					for (Iterator iterator = playerList.iterator(); iterator.hasNext();) {
+						Long playerId = (Long) iterator.next();
+						BtObject btObject=physicsWorld.getPhysicsObjects().get(playerId);
+						if (btObject!=null){
+							if(btObject.getRigidBody().getLinearVelocity().z>-0.3){
+								tempVector3.set(0,0,-20);
+								btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+							}
+							if(btObject.getPosition().z<-180){
+								tempVector3.set(btObject.getPosition().x,btObject.getPosition().y,-20);
+								btObject.setPosition(tempVector3);
+							}
+						}
+					}
 					nextUpdateTime+=interval;
 					physicsWorld.update(interval/1000f);
 					for (int i = 0; i < btObjectBroadCastQueue.size(); i++) {
 						BtObject btObject=btObjectBroadCastQueue.poll();
-						
+						System.out.println("uuuu1");
 						if (btObject.getRigidBody()!=null) {
 							update_BTRIGIDBODY.set(btObject);
+							System.out.println("uuuuuuuu");
 							broadCastor.broadCast_SINGLE_MESSAGE(update_BTRIGIDBODY, false);
 
 						}
@@ -185,6 +211,28 @@ public class BtTestServer implements MessageListener {
 
 	class MessageProcessor extends com.yuil.game.net.MessageProcessor {
 		public MessageProcessor() {
+			messageHandlerMap.put(EntityMessageType.ADD_PLAYER.ordinal(), new MessageHandler() {
+				ADD_PLAYER message=new ADD_PLAYER();
+				@Override
+				public void handle(ByteBuf src) {
+					// TODO Auto-generated method stub
+					long id=random.nextLong();
+					message.setId(id);
+					netSocket.send(SINGLE_MESSAGE.get(message.get().array()), session, false);
+					ADD_BALL add_ball = new ADD_BALL();
+					add_ball.setX(10);
+					add_ball.setY(10);
+					add_ball.setZ(10);
+					BtObject btObject=btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(),1, add_ball.getX(), add_ball.getY(), add_ball.getZ());
+					
+					add_ball.setId(id);
+					btObject.setId(id);
+					btObject.userData=new Bullet();
+					physicsWorld.addPhysicsObject(btObject);
+					broadCastor.broadCast_SINGLE_MESSAGE(add_ball, false);
+					playerList.add(id);
+				}
+			});
 			messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
 				@Override
 				public void handle(ByteBuf src) {
@@ -200,17 +248,20 @@ public class BtTestServer implements MessageListener {
 					// TODO Auto-generated method stub
 					message.set(src);
 					BtObject btObject=btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(),1, message.getX(), message.getY(), message.getZ());
-					btObject.setId(message.getId());
+					long id=random.nextLong();
+					message.setId(id);
+					btObject.setId(id);
 					btObject.userData=new Bullet();
 					physicsWorld.addPhysicsObject(btObject);
 					broadCastor.broadCast_SINGLE_MESSAGE(message, false);
 				}
 			});
 			messageHandlerMap.put(EntityMessageType.APPLY_FORCE.ordinal(), new MessageHandler() {
-				APPLY_FORCE message=new APPLY_FORCE();
+				
 				@Override
 				public void handle(ByteBuf src) {
 					// TODO Auto-generated method stub
+					APPLY_FORCE message=new APPLY_FORCE();
 					System.out.println("apppp");
 					message.set(src);
 					physicsWorld.applyForce(message);					

@@ -64,6 +64,7 @@ public class ADD_BALL implements Message {
 	@Override
 	public Message set(ByteBuf buf) {
 		// TODO Auto-generated method stub
+		buf.readByte();
 		this.setId(buf.readLong());
 		this.setX(buf.readFloat());
 		this.setY(buf.readFloat());
