@@ -172,11 +172,16 @@ public class BtTestServer2 implements MessageListener {
 						Long playerId = (Long) iterator.next();
 						BtObject btObject=physicsWorld.getPhysicsObjects().get(playerId);
 						if (btObject!=null){
+							//System.out.println(btObject.getPosition().z);
 							if(btObject.getRigidBody().getLinearVelocity().z>-0.3){
 								tempVector3.set(0,0,-20);
 								btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+								BtTestServer2.btObjectBroadCastQueue.add(btObject);
+
 							}
 							if(btObject.getPosition().z<-180){
+								System.out.println(btObject.getPosition().z);
+
 								tempVector3.set(btObject.getPosition().x,btObject.getPosition().y,-20);
 								btObject.setPosition(tempVector3);
 							}
