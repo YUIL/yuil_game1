@@ -362,10 +362,11 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				// TODO Auto-generated method stub
 
 				message.set(src);
-				BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ());
-				btObject1.setId(message.getId());
-				physicsWorld.addPhysicsObject(btObject1);
-				
+				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
+					BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ());
+					btObject1.setId(message.getId());
+					physicsWorld.addPhysicsObject(btObject1);
+				}
 				
 			}
 		});
@@ -396,8 +397,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
-				System.out.println("asdasdasd");
 				message.set(src);
+				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
+					BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, 0, 10000, 0);
+					btObject1.setId(message.getId());
+					physicsWorld.addPhysicsObject(btObject1);
+				}
 				physicsWorld.updatePhysicsObject(message);
 			}
 		});

@@ -32,7 +32,7 @@ public class BroadCastor {
 	}
 	
 	public  void broadCast(ByteBuf data, boolean isImmediately) {
-		System.out.println("broadcast");
+		//System.out.println("broadcast");
 
 		for (Session session:netSocket.getSessions()) {
 			data.retain();

@@ -188,6 +188,7 @@ public class UdpSocket implements NetSocket {
 		return true;
 	}
 
+	//保持sessions的活跃状态， 定时发消息
 	public class GuardThread implements Runnable {
 		int interval = 10000;
 		long nextCheckTime;

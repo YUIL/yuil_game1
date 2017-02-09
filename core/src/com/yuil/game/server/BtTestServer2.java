@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.CollisionJNI;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
@@ -55,6 +56,7 @@ public class BtTestServer2 implements MessageListener {
 	Random random=new Random();
 	List<Long> playerList=new ArrayList();
 	Vector3 tempVector3=new Vector3(0,0,-20);
+	Matrix4 tempMatrix4=new Matrix4();
 	
 	BtObjectFactory btObjectFactory = new BtObjectFactory(false);
 	Map<Integer, MessageHandler> messageHandlerMap = new HashMap<Integer, MessageHandler>();
@@ -180,10 +182,17 @@ public class BtTestServer2 implements MessageListener {
 
 							}
 							if(btObject.getPosition().z<-180){
-								System.out.println(btObject.getPosition().z);
+								btObject.getRigidBody().getWorldTransform(tempMatrix4);
+								tempMatrix4.setTranslation(btObject.getPosition().x,btObject.getPosition().y,-20);
+								btObject.getRigidBody().setWorldTransform(tempMatrix4);
+								BtTestServer2.btObjectBroadCastQueue.add(btObject);
+							}
+							if(Math.abs(btObject.getPosition().x)>19){
+								tempVector3.set(btObject.getRigidBody().getLinearVelocity());
+								tempVector3.x=tempVector3.x*-1;
+								btObject.getRigidBody().setLinearVelocity(tempVector3);
+								BtTestServer2.btObjectBroadCastQueue.add(btObject);
 
-								tempVector3.set(btObject.getPosition().x,btObject.getPosition().y,-20);
-								btObject.setPosition(tempVector3);
 							}
 						}
 					}
@@ -191,12 +200,9 @@ public class BtTestServer2 implements MessageListener {
 					physicsWorld.update(interval/1000f);
 					for (int i = 0; i < btObjectBroadCastQueue.size(); i++) {
 						BtObject btObject=btObjectBroadCastQueue.poll();
-						System.out.println("uuuu1");
 						if (btObject.getRigidBody()!=null) {
 							update_BTRIGIDBODY.set(btObject);
-							System.out.println("uuuuuuuu");
 							broadCastor.broadCast_SINGLE_MESSAGE(update_BTRIGIDBODY, false);
-
 						}
 					}
 					// broadCastor.broadCast_GAME_MESSAGE(data, false);
@@ -267,7 +273,6 @@ public class BtTestServer2 implements MessageListener {
 				public void handle(ByteBuf src) {
 					// TODO Auto-generated method stub
 					APPLY_FORCE message=new APPLY_FORCE();
-					System.out.println("apppp");
 					message.set(src);
 					physicsWorld.applyForce(message);					
 					
