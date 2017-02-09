@@ -24,6 +24,7 @@ import com.yuil.game.entity.BtObjectFactory;
 import com.yuil.game.entity.BtWorld;
 import com.yuil.game.entity.PhysicsObject;
 import com.yuil.game.entity.PhysicsWorld;
+import com.yuil.game.entity.PhysicsWorldBuilder;
 import com.yuil.game.entity.RenderableBtObject;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.EntityMessageType;
@@ -50,7 +51,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	ClientSocket clientSocket;
 	Map<Integer, MessageHandler> messageHandlerMap=new HashMap<Integer, MessageHandler>();
 	
-	
+	PhysicsWorldBuilder physicsWorldBuilder;
 	PhysicsWorld physicsWorld;
 	Environment lights;
 
@@ -59,7 +60,6 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	CameraInputController camController;
 
 	ModelBatch modelBatch=new ModelBatch();
-	BtObjectFactory btObjectFactory=new BtObjectFactory(true);
 	
 	long interval=100;
 	long nextTime=0;
@@ -90,8 +90,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		lights.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.2f, 0.2f, 0.2f, 1.f));
 		lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, -1f, -0.7f));
 		
+		physicsWorldBuilder =new PhysicsWorldBuilder();
 		physicsWorld = new BtWorld();
-		physicsWorld.addPhysicsObject(btObjectFactory.createRenderableGround());
+		physicsWorld.addPhysicsObject(physicsWorldBuilder.createRenderableGround());
 	
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
@@ -363,8 +364,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 				message.set(src);
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
-					BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, message.getX(), message.getY(), message.getZ());
+					RenderableBtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
 					btObject1.setId(message.getId());
+					
 					physicsWorld.addPhysicsObject(btObject1);
 				}
 				
@@ -399,7 +401,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				// TODO Auto-generated method stub
 				message.set(src);
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
-					BtObject btObject1=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, 0, 10000, 0);
+					BtObject btObject1=physicsWorldBuilder.createDefaultBall(1, 0, 10000, 0);
 					btObject1.setId(message.getId());
 					physicsWorld.addPhysicsObject(btObject1);
 				}
