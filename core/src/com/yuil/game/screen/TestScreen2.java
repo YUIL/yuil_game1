@@ -92,7 +92,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		
 		physicsWorldBuilder =new PhysicsWorldBuilder();
 		physicsWorld = new BtWorld();
-		physicsWorld.addPhysicsObject(physicsWorldBuilder.createRenderableGround());
+		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 	
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();

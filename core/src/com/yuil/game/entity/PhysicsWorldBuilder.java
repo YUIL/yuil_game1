@@ -1,7 +1,7 @@
 package com.yuil.game.entity;
 
 public class PhysicsWorldBuilder {
-	BtObjectFactory btObjectFactory;
+	public BtObjectFactory btObjectFactory;
 	
 	public PhysicsWorldBuilder() {
 		super();
