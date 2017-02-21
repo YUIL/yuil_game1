@@ -51,6 +51,7 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		solver = new btSequentialImpulseConstraintSolver();
 		collisionWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 		collisionWorld.setGravity(gravity);
+
 		this.physicsObjects=new ConcurrentHashMap<Long, BtObject>();
 		
 	}

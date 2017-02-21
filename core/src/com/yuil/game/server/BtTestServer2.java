@@ -160,7 +160,7 @@ public class BtTestServer2 implements MessageListener {
 
 	class WorldLogic implements Runnable {
 
-		int interval = 50;
+		int interval = 17;
 		long nextUpdateTime = 0;
 
 		@Override
@@ -175,12 +175,14 @@ public class BtTestServer2 implements MessageListener {
 						BtObject btObject=physicsWorld.getPhysicsObjects().get(playerId);
 						if (btObject!=null){
 							//System.out.println(btObject.getPosition().z);
-							if(btObject.getRigidBody().getLinearVelocity().z>-0.3){
-								tempVector3.set(0,0,-20);
-								btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
-								BtTestServer2.btObjectBroadCastQueue.add(btObject);
+							//if(btObject.getRigidBody().getLinearVelocity().z>-0.3){
+								//tempVector3.set(0,0,-20);
+								//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+								//BtTestServer2.btObjectBroadCastQueue.add(btObject);
 
-							}
+							//}
+							
+							
 							if(btObject.getPosition().z<-180){
 								btObject.getRigidBody().getWorldTransform(tempMatrix4);
 								tempMatrix4.setTranslation(btObject.getPosition().x,btObject.getPosition().y,-20);
@@ -188,9 +190,21 @@ public class BtTestServer2 implements MessageListener {
 								BtTestServer2.btObjectBroadCastQueue.add(btObject);
 							}
 							if(Math.abs(btObject.getPosition().x)>19){
+								final float offset=0.01f;
+								if(btObject.getRigidBody().getLinearVelocity().x>0){
+									tempMatrix4.set(btObject.getTransform());
+									tempMatrix4.setTranslation(19-offset, btObject.getPosition().y, btObject.getPosition().z);
+								}else{
+									tempMatrix4.set(btObject.getTransform());
+									tempMatrix4.setTranslation(-19+offset, btObject.getPosition().y, btObject.getPosition().z);
+								}
+								btObject.getRigidBody().setWorldTransform(tempMatrix4);
 								tempVector3.set(btObject.getRigidBody().getLinearVelocity());
-								tempVector3.x=tempVector3.x*-1;
+								tempVector3.x=tempVector3.x*-0.5f;
 								btObject.getRigidBody().setLinearVelocity(tempVector3);
+								
+							
+								
 								BtTestServer2.btObjectBroadCastQueue.add(btObject);
 
 							}
@@ -232,7 +246,7 @@ public class BtTestServer2 implements MessageListener {
 					netSocket.send(SINGLE_MESSAGE.get(message.get().array()), session, false);
 					ADD_BALL add_ball = new ADD_BALL();
 					add_ball.setX(10);
-					add_ball.setY(10);
+					add_ball.setY(5f);
 					add_ball.setZ(10);
 					BtObject btObject=btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(),1, add_ball.getX(), add_ball.getY(), add_ball.getZ());
 					
@@ -242,6 +256,10 @@ public class BtTestServer2 implements MessageListener {
 					physicsWorld.addPhysicsObject(btObject);
 					broadCastor.broadCast_SINGLE_MESSAGE(add_ball, false);
 					playerList.add(id);
+					
+					tempVector3.set(btObject.getRigidBody().getLinearVelocity().x,btObject.getRigidBody().getLinearVelocity().y,-10f);
+					btObject.getRigidBody().setLinearVelocity(tempVector3);
+					BtTestServer2.btObjectBroadCastQueue.add(btObject);
 				}
 			});
 			messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {

@@ -138,7 +138,6 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			/*physicsWorld.addPhysicsObject(btObjectFactory.createBall());*/
 		//	zJustPressAction();
 		}
-		
 		physicsWorld.update(delta);
 		
 		modelBatch.begin(camera);
@@ -401,7 +400,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				// TODO Auto-generated method stub
 				message.set(src);
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
-					BtObject btObject1=physicsWorldBuilder.createDefaultBall(1, 0, 10000, 0);
+					BtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
 					btObject1.setId(message.getId());
 					physicsWorld.addPhysicsObject(btObject1);
 				}
