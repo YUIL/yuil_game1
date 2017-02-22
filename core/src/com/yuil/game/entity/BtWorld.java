@@ -89,7 +89,9 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 				tempVector3.x=message.getX();
 				tempVector3.y=message.getY();
 				tempVector3.z=message.getZ();
-				btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+				//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+				
+				btObject.getRigidBody().setLinearVelocity(tempVector3);
 				BtTestServer2.btObjectBroadCastQueue.add(btObject);
 				
 			}

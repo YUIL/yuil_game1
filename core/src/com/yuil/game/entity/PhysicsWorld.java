@@ -11,7 +11,7 @@ import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
 public abstract class  PhysicsWorld {
 	
 	
-	Vector3 gravity = new Vector3(0, 0f, 0);
+	Vector3 gravity = new Vector3(0, -9.81f, 0);
 	//Vector3 gravity = new Vector3(0, -9.81f, 0);
 	
 	public PhysicsWorld(){

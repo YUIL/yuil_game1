@@ -183,7 +183,7 @@ public class BtTestServer2 implements MessageListener {
 							//}
 							
 							
-							if(btObject.getPosition().z<-180){
+							if(btObject.getPosition().z<-199){
 								btObject.getRigidBody().getWorldTransform(tempMatrix4);
 								tempMatrix4.setTranslation(btObject.getPosition().x,btObject.getPosition().y,-20);
 								btObject.getRigidBody().setWorldTransform(tempMatrix4);

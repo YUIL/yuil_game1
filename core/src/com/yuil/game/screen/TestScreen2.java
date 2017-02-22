@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -34,6 +36,7 @@ import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
+import com.yuil.game.input.KeyboardStatus;
 import com.yuil.game.net.MessageListener;
 import com.yuil.game.net.Session;
 import com.yuil.game.net.message.MESSAGE_ARRAY;
@@ -54,8 +57,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	PhysicsWorldBuilder physicsWorldBuilder;
 	PhysicsWorld physicsWorld;
 	Environment lights;
-
-
+	
+	KeyboardStatus keyboardStatus=new KeyboardStatus();
+	
 	public PerspectiveCamera camera;
 	CameraInputController camController;
 
@@ -106,7 +110,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		camera.update();
 		camController = new CameraInputController(camera);
 		
-		setupInput();
+		setupActorInput();
 		InputManager.setInputProcessor(stage,camController);
 		
 		nextTime=System.currentTimeMillis();
@@ -114,14 +118,14 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	@Override
 	public void render(float delta) {
-		
+		checkKeyBoardStatus();
 		if(playerObject==null){
 			if (playerId!=0){
 				playerObject=(BtObject) physicsWorld.getPhysicsObjects().get(playerId);
 			}
 		}else{
 			//System.out.println("x:"+playerObject.getPosition().x);
-			camera.position.set(playerObject.getPosition().x, 15f, playerObject.getPosition().z+20);
+			camera.position.set(playerObject.getPosition().x, playerObject.getPosition().y+2f, playerObject.getPosition().z+5);
 			//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
 			camera.update();
 		}
@@ -191,7 +195,35 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		int typeOrdinal = MessageUtil.getType(data.array());
 		messageHandlerMap.get(typeOrdinal).handle(data);
 	}
-	void setupInput(){
+	void checkKeyBoardStatus(){
+		if (Gdx.input.isKeyJustPressed(Keys.A)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setaJustPress(true);
+			aJustPressAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.A)==false&& keyboardStatus.isaJustPress()) {
+			keyboardStatus.setaJustPress(false);
+			if(Gdx.input.isKeyPressed(Keys.D)){
+				dJustPressAction();;
+			}else{
+				aJustUpAction();
+			}
+		}
+		if (Gdx.input.isKeyJustPressed(Keys.D)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setdJustPress(true);
+			dJustPressAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.D)==false&& keyboardStatus.isdJustPress()) {
+			keyboardStatus.setdJustPress(false);
+			if(Gdx.input.isKeyPressed(Keys.A)){
+				aJustPressAction();;
+			}else{
+				dJustUpAction();
+			}
+		}
+	}
+	void setupActorInput(){
 		stage.getRoot().findActor("A").addListener(new ActorInputListenner() {
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				aJustUpAction();
@@ -269,14 +301,24 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		// TODO Auto-generated method stub
 		if(playerId!=0){
 			apply_FORCE.setX(10);
+			apply_FORCE.setY(playerObject.getRigidBody().getLinearVelocity().y);
+			apply_FORCE.setZ(playerObject.getRigidBody().getLinearVelocity().z);
 			apply_FORCE.setId(playerId);
+			physicsWorld.applyForce(apply_FORCE);
 			sendSingleMessage(apply_FORCE);
 		}
 	}
 
 	protected void dJustUpAction() {
 		// TODO Auto-generated method stub
-		
+		if(playerId!=0){
+			apply_FORCE.setX(0);
+			apply_FORCE.setY(playerObject.getRigidBody().getLinearVelocity().y);
+			apply_FORCE.setZ(playerObject.getRigidBody().getLinearVelocity().z);
+			apply_FORCE.setId(playerId);
+			physicsWorld.applyForce(apply_FORCE);
+			sendSingleMessage(apply_FORCE);
+		}
 	}
 
 	protected void aJustPressAction() {
@@ -288,14 +330,24 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 //		physicsWorld.addPhysicsObject(btObject);
 		if(playerId!=0){
 			apply_FORCE.setX(-10);
+			apply_FORCE.setY(playerObject.getRigidBody().getLinearVelocity().y);
+			apply_FORCE.setZ(playerObject.getRigidBody().getLinearVelocity().z);
 			apply_FORCE.setId(playerId);
+			physicsWorld.applyForce(apply_FORCE);
 			sendSingleMessage(apply_FORCE);
 		}
 	}
 
 	protected void aJustUpAction() {
 		// TODO Auto-generated method stub
-		
+		if(playerId!=0){
+			apply_FORCE.setX(0);
+			apply_FORCE.setY(playerObject.getRigidBody().getLinearVelocity().y);
+			apply_FORCE.setZ(playerObject.getRigidBody().getLinearVelocity().z);
+			apply_FORCE.setId(playerId);
+			physicsWorld.applyForce(apply_FORCE);
+			sendSingleMessage(apply_FORCE);
+		}
 	}
 	
 	protected void wJustPressAction() {
