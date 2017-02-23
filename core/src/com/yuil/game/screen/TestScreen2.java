@@ -86,7 +86,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
 		super(game);
-		clientSocket=new ClientSocket(9092,"uyuil.com",9091,this);
+		clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
 		initMessageHandle();
 		
 		GuiFactory guiFactory = new GuiFactory();
@@ -200,6 +200,19 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		messageHandlerMap.get(typeOrdinal).handle(data);
 	}
 	void checkKeyBoardStatus(){
+		
+		if (Gdx.input.isKeyJustPressed(Keys.Q)) {
+			keyboardStatus.setqJustPressed(true);
+			System.out.println("friction:"+playerObject.getRigidBody().getFriction());
+			System.out.println("LinearFactor:"+playerObject.getRigidBody().getLinearFactor());
+			System.out.println("AngularVelocity:"+playerObject.getRigidBody().getAngularVelocity());
+			
+			System.out.println();
+		}else if (Gdx.input.isKeyPressed(Keys.Q)==false&& keyboardStatus.isqJustPressed()) {
+			keyboardStatus.setqJustPressed(false);
+			
+		}
+		
 		if (Gdx.input.isKeyJustPressed(Keys.A)) {
 			// game.getScreen().dispose();
 			keyboardStatus.setaJustPressed(true);
@@ -208,7 +221,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		}else if (Gdx.input.isKeyPressed(Keys.A)==false&& keyboardStatus.isaJustPressed()) {
 			keyboardStatus.setaJustPressed(false);
 			if(Gdx.input.isKeyPressed(Keys.D)){
-				dJustPressedAction();;
+				dJustPressedAction();
 			}else{
 				aJustUppedAction();
 			}
@@ -217,11 +230,10 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			// game.getScreen().dispose();
 			keyboardStatus.setdJustPressed(true);
 			dJustPressedAction();
-
 		}else if (Gdx.input.isKeyPressed(Keys.D)==false&& keyboardStatus.isdJustPressed()) {
 			keyboardStatus.setdJustPressed(false);
 			if(Gdx.input.isKeyPressed(Keys.A)){
-				aJustPressedAction();;
+				aJustPressedAction();
 			}else{
 				dJustUppedAction();
 			}
@@ -233,7 +245,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			spaceJustPressedAction();
 
 		}else if (Gdx.input.isKeyPressed(Keys.SPACE)==false&& keyboardStatus.isdJustPressed()) {
-			keyboardStatus.setdJustPressed(false);
+			keyboardStatus.setSpaceJustPressed(false);
 			spaceJustUppedAction();
 		}
 		
@@ -384,6 +396,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	}
 	
 	protected void spaceJustPressedAction() {
+		System.out.println(playerObject.getRigidBody().getFriction());
 		if(playerId!=0){
 			if(playerObject.getPosition().y<0.7f){
 				apply_FORCE.setX(NO_CHANGE);
@@ -394,6 +407,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				sendSingleMessage(apply_FORCE);
 			}
 		}
+		
 	}
 
 	protected void spaceJustUppedAction() {

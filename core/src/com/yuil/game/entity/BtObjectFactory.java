@@ -101,6 +101,7 @@ public class BtObjectFactory {
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
+		rigidBody.setFriction(0f);
 		
 		btObject.setId(random.nextLong());
 		btObject.setRigidBody(rigidBody);
