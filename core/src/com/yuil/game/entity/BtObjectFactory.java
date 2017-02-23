@@ -34,12 +34,12 @@ public class BtObjectFactory {
 	public BtObjectFactory(boolean haveDefaultModel) {
 		if (haveDefaultModel) {
 			defaultBallModel = modelBuilder.createSphere(1f, 1f, 1f, 10,
-					10, new Material(ColorAttribute.createDiffuse(Color.RED),
+					10, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
 							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 					Usage.Position | Usage.Normal);
 			defaultGroundModel = modelBuilder.createRect(20f, 0f, -200f, -20f, 0f, -200f, -20f, 0f, 20f, 20f, 0f, 20f, 0,
 					1,
-					0, new Material(ColorAttribute.createDiffuse(Color.BLUE),
+					0, new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.4f, 0.6f, 1)),
 							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(16f)),
 					Usage.Position | Usage.Normal);
 			defaultPlayerModel=modelBuilder.createCylinder(1f, 2f, 1f, 10, new Material(ColorAttribute.createDiffuse(Color.OLIVE)), Usage.Position | Usage.Normal);

@@ -211,7 +211,9 @@ public class BtTestServer2 implements MessageListener {
 						}
 					}
 					nextUpdateTime+=interval;
-					physicsWorld.update(interval/1000f);
+					physicsWorld.update(interval/1000f);//更新物理世界
+					
+					//向连接的客户端发送同步消息
 					for (int i = 0; i < btObjectBroadCastQueue.size(); i++) {
 						BtObject btObject=btObjectBroadCastQueue.poll();
 						if (btObject.getRigidBody()!=null) {

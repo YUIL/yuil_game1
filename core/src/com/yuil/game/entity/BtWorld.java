@@ -86,9 +86,16 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 			BtObject btObject=physicsObjects.get(message.getId());
 			
 			if (btObject!=null){
-				tempVector3.x=message.getX();
-				tempVector3.y=message.getY();
-				tempVector3.z=message.getZ();
+				tempVector3.set(btObject.getRigidBody().getLinearVelocity());
+				if(message.getX()!=1008611){
+					tempVector3.x=message.getX();
+				}
+				if(message.getY()!=1008611){
+					tempVector3.y=message.getY();
+				}
+				if(message.getZ()!=1008611){
+					tempVector3.z=message.getZ();
+				}
 				//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
 				
 				btObject.getRigidBody().setLinearVelocity(tempVector3);

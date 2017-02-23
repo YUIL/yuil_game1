@@ -1,191 +1,205 @@
 package com.yuil.game.input;
 
 public class KeyboardStatus {
-	boolean aJustPress;
-	boolean bJustPress;
-	boolean cJustPress;
-	boolean dJustPress;
-	boolean eJustPress;
-	boolean fJustPress;
-	boolean gJustPress;
-	boolean hJustPress;
-	boolean iJustPress;
-	boolean jJustPress;
-	boolean kJustPress;
-	boolean lJustPress;
-	boolean mJustPress;
-	boolean nJustPress;
-	boolean oJustPress;
-	boolean pJustPress;
-	boolean qJustPress;
-	boolean rJustPress;
-	boolean sJustPress;
-	boolean tJustPress;
-	boolean uJustPress;
-	boolean vJustPress;
-	boolean wJustPress;
-	boolean xJustPress;
-	boolean yJustPress;
-	boolean zJustPress;
+	boolean aJustPressed;
+	boolean bJustPressed;
+	boolean cJustPressed;
+	boolean dJustPressed;
+	boolean eJustPressed;
+	boolean fJustPressed;
+	boolean gJustPressed;
+	boolean hJustPressed;
+	boolean iJustPressed;
+	boolean jJustPressed;
+	boolean kJustPressed;
+	boolean lJustPressed;
+	boolean mJustPressed;
+	boolean nJustPressed;
+	boolean oJustPressed;
+	boolean pJustPressed;
+	boolean qJustPressed;
+	boolean rJustPressed;
+	boolean sJustPressed;
+	boolean tJustPressed;
+	boolean uJustPressed;
+	boolean vJustPressed;
+	boolean wJustPressed;
+	boolean xJustPressed;
+	boolean yJustPressed;
+	boolean zJustPressed;
+	boolean spaceJustPressed;
+	
 	
 	boolean buttonAPressed;
 	boolean buttonDPressed;
-	public boolean isaJustPress() {
-		return aJustPress;
+	public boolean isaJustPressed() {
+		return aJustPressed;
 	}
-	public void setaJustPress(boolean aJustPress) {
-		this.aJustPress = aJustPress;
+	public void setaJustPressed(boolean aJustPressed) {
+		this.aJustPressed = aJustPressed;
 	}
-	public boolean isbJustPress() {
-		return bJustPress;
+	public boolean isbJustPressed() {
+		return bJustPressed;
 	}
-	public void setbJustPress(boolean bJustPress) {
-		this.bJustPress = bJustPress;
+	public void setbJustPressed(boolean bJustPressed) {
+		this.bJustPressed = bJustPressed;
 	}
-	public boolean iscJustPress() {
-		return cJustPress;
+	public boolean iscJustPressed() {
+		return cJustPressed;
 	}
-	public void setcJustPress(boolean cJustPress) {
-		this.cJustPress = cJustPress;
+	public void setcJustPressed(boolean cJustPressed) {
+		this.cJustPressed = cJustPressed;
 	}
-	public boolean isdJustPress() {
-		return dJustPress;
+	public boolean isdJustPressed() {
+		return dJustPressed;
 	}
-	public void setdJustPress(boolean dJustPress) {
-		this.dJustPress = dJustPress;
+	public void setdJustPressed(boolean dJustPressed) {
+		this.dJustPressed = dJustPressed;
 	}
-	public boolean iseJustPress() {
-		return eJustPress;
+	public boolean iseJustPressed() {
+		return eJustPressed;
 	}
-	public void seteJustPress(boolean eJustPress) {
-		this.eJustPress = eJustPress;
+	public void seteJustPressed(boolean eJustPressed) {
+		this.eJustPressed = eJustPressed;
 	}
-	public boolean isfJustPress() {
-		return fJustPress;
+	public boolean isfJustPressed() {
+		return fJustPressed;
 	}
-	public void setfJustPress(boolean fJustPress) {
-		this.fJustPress = fJustPress;
+	public void setfJustPressed(boolean fJustPressed) {
+		this.fJustPressed = fJustPressed;
 	}
-	public boolean isgJustPress() {
-		return gJustPress;
+	public boolean isgJustPressed() {
+		return gJustPressed;
 	}
-	public void setgJustPress(boolean gJustPress) {
-		this.gJustPress = gJustPress;
+	public void setgJustPressed(boolean gJustPressed) {
+		this.gJustPressed = gJustPressed;
 	}
-	public boolean ishJustPress() {
-		return hJustPress;
+	public boolean ishJustPressed() {
+		return hJustPressed;
 	}
-	public void sethJustPress(boolean hJustPress) {
-		this.hJustPress = hJustPress;
+	public void sethJustPressed(boolean hJustPressed) {
+		this.hJustPressed = hJustPressed;
 	}
-	public boolean isiJustPress() {
-		return iJustPress;
+	public boolean isiJustPressed() {
+		return iJustPressed;
 	}
-	public void setiJustPress(boolean iJustPress) {
-		this.iJustPress = iJustPress;
+	public void setiJustPressed(boolean iJustPressed) {
+		this.iJustPressed = iJustPressed;
 	}
-	public boolean isjJustPress() {
-		return jJustPress;
+	public boolean isjJustPressed() {
+		return jJustPressed;
 	}
-	public void setjJustPress(boolean jJustPress) {
-		this.jJustPress = jJustPress;
+	public void setjJustPressed(boolean jJustPressed) {
+		this.jJustPressed = jJustPressed;
 	}
-	public boolean iskJustPress() {
-		return kJustPress;
+	public boolean iskJustPressed() {
+		return kJustPressed;
 	}
-	public void setkJustPress(boolean kJustPress) {
-		this.kJustPress = kJustPress;
+	public void setkJustPressed(boolean kJustPressed) {
+		this.kJustPressed = kJustPressed;
 	}
-	public boolean islJustPress() {
-		return lJustPress;
+	public boolean islJustPressed() {
+		return lJustPressed;
 	}
-	public void setlJustPress(boolean lJustPress) {
-		this.lJustPress = lJustPress;
+	public void setlJustPressed(boolean lJustPressed) {
+		this.lJustPressed = lJustPressed;
 	}
-	public boolean ismJustPress() {
-		return mJustPress;
+	public boolean ismJustPressed() {
+		return mJustPressed;
 	}
-	public void setmJustPress(boolean mJustPress) {
-		this.mJustPress = mJustPress;
+	public void setmJustPressed(boolean mJustPressed) {
+		this.mJustPressed = mJustPressed;
 	}
-	public boolean isnJustPress() {
-		return nJustPress;
+	public boolean isnJustPressed() {
+		return nJustPressed;
 	}
-	public void setnJustPress(boolean nJustPress) {
-		this.nJustPress = nJustPress;
+	public void setnJustPressed(boolean nJustPressed) {
+		this.nJustPressed = nJustPressed;
 	}
-	public boolean isoJustPress() {
-		return oJustPress;
+	public boolean isoJustPressed() {
+		return oJustPressed;
 	}
-	public void setoJustPress(boolean oJustPress) {
-		this.oJustPress = oJustPress;
+	public void setoJustPressed(boolean oJustPressed) {
+		this.oJustPressed = oJustPressed;
 	}
-	public boolean ispJustPress() {
-		return pJustPress;
+	public boolean ispJustPressed() {
+		return pJustPressed;
 	}
-	public void setpJustPress(boolean pJustPress) {
-		this.pJustPress = pJustPress;
+	public void setpJustPressed(boolean pJustPressed) {
+		this.pJustPressed = pJustPressed;
 	}
-	public boolean isqJustPress() {
-		return qJustPress;
+	public boolean isqJustPressed() {
+		return qJustPressed;
 	}
-	public void setqJustPress(boolean qJustPress) {
-		this.qJustPress = qJustPress;
+	public void setqJustPressed(boolean qJustPressed) {
+		this.qJustPressed = qJustPressed;
 	}
-	public boolean isrJustPress() {
-		return rJustPress;
+	public boolean isrJustPressed() {
+		return rJustPressed;
 	}
-	public void setrJustPress(boolean rJustPress) {
-		this.rJustPress = rJustPress;
+	public void setrJustPressed(boolean rJustPressed) {
+		this.rJustPressed = rJustPressed;
 	}
-	public boolean issJustPress() {
-		return sJustPress;
+	public boolean issJustPressed() {
+		return sJustPressed;
 	}
-	public void setsJustPress(boolean sJustPress) {
-		this.sJustPress = sJustPress;
+	public void setsJustPressed(boolean sJustPressed) {
+		this.sJustPressed = sJustPressed;
 	}
-	public boolean istJustPress() {
-		return tJustPress;
+	public boolean istJustPressed() {
+		return tJustPressed;
 	}
-	public void settJustPress(boolean tJustPress) {
-		this.tJustPress = tJustPress;
+	public void settJustPressed(boolean tJustPressed) {
+		this.tJustPressed = tJustPressed;
 	}
-	public boolean isuJustPress() {
-		return uJustPress;
+	public boolean isuJustPressed() {
+		return uJustPressed;
 	}
-	public void setuJustPress(boolean uJustPress) {
-		this.uJustPress = uJustPress;
+	public void setuJustPressed(boolean uJustPressed) {
+		this.uJustPressed = uJustPressed;
 	}
-	public boolean isvJustPress() {
-		return vJustPress;
+	public boolean isvJustPressed() {
+		return vJustPressed;
 	}
-	public void setvJustPress(boolean vJustPress) {
-		this.vJustPress = vJustPress;
+	public void setvJustPressed(boolean vJustPressed) {
+		this.vJustPressed = vJustPressed;
 	}
-	public boolean iswJustPress() {
-		return wJustPress;
+	public boolean iswJustPressed() {
+		return wJustPressed;
 	}
-	public void setwJustPress(boolean wJustPress) {
-		this.wJustPress = wJustPress;
+	public void setwJustPressed(boolean wJustPressed) {
+		this.wJustPressed = wJustPressed;
 	}
-	public boolean isxJustPress() {
-		return xJustPress;
+	public boolean isxJustPressed() {
+		return xJustPressed;
 	}
-	public void setxJustPress(boolean xJustPress) {
-		this.xJustPress = xJustPress;
+	public void setxJustPressed(boolean xJustPressed) {
+		this.xJustPressed = xJustPressed;
 	}
-	public boolean isyJustPress() {
-		return yJustPress;
+	public boolean isyJustPressed() {
+		return yJustPressed;
 	}
-	public void setyJustPress(boolean yJustPress) {
-		this.yJustPress = yJustPress;
+	public void setyJustPressed(boolean yJustPressed) {
+		this.yJustPressed = yJustPressed;
 	}
-	public boolean iszJustPress() {
-		return zJustPress;
+	public boolean iszJustPressed() {
+		return zJustPressed;
 	}
-	public void setzJustPress(boolean zJustPress) {
-		this.zJustPress = zJustPress;
+	public void setzJustPressed(boolean zJustPressed) {
+		this.zJustPressed = zJustPressed;
 	}
+	
+	public boolean isSpaceJustPressed() {
+		return spaceJustPressed;
+	}
+	public void setSpaceJustPressed(boolean spaceJustPressed) {
+		this.spaceJustPressed = spaceJustPressed;
+	}	
+	
+	
+	
+	
+	
 	public boolean isButtonAPressed() {
 		return buttonAPressed;
 	}
