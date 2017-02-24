@@ -24,11 +24,55 @@ import com.yuil.game.server.BtTestServer2;
 
 public class BtWorld extends PhysicsWorld implements Disposable{
 	
+	public btCollisionConfiguration getCollisionConfiguration() {
+		return collisionConfiguration;
+	}
+
+	public void setCollisionConfiguration(btCollisionConfiguration collisionConfiguration) {
+		this.collisionConfiguration = collisionConfiguration;
+	}
+
+	public btCollisionDispatcher getDispatcher() {
+		return dispatcher;
+	}
+
+	public void setDispatcher(btCollisionDispatcher dispatcher) {
+		this.dispatcher = dispatcher;
+	}
+
+	public btBroadphaseInterface getBroadphase() {
+		return broadphase;
+	}
+
+	public void setBroadphase(btBroadphaseInterface broadphase) {
+		this.broadphase = broadphase;
+	}
+
+	public btConstraintSolver getSolver() {
+		return solver;
+	}
+
+	public void setSolver(btConstraintSolver solver) {
+		this.solver = solver;
+	}
+
+	public btDynamicsWorld getCollisionWorld() {
+		return collisionWorld;
+	}
+
+	public void setCollisionWorld(btDynamicsWorld collisionWorld) {
+		this.collisionWorld = collisionWorld;
+	}
+
+	public BtContactListener getContactListener() {
+		return contactListener;
+	}
+
+	public void setContactListener(BtContactListener contactListener) {
+		this.contactListener = contactListener;
+	}
+
 	Map<Long, BtObject> physicsObjects;
-	Queue<BtObject> addPhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
-	Queue<BtObject> removePhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
-	Queue<UPDATE_BTRIGIDBODY> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTRIGIDBODY>();
-	Queue<APPLY_FORCE> applyForceQueue=new  ConcurrentLinkedQueue<APPLY_FORCE>();
 
 	
 	btCollisionConfiguration collisionConfiguration;
@@ -43,6 +87,15 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 	
 	public BtWorld() {
 		super();
+		initBtWorld(this.gravity);
+	}
+	
+	public BtWorld(Vector3 gravity) {
+		super();
+		initBtWorld(gravity);
+	}
+	
+	private void initBtWorld(Vector3 gravity){
 		Bullet.init();
 		// Create the bullet world
 		collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -51,14 +104,11 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		solver = new btSequentialImpulseConstraintSolver();
 		collisionWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 		collisionWorld.setGravity(gravity);
-
 		this.physicsObjects=new ConcurrentHashMap<Long, BtObject>();
-		
 	}
 	
 	public void update(float delta){
 
-		collisionDetect();
 		for (BtObject btObject : physicsObjects.values()) {
 			//System.out.println(btObject.rigidBody.getWorldTransform());
 			btObject.update(delta);
@@ -67,78 +117,15 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 				removePhysicsObject(btObject);
 			}*/
 		}
-		for (int i = 0; i < addPhysicsObjectQueue.size(); i++) {
-			BtObject btObject=addPhysicsObjectQueue.poll();
-			physicsObjects.put(btObject.id,btObject);
-			collisionWorld.addRigidBody(btObject.getRigidBody());
-		}
-		for (int i = 0; i < removePhysicsObjectQueue.size(); i++) {
-			BtObject btObject=removePhysicsObjectQueue.poll();
-			if(physicsObjects.get(btObject.getId())!=null){
-				collisionWorld.removeRigidBody(btObject.getRigidBody());
-				physicsObjects.remove(btObject.getId());
-				btObject.dispose();
-			}
-		}
-
-		for (int i = 0; i < applyForceQueue.size(); i++) {
-			APPLY_FORCE message=applyForceQueue.poll();
-			BtObject btObject=physicsObjects.get(message.getId());
-			
-			if (btObject!=null){
-				tempVector3.set(btObject.getRigidBody().getLinearVelocity());
-				if(message.getX()!=1008611){
-					tempVector3.x=message.getX();
-				}
-				if(message.getY()!=1008611){
-					tempVector3.y=message.getY();
-				}
-				if(message.getZ()!=1008611){
-					tempVector3.z=message.getZ();
-				}
-				//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
-				
-				btObject.getRigidBody().setLinearVelocity(tempVector3);
-				BtTestServer2.btObjectBroadCastQueue.add(btObject);
-				
-			}
-				
-		}
 		
-		
-		for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
-			UPDATE_BTRIGIDBODY message=updatePhysicsObjectQueue.poll();
-			BtObject btObject=physicsObjects.get(message.getId());
-			if (btObject!=null){
-				tempMatrix4.set(message.getTransformVal());
-				btObject.getRigidBody().setWorldTransform(tempMatrix4);
-				
-				tempVector3.x=message.getLinearVelocityX();
-				tempVector3.y=message.getLinearVelocityY();
-				tempVector3.z=message.getLinearVelocityZ();
-				btObject.getRigidBody().setLinearVelocity(tempVector3);
-				
-				tempVector3.x=message.getAngularVelocityX();
-				tempVector3.y=message.getAngularVelocityY();
-				tempVector3.z=message.getAngularVelocityZ();
-				btObject.getRigidBody().setAngularVelocity(tempVector3);
-			}	
-		}
+		collisionDetect();
 		collisionWorld.stepSimulation(delta,5);
+		
 
 		
 	}
 	
-	public void addPhysicsObject(BtObject btObject){
-		addPhysicsObjectQueue.add(btObject);
-		
-	}
 
-	public void removePhysicsObject(BtObject btObject){
-		if(btObject!=null){
-			removePhysicsObjectQueue.add(btObject);
-		}
-	}
 	
 
 	
@@ -190,15 +177,17 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 	}
 
 	@Override
-	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
+	public void applyForce(APPLY_FORCE message) {
 		// TODO Auto-generated method stub
-		this.updatePhysicsObjectQueue.add(message);
+		
 	}
 
 	@Override
-	public void applyForce(APPLY_FORCE message) {
+	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
 		// TODO Auto-generated method stub
-		this.applyForceQueue.add(message);
+		
 	}
+
+
 
 }

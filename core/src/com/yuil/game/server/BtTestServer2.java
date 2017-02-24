@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,6 +54,12 @@ public class BtTestServer2 implements MessageListener {
 	BtWorld physicsWorld = new BtWorld();
 	volatile Thread gameWorldThread;
 
+
+	Queue<BtObject> addPhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
+	Queue<BtObject> removePhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
+	Queue<UPDATE_BTRIGIDBODY> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTRIGIDBODY>();
+	Queue<APPLY_FORCE> applyForceQueue=new  ConcurrentLinkedQueue<APPLY_FORCE>();
+	
 	Random random=new Random();
 	List<Long> playerList=new ArrayList();
 	Vector3 tempVector3=new Vector3(0,0,-20);
@@ -181,8 +188,6 @@ public class BtTestServer2 implements MessageListener {
 								//BtTestServer2.btObjectBroadCastQueue.add(btObject);
 
 							//}
-							
-							
 							if(btObject.getPosition().z<-199){
 								btObject.getRigidBody().getWorldTransform(tempMatrix4);
 								tempMatrix4.setTranslation(btObject.getPosition().x,btObject.getPosition().y,-20);
@@ -210,6 +215,65 @@ public class BtTestServer2 implements MessageListener {
 							}
 						}
 					}
+					
+					for (int i = 0; i < addPhysicsObjectQueue.size(); i++) {
+						BtObject btObject=addPhysicsObjectQueue.poll();
+						physicsWorld.getPhysicsObjects().put(btObject.getId(),btObject);
+						physicsWorld.getCollisionWorld().addRigidBody(btObject.getRigidBody());
+					}
+					for (int i = 0; i < removePhysicsObjectQueue.size(); i++) {
+						BtObject btObject=removePhysicsObjectQueue.poll();
+						if(physicsWorld.getPhysicsObjects().get(btObject.getId())!=null){
+							physicsWorld.getCollisionWorld().removeRigidBody(btObject.getRigidBody());
+							physicsWorld.getPhysicsObjects().remove(btObject.getId());
+							btObject.dispose();
+						}
+					}
+
+					for (int i = 0; i < applyForceQueue.size(); i++) {
+						APPLY_FORCE message=applyForceQueue.poll();
+						BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
+						
+						if (btObject!=null){
+							tempVector3.set(btObject.getRigidBody().getLinearVelocity());
+							if(message.getX()!=1008611){
+								tempVector3.x=message.getX();
+							}
+							if(message.getY()!=1008611){
+								tempVector3.y=message.getY();
+							}
+							if(message.getZ()!=1008611){
+								tempVector3.z=message.getZ();
+							}
+							//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
+							
+							btObject.getRigidBody().setLinearVelocity(tempVector3);
+							BtTestServer2.btObjectBroadCastQueue.add(btObject);
+							
+						}
+							
+					}
+					
+					
+					for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
+						UPDATE_BTRIGIDBODY message=updatePhysicsObjectQueue.poll();
+						BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
+						if (btObject!=null){
+							tempMatrix4.set(message.getTransformVal());
+							btObject.getRigidBody().setWorldTransform(tempMatrix4);
+							
+							tempVector3.x=message.getLinearVelocityX();
+							tempVector3.y=message.getLinearVelocityY();
+							tempVector3.z=message.getLinearVelocityZ();
+							btObject.getRigidBody().setLinearVelocity(tempVector3);
+							
+							tempVector3.x=message.getAngularVelocityX();
+							tempVector3.y=message.getAngularVelocityY();
+							tempVector3.z=message.getAngularVelocityZ();
+							btObject.getRigidBody().setAngularVelocity(tempVector3);
+						}	
+					}
+					
 					nextUpdateTime+=interval;
 					physicsWorld.update(interval/1000f);//更新物理世界
 					
@@ -351,4 +415,24 @@ public class BtTestServer2 implements MessageListener {
 		threadPool.execute(messageProcessor);
 	}
 
+	public void addPhysicsObject(BtObject btObject){
+		addPhysicsObjectQueue.add(btObject);
+		
+	}
+
+	public void removePhysicsObject(BtObject btObject){
+		if(btObject!=null){
+			removePhysicsObjectQueue.add(btObject);
+		}
+	}
+	
+	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
+		// TODO Auto-generated method stub
+		this.updatePhysicsObjectQueue.add(message);
+	}
+
+	public void applyForce(APPLY_FORCE message) {
+		// TODO Auto-generated method stub
+		this.applyForceQueue.add(message);
+	}
 }
