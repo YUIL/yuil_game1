@@ -23,7 +23,8 @@ import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
 import com.yuil.game.server.BtTestServer2;
 
 public class BtWorld extends PhysicsWorld implements Disposable{
-	
+	public Queue<BtObject> addPhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
+	public Queue<BtObject> removePhysicsObjectQueue=new  ConcurrentLinkedQueue<BtObject>();
 	public btCollisionConfiguration getCollisionConfiguration() {
 		return collisionConfiguration;
 	}
@@ -117,7 +118,19 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 				removePhysicsObject(btObject);
 			}*/
 		}
-		
+		for (int i = 0; i < addPhysicsObjectQueue.size(); i++) {
+			BtObject btObject=addPhysicsObjectQueue.poll();
+			getPhysicsObjects().put(btObject.getId(),btObject);
+			getCollisionWorld().addRigidBody(btObject.getRigidBody());
+		}
+		for (int i = 0; i <  removePhysicsObjectQueue.size(); i++) {
+			BtObject btObject= removePhysicsObjectQueue.poll();
+			if(getPhysicsObjects().get(btObject.getId())!=null){
+				getCollisionWorld().removeRigidBody(btObject.getRigidBody());
+				getPhysicsObjects().remove(btObject.getId());
+				btObject.dispose();
+			}
+		}
 		collisionDetect();
 		collisionWorld.stepSimulation(delta,5);
 		
@@ -176,11 +189,6 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		this.contactListener=(BtContactListener) contactListener;
 	}
 
-	@Override
-	public void applyForce(APPLY_FORCE message) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
@@ -188,6 +196,15 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		
 	}
 
+	public void addPhysicsObject(BtObject btObject){
+		addPhysicsObjectQueue.add(btObject);
+		
+	}
 
+	public void removePhysicsObject(BtObject btObject){
+		if(btObject!=null){
+			removePhysicsObjectQueue.add(btObject);
+		}
+	}
 
 }

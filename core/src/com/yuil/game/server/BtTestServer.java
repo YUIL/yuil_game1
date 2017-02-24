@@ -213,7 +213,7 @@ public class BtTestServer implements MessageListener {
 					// TODO Auto-generated method stub
 					System.out.println("apppp");
 					message.set(src);
-					physicsWorld.applyForce(message);					
+					//physicsWorld.applyForce(message);					
 					
 				}
 			});

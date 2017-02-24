@@ -52,6 +52,9 @@ import io.netty.buffer.ByteBuf;
 
 public class TestScreen2 extends Screen2D implements MessageListener{
 	
+	boolean turnLeft=true;
+	long nextTurnTime=0;
+	
 	final float NO_CHANGE=1008611;//代表无效参数的一个值
 	
 	ClientSocket clientSocket;
@@ -77,12 +80,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	BtObject playerObject;
 	
 	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
-	APPLY_FORCE apply_FORCE=new APPLY_FORCE();
 	
 	
 	Matrix4 tempMatrix4=new Matrix4();
-	UPDATE_BTRIGIDBODY tempMessage;
-	
+	Vector3 tempVector3=new Vector3();
+	UPDATE_BTRIGIDBODY temp_update_rigidbody_message;
+	UPDATE_LINEAR_VELOCITY temp_update_liner_velocity_message=new UPDATE_LINEAR_VELOCITY();
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
 		super(game);
@@ -123,7 +126,16 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	public void render(float delta) {
 		checkKeyBoardStatus();
 		
-		
+/*		if(System.currentTimeMillis()>nextTurnTime){
+			aJustUppedAction();
+			nextTurnTime=System.currentTimeMillis()+100;
+			if (turnLeft) {
+				aJustPressedAction();
+			}else{
+				dJustPressedAction();
+			}
+			turnLeft=!turnLeft;
+		}*/
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1.f);
@@ -326,25 +338,34 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	protected void dJustPressedAction() {
 		// TODO Auto-generated method stub
-		if(playerId!=0){
-			apply_FORCE.setX(10);
-			apply_FORCE.setY(NO_CHANGE);
-			apply_FORCE.setZ(NO_CHANGE);
-			apply_FORCE.setId(playerId);
-			physicsWorld.applyForce(apply_FORCE);
-			sendSingleMessage(apply_FORCE);
+		if(playerId!=0&&playerObject!=null){
+
+			temp_update_liner_velocity_message.setX(10);
+			temp_update_liner_velocity_message.setY(NO_CHANGE);
+			temp_update_liner_velocity_message.setZ(NO_CHANGE);
+			temp_update_liner_velocity_message.setId(playerId);
+			sendSingleMessage(temp_update_liner_velocity_message);
+
+			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
+			tempVector3.x=10;
+			playerObject.getRigidBody().setLinearVelocity(tempVector3);
+			
 		}
 	}
 
 	protected void dJustUppedAction() {
 		// TODO Auto-generated method stub
-		if(playerId!=0){
-			apply_FORCE.setX(0);
-			apply_FORCE.setY(NO_CHANGE);
-			apply_FORCE.setZ(NO_CHANGE);
-			apply_FORCE.setId(playerId);
-			physicsWorld.applyForce(apply_FORCE);
-			sendSingleMessage(apply_FORCE);
+		if(playerId!=0&&playerObject!=null){
+			temp_update_liner_velocity_message.setX(0);
+			temp_update_liner_velocity_message.setY(NO_CHANGE);
+			temp_update_liner_velocity_message.setZ(NO_CHANGE);
+			temp_update_liner_velocity_message.setId(playerId);
+			sendSingleMessage(temp_update_liner_velocity_message);
+			
+
+			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
+			tempVector3.x=0;
+			playerObject.getRigidBody().setLinearVelocity(tempVector3);
 		}
 	}
 
@@ -355,25 +376,33 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 //
 //		btObject.setId(random.nextLong());
 //		physicsWorld.addPhysicsObject(btObject);
-		if(playerId!=0){
-			apply_FORCE.setX(-10);
-			apply_FORCE.setY(NO_CHANGE);
-			apply_FORCE.setZ(NO_CHANGE);
-			apply_FORCE.setId(playerId);
-			physicsWorld.applyForce(apply_FORCE);
-			sendSingleMessage(apply_FORCE);
+		if(playerId!=0&&playerObject!=null){
+			temp_update_liner_velocity_message.setX(-10);
+			temp_update_liner_velocity_message.setY(NO_CHANGE);
+			temp_update_liner_velocity_message.setZ(NO_CHANGE);
+			temp_update_liner_velocity_message.setId(playerId);
+			sendSingleMessage(temp_update_liner_velocity_message);
+			
+
+			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
+			tempVector3.x=-10;
+			playerObject.getRigidBody().setLinearVelocity(tempVector3);
 		}
 	}
 
 	protected void aJustUppedAction() {
 		// TODO Auto-generated method stub
-		if(playerId!=0){
-			apply_FORCE.setX(0);
-			apply_FORCE.setY(NO_CHANGE);
-			apply_FORCE.setZ(NO_CHANGE);
-			apply_FORCE.setId(playerId);
-			physicsWorld.applyForce(apply_FORCE);
-			sendSingleMessage(apply_FORCE);
+		if(playerId!=0&&playerObject!=null){
+			temp_update_liner_velocity_message.setX(0);
+			temp_update_liner_velocity_message.setY(NO_CHANGE);
+			temp_update_liner_velocity_message.setZ(NO_CHANGE);
+			temp_update_liner_velocity_message.setId(playerId);
+			sendSingleMessage(temp_update_liner_velocity_message);
+			
+
+			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
+			tempVector3.x=0;
+			playerObject.getRigidBody().setLinearVelocity(tempVector3);
 		}
 	}
 	
@@ -396,15 +425,18 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	}
 	
 	protected void spaceJustPressedAction() {
-		System.out.println(playerObject.getRigidBody().getFriction());
-		if(playerId!=0){
+		if(playerId!=0&&playerObject!=null){
 			if(playerObject.getPosition().y<0.7f){
-				apply_FORCE.setX(NO_CHANGE);
-				apply_FORCE.setY(10);
-				apply_FORCE.setZ(NO_CHANGE);
-				apply_FORCE.setId(playerId);
-				physicsWorld.applyForce(apply_FORCE);
-				sendSingleMessage(apply_FORCE);
+				temp_update_liner_velocity_message.setX(NO_CHANGE);
+				temp_update_liner_velocity_message.setY(10);
+				temp_update_liner_velocity_message.setZ(NO_CHANGE);
+				temp_update_liner_velocity_message.setId(playerId);
+				sendSingleMessage(temp_update_liner_velocity_message);
+				
+
+				tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
+				tempVector3.y=10;
+				playerObject.getRigidBody().setLinearVelocity(tempVector3);
 			}
 		}
 		
@@ -498,12 +530,15 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
-				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
+				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
+				if(btObject==null){
 					BtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
 					btObject1.setId(message.getId());
 					physicsWorld.addPhysicsObject(btObject1);
+					updatePhysicsObject(btObject1,message);
+				}else{
+					updatePhysicsObject(btObject,message);
 				}
-				physicsWorld.updatePhysicsObject(message);
 			}
 		});
 		
@@ -517,5 +552,20 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			}
 		});
 
+	}
+	
+	public void updatePhysicsObject(BtObject btObject,UPDATE_BTRIGIDBODY message){
+		tempMatrix4.set(message.getTransformVal());
+		btObject.getRigidBody().setWorldTransform(tempMatrix4);
+		
+		tempVector3.x=message.getLinearVelocityX();
+		tempVector3.y=message.getLinearVelocityY();
+		tempVector3.z=message.getLinearVelocityZ();
+		btObject.getRigidBody().setLinearVelocity(tempVector3);
+		
+		tempVector3.x=message.getAngularVelocityX();
+		tempVector3.y=message.getAngularVelocityY();
+		tempVector3.z=message.getAngularVelocityZ();
+		btObject.getRigidBody().setAngularVelocity(tempVector3);
 	}
 }
