@@ -49,7 +49,7 @@ import com.yuil.game.net.udp.ClientSocket;
 import com.yuil.game.util.Log;
 
 import io.netty.buffer.ByteBuf;
-
+//githubtest
 public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	final float NO_CHANGE=1008611;//代表无效参数的一个值
