@@ -1,5 +1,8 @@
 package com.yuil.game.entity;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
+
 public class PhysicsWorldBuilder {
 	public BtObjectFactory btObjectFactory;
 	
@@ -15,6 +18,15 @@ public class PhysicsWorldBuilder {
 		return btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), mass, x, y, z);
 	}
 
+	public BtObject createObstacleBall(float radius ,int mass,Vector3 position){
+		return btObjectFactory.createBall(radius, mass, position);
+	}
+	public RenderableBtObject createObstacleRenderableBall(float radius ,int mass,Vector3 position,Color color){
+		return btObjectFactory.createRenderableBall(radius, mass, position, color);
+	}
+
+	
+	
 	public BtObjectFactory getBtObjectFactory() {
 		return btObjectFactory;
 	}

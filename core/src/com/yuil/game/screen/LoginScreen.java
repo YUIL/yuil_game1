@@ -54,5 +54,16 @@ public class LoginScreen extends Screen2D {
 				
 			}
 		});
+
+		stage.getRoot().findActor("test").addListener(new ActorInputListenner() {
+
+			public void touchUp(InputEvent event, float x, float y,
+					int pointer, int button) {
+				//(MyGdxGame)game).openId;
+				//MyGame.openId=((TextArea) stage.getRoot().findActor("userName")).getText();
+				game.setScreen(new RigidBodyTestScreen(game));
+				
+			}
+		});
 	}
 }

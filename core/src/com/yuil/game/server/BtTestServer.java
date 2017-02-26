@@ -17,14 +17,12 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.yuil.game.entity.BtObject;
 import com.yuil.game.entity.BtObjectFactory;
 import com.yuil.game.entity.BtWorld;
-import com.yuil.game.entity.Bullet;
-import com.yuil.game.entity.AliveObject;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.APPLY_FORCE;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.REMOVE_BTOBJECT;
 import com.yuil.game.entity.message.TEST;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.net.MessageListener;
 import com.yuil.game.net.NetSocket;
 import com.yuil.game.net.Session;
@@ -53,72 +51,9 @@ public class BtTestServer implements MessageListener {
 
 	ContactListener contactListener;
 	REMOVE_BTOBJECT REMOVE_BTOBJECT_message=new REMOVE_BTOBJECT();
-	UPDATE_BTRIGIDBODY update_BTRIGIDBODY=new UPDATE_BTRIGIDBODY();
+	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY=new UPDATE_BTOBJECT_MOTIONSTATE();
 	public static Queue<BtObject>  btObjectBroadCastQueue=new ConcurrentLinkedDeque<BtObject>();
-	public class MyContactListener extends ContactListener {
-		Queue<BtObject> removeQueue=new LinkedList<BtObject>();
-		
-		/*  public void onContactStarted(btPersistentManifold manifold) {
-			  btCollisionObject colObj0=manifold.getBody0();
-			  btCollisionObject colObj1=manifold.getBody1();
-			  if(colObj0 instanceof btRigidBody&&colObj1 instanceof btRigidBody){
-		    		BtObject btObject0=(BtObject)(((btRigidBody)colObj0).userData);
-		    		BtObject btObject1=(BtObject)(((btRigidBody)colObj1).userData);
-					if (btObject0.userData instanceof Bullet && btObject1.userData instanceof AliveObject) {
-						beAttack((Bullet)btObject0.userData, btObject1);
-					}
-					if (btObject0.userData instanceof AliveObject && btObject1.userData instanceof Bullet) {
-						beAttack((Bullet)btObject1.userData, btObject0);
-					}
-					
-		    	}
-		    	while(!removeQueue.isEmpty()){
-					physicsWorld.removePhysicsObject(removeQueue.poll());
-		    	}
-		  }*/
-		
-	    @Override
-	    public void onContactStarted (btCollisionObject colObj0, btCollisionObject colObj1) {
-	    	
-	    	if(colObj0 instanceof btRigidBody&&colObj1 instanceof btRigidBody){
-	    		BtObject btObject0=(BtObject)(((btRigidBody)colObj0).userData);
-	    		BtObject btObject1=(BtObject)(((btRigidBody)colObj1).userData);
-				if (btObject0.userData instanceof Bullet && btObject1.userData instanceof AliveObject) {
-					beAttack((Bullet)btObject0.userData, btObject1);
-				}
-				if (btObject0.userData instanceof AliveObject && btObject1.userData instanceof Bullet) {
-					beAttack((Bullet)btObject1.userData, btObject0);
-				}
-				
-	    	}
-	    	while(!removeQueue.isEmpty()){
-				physicsWorld.removePhysicsObject(removeQueue.poll());
-	    	}
-	    }
-	    public void onContactProcessed(btCollisionObject colObj0, btCollisionObject colObj1) {
-	    }
-	    public void onContactEnded(btCollisionObject colObj0, btCollisionObject colObj1) {
-	    }
-
-	    /**
-	     * @param bullet
-	     * @param btObject
-	     * @return 是否删除
-	     */
-	    private boolean beAttack(Bullet bullet ,BtObject btObject){
-	    	AliveObject aliveObject=(AliveObject)btObject.userData;
-			if(aliveObject.getH()>bullet.getAttack()){
-				aliveObject.setH(aliveObject.getH()-bullet.getAttack());
-				btObjectBroadCastQueue.add(btObject);
-				return false;
-			}else{
-				REMOVE_BTOBJECT_message.setId(btObject.getId());
-				broadCastor.broadCast_SINGLE_MESSAGE(REMOVE_BTOBJECT_message.get(),false);
-				removeQueue.add(btObject);
-				return true;
-			}
-	    }
-	}
+	
 	public static void main(String[] args) {
 		BtTestServer btTestServer = new BtTestServer();
 		btTestServer.start();
@@ -126,7 +61,6 @@ public class BtTestServer implements MessageListener {
 
 	public BtTestServer() {
 		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
-		contactListener=new MyContactListener();
 		
 		try {
 			netSocket = new UdpSocket(9091);
@@ -201,7 +135,6 @@ public class BtTestServer implements MessageListener {
 					message.set(src);
 					BtObject btObject=btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(),1, message.getX(), message.getY(), message.getZ());
 					btObject.setId(message.getId());
-					btObject.userData=new Bullet();
 					physicsWorld.addPhysicsObject(btObject);
 					broadCastor.broadCast_SINGLE_MESSAGE(message, false);
 				}

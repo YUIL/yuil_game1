@@ -29,7 +29,7 @@ import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.message.TEST;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
@@ -73,7 +73,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 	
 	BtObject btObject;
 	Matrix4 tempMatrix4=new Matrix4();
-	UPDATE_BTRIGIDBODY tempMessage;
+	UPDATE_BTOBJECT_MOTIONSTATE tempMessage;
 	
 	boolean isLogin=false;
 	public TestScreen(MyGame game) {
@@ -320,7 +320,7 @@ public class TestScreen extends Screen2D implements MessageListener{
 	
 	protected void delJustPressAction() {
 		if(btObject!=null){
-			tempMessage=new UPDATE_BTRIGIDBODY(btObject);
+			tempMessage=new UPDATE_BTOBJECT_MOTIONSTATE(btObject);
 		}
 		
 	}
@@ -385,8 +385,8 @@ public class TestScreen extends Screen2D implements MessageListener{
 			}
 		});
 		
-		messageHandlerMap.put(EntityMessageType.UPDATE_BTRIGIDBODY.ordinal(), new MessageHandler() {
-			UPDATE_BTRIGIDBODY message=new UPDATE_BTRIGIDBODY();
+		messageHandlerMap.put(EntityMessageType.UPDATE_BTOBJECT_MOTIONSTATE.ordinal(), new MessageHandler() {
+			UPDATE_BTOBJECT_MOTIONSTATE message=new UPDATE_BTOBJECT_MOTIONSTATE();
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub

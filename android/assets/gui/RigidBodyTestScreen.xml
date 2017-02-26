@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stage>
+    <actor id="1" type="textArea" name="localPort" text="9100">
+        <x>-20</x>
+        <y>-100</y>
+        <skin name="default"></skin>
+    </actor>
+    
+    <actor id="1" type="textArea" name="remotePort" text="9093">
+        <x>-20</x>
+        <y>-200</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="1" type="textArea" name="remoteIp" text="127.0.0.1">
+        <x>-120</x>
+        <y>-200</y>
+        <skin name="default"></skin>
+    </actor>
+    
+    <actor id="1" type="textArea" name="temp" text="aaa">
+        <x>-20</x>
+        <y>-300</y>
+        <skin name="default"></skin>
+    </actor>
+    <actor id="6" type="textButton" name="start" text="start">
+        <x>-100</x>
+        <y>-400</y>
+        <skin name="default"></skin>
+    </actor>
+    <actor id="1" type="textArea" name="message" text="{stopServer:1}">
+        <x>-250</x>
+        <y>0</y>
+        <skin name="default"></skin>
+    </actor>
+    <actor id="6" type="textButton" name="send" text="send">
+        <x>-600</x>
+        <y>0</y>
+        <skin name="default"></skin>
+    </actor>
+    
+    <actor id="1" type="textArea" name="userName" text="1">
+        <x>-500</x>
+        <y>-400</y>
+        <skin name="default"></skin>
+    </actor>
+ 
+    <actor id="1" type="label" name="console" text="console">
+        <x>-350</x>
+        <y>-350</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="A" text="LEFT">
+        <x>550</x>
+        <y>100</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="D" text="RIGHT">
+        <x>650</x>
+        <y>100</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="Z" text="ADD">
+        <x>700</x>
+        <y>50</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="X" text="DEL">
+        <x>600</x>
+        <y>-200</y>
+        <skin name="default"></skin>
+    </actor>
+     <actor id="6" type="textButton" name="G" text="GGG">
+        <x>-700</x>
+        <y>200</y>
+        <skin name="default"></skin>
+    </actor>
+	<actor id="6" type="textButton" name="W" text="UP##">
+        <x>600</x>
+        <y>150</y>
+        <skin name="default"></skin>
+    </actor>
+    <actor id="6" type="textButton" name="S" text="DOWN">
+        <x>600</x>
+        <y>-50</y>
+        <skin name="default"></skin>
+    </actor>
+   
+	<actor id="6" type="textButton" name="login" text="login">
+        <x>-700</x>
+        <y>-300</y>
+        <skin name="default"></skin>
+    </actor>
+        
+</stage>

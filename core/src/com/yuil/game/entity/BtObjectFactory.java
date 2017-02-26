@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
+import com.sun.org.apache.bcel.internal.generic.Select;
 
 public class BtObjectFactory {
 	ModelBuilder modelBuilder = new ModelBuilder();
@@ -142,6 +143,24 @@ public class BtObjectFactory {
 		// TODO Auto-generated method stub
 		BtObject btObject=new BtObject();
 		initBtObject(btObject, defaultSphereShape, mass, x, y, z);
+		return btObject;
+	}
+	
+	
+	public RenderableBtObject createRenderableBall(float radius,float mass,Vector3 position,Color color){
+	
+		Model model = modelBuilder.createSphere(radius*2, radius*2, radius*2, 10,
+				10, new Material(ColorAttribute.createDiffuse(color),
+						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+				Usage.Position | Usage.Normal);
+
+		btCollisionShape collisionShape = new btSphereShape(radius);
+		return createRenderableBtObject(model, collisionShape, mass, position.x,position.y, position.z);
+	}
+	public BtObject createBall(float radius,float mass,Vector3 position){
+		BtObject btObject=new BtObject();
+		btCollisionShape collisionShape = new btSphereShape(radius);
+		initBtObject(btObject,collisionShape, mass, position.x,position.y, position.z);
 		return btObject;
 	}
 }

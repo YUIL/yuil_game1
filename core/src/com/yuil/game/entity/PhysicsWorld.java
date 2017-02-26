@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.badlogic.gdx.math.Vector3;
 import com.yuil.game.entity.message.APPLY_FORCE;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 
 public abstract class  PhysicsWorld {
 	
@@ -24,7 +24,7 @@ public abstract class  PhysicsWorld {
 	
 	public abstract void removePhysicsObject(PhysicsObject physicsObject);
 	
-	public abstract void updatePhysicsObject(UPDATE_BTRIGIDBODY message);
+	public abstract void updatePhysicsObject(UPDATE_BTOBJECT_MOTIONSTATE message);
 
 	
 	public abstract Map<Long,? extends PhysicsObject> getPhysicsObjects();

@@ -23,16 +23,17 @@ import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.yuil.game.entity.BtObject;
 import com.yuil.game.entity.BtObjectFactory;
+import com.yuil.game.entity.BtObjectSpawner;
 import com.yuil.game.entity.BtWorld;
-import com.yuil.game.entity.Bullet;
-import com.yuil.game.entity.AliveObject;
+import com.yuil.game.entity.attribute.AttributeType;
+import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.ADD_PLAYER;
 import com.yuil.game.entity.message.APPLY_FORCE;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.REMOVE_BTOBJECT;
 import com.yuil.game.entity.message.TEST;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.entity.message.UPDATE_LINEAR_VELOCITY;
 import com.yuil.game.net.MessageListener;
 import com.yuil.game.net.NetSocket;
@@ -57,7 +58,7 @@ public class BtTestServer2 implements MessageListener {
 
 
 
-	Queue<UPDATE_BTRIGIDBODY> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTRIGIDBODY>();
+	Queue<UPDATE_BTOBJECT_MOTIONSTATE> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTOBJECT_MOTIONSTATE>();
 	//Queue<APPLY_FORCE> applyForceQueue=new  ConcurrentLinkedQueue<APPLY_FORCE>();
 	
 	Random random=new Random();
@@ -72,33 +73,41 @@ public class BtTestServer2 implements MessageListener {
 
 	ContactListener contactListener;
 	REMOVE_BTOBJECT REMOVE_BTOBJECT_message=new REMOVE_BTOBJECT();
-	UPDATE_BTRIGIDBODY update_BTRIGIDBODY=new UPDATE_BTRIGIDBODY();
+	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY=new UPDATE_BTOBJECT_MOTIONSTATE();
 	public static Queue<BtObject>  btObjectBroadCastQueue=new ConcurrentLinkedDeque<BtObject>();
+	
+	BtObjectSpawner obstacleBallSpawner=new BtObjectSpawner(1000) {
+
+		@Override
+		public void spawn() {
+			// TODO Auto-generated method stub
+			//physicsWorld.addPhysicsObjectQueue.
+		}
+		
+		
+	};
+	
 	public class MyContactListener extends ContactListener {
 		Queue<BtObject> removeQueue=new LinkedList<BtObject>();
-		
-		/*  public void onContactStarted(btPersistentManifold manifold) {
-			  btCollisionObject colObj0=manifold.getBody0();
-			  btCollisionObject colObj1=manifold.getBody1();
-			  if(colObj0 instanceof btRigidBody&&colObj1 instanceof btRigidBody){
-		    		BtObject btObject0=(BtObject)(((btRigidBody)colObj0).userData);
-		    		BtObject btObject1=(BtObject)(((btRigidBody)colObj1).userData);
-					if (btObject0.userData instanceof Bullet && btObject1.userData instanceof AliveObject) {
-						beAttack((Bullet)btObject0.userData, btObject1);
-					}
-					if (btObject0.userData instanceof AliveObject && btObject1.userData instanceof Bullet) {
-						beAttack((Bullet)btObject1.userData, btObject0);
-					}
-					
-		    	}
-		    	while(!removeQueue.isEmpty()){
-					physicsWorld.removePhysicsObject(removeQueue.poll());
-		    	}
-		  }*/
-		
 	    @Override
 	    public void onContactStarted (btCollisionObject colObj0, btCollisionObject colObj1) {
+	    	if(colObj0 instanceof btRigidBody){
+	    		
+	    		BtObject btObject=(BtObject)(((btRigidBody)colObj0).userData);
+	    		if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
+	    			System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
+	    		}
+	    	}
 	    	
+	    	if(colObj1 instanceof btRigidBody){
+	    	
+	    		BtObject btObject=(BtObject)(((btRigidBody)colObj1).userData);
+	    		if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
+	    			System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
+	    		}
+	    	}
+	    	
+	    	/*
 	    	if(colObj0 instanceof btRigidBody&&colObj1 instanceof btRigidBody){
 	    		BtObject btObject0=(BtObject)(((btRigidBody)colObj0).userData);
 	    		BtObject btObject1=(BtObject)(((btRigidBody)colObj1).userData);
@@ -109,7 +118,7 @@ public class BtTestServer2 implements MessageListener {
 					beAttack((Bullet)btObject1.userData, btObject0);
 				}
 				
-	    	}
+	    	}*/
 	    	while(!removeQueue.isEmpty()){
 				physicsWorld.removePhysicsObject(removeQueue.poll());
 	    	}
@@ -123,7 +132,7 @@ public class BtTestServer2 implements MessageListener {
 	     * @param bullet
 	     * @param btObject
 	     * @return 是否删除
-	     */
+	     *//*
 	    private boolean beAttack(Bullet bullet ,BtObject btObject){
 	    	AliveObject aliveObject=(AliveObject)btObject.userData;
 			if(aliveObject.getH()>bullet.getAttack()){
@@ -136,7 +145,7 @@ public class BtTestServer2 implements MessageListener {
 				removeQueue.add(btObject);
 				return true;
 			}
-	    }
+	    }*/
 	}
 	public static void main(String[] args) {
 		BtTestServer2 btTestServer = new BtTestServer2();
@@ -145,6 +154,7 @@ public class BtTestServer2 implements MessageListener {
 
 	public BtTestServer2() {
 		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
+		
 		contactListener=new MyContactListener();
 		
 		try {
@@ -218,7 +228,7 @@ public class BtTestServer2 implements MessageListener {
 					
 					
 					for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
-						UPDATE_BTRIGIDBODY message=updatePhysicsObjectQueue.poll();
+						UPDATE_BTOBJECT_MOTIONSTATE message=updatePhysicsObjectQueue.poll();
 						BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
 						if (btObject!=null){
 							updatePhysicsObject(btObject,message);
@@ -257,6 +267,7 @@ public class BtTestServer2 implements MessageListener {
 				ADD_PLAYER message=new ADD_PLAYER();
 				@Override
 				public void handle(ByteBuf src) {
+					
 					// TODO Auto-generated method stub
 					long id=random.nextLong();
 					message.setId(id);
@@ -269,7 +280,7 @@ public class BtTestServer2 implements MessageListener {
 					
 					add_ball.setId(id);
 					btObject.setId(id);
-					btObject.userData=new Bullet();
+					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(id));
 					physicsWorld.addPhysicsObject(btObject);
 					broadCastor.broadCast_SINGLE_MESSAGE(add_ball, false);
 					playerList.add(id);
@@ -297,7 +308,6 @@ public class BtTestServer2 implements MessageListener {
 					long id=random.nextLong();
 					message.setId(id);
 					btObject.setId(id);
-					btObject.userData=new Bullet();
 					physicsWorld.addPhysicsObject(btObject);
 					broadCastor.broadCast_SINGLE_MESSAGE(message, false);
 				}
@@ -383,7 +393,7 @@ public class BtTestServer2 implements MessageListener {
 
 
 	
-	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
+	public void updatePhysicsObject(UPDATE_BTOBJECT_MOTIONSTATE message) {
 		// TODO Auto-generated method stub
 		this.updatePhysicsObjectQueue.add(message);
 	}
@@ -393,7 +403,7 @@ public class BtTestServer2 implements MessageListener {
 	
 	}
 	
-	public void updatePhysicsObject(BtObject btObject,UPDATE_BTRIGIDBODY message){
+	public void updatePhysicsObject(BtObject btObject,UPDATE_BTOBJECT_MOTIONSTATE message){
 		tempMatrix4.set(message.getTransformVal());
 		btObject.getRigidBody().setWorldTransform(tempMatrix4);
 		

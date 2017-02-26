@@ -19,7 +19,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.utils.Disposable;
 import com.yuil.game.entity.message.APPLY_FORCE;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.server.BtTestServer2;
 
 public class BtWorld extends PhysicsWorld implements Disposable{
@@ -191,7 +191,7 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 
 
 	@Override
-	public void updatePhysicsObject(UPDATE_BTRIGIDBODY message) {
+	public void updatePhysicsObject(UPDATE_BTOBJECT_MOTIONSTATE message) {
 		// TODO Auto-generated method stub
 		
 	}

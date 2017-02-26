@@ -7,8 +7,8 @@ import com.yuil.game.net.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-public class UPDATE_BTRIGIDBODY implements Message {
-	public final int type = EntityMessageType.UPDATE_BTRIGIDBODY.ordinal();
+public class UPDATE_BTOBJECT_MOTIONSTATE implements Message {
+	public final int type = EntityMessageType.UPDATE_BTOBJECT_MOTIONSTATE.ordinal();
 
 	long id;
 
@@ -28,12 +28,12 @@ public class UPDATE_BTRIGIDBODY implements Message {
 	float angularVelocityY;
 	float angularVelocityZ;
 
-	public UPDATE_BTRIGIDBODY() {
+	public UPDATE_BTOBJECT_MOTIONSTATE() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public UPDATE_BTRIGIDBODY(BtObject btObject) {
+	public UPDATE_BTOBJECT_MOTIONSTATE(BtObject btObject) {
 		super();
 		this.set(btObject);
 	}

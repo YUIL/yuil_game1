@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.BtObject;
@@ -32,7 +33,7 @@ import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.message.TEST;
-import com.yuil.game.entity.message.UPDATE_BTRIGIDBODY;
+import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
@@ -84,7 +85,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	Matrix4 tempMatrix4=new Matrix4();
 	Vector3 tempVector3=new Vector3();
-	UPDATE_BTRIGIDBODY temp_update_rigidbody_message;
+	UPDATE_BTOBJECT_MOTIONSTATE temp_update_rigidbody_message;
 	UPDATE_LINEAR_VELOCITY temp_update_liner_velocity_message=new UPDATE_LINEAR_VELOCITY();
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
@@ -524,8 +525,8 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			}
 		});
 		
-		messageHandlerMap.put(EntityMessageType.UPDATE_BTRIGIDBODY.ordinal(), new MessageHandler() {
-			UPDATE_BTRIGIDBODY message=new UPDATE_BTRIGIDBODY();
+		messageHandlerMap.put(EntityMessageType.UPDATE_BTOBJECT_MOTIONSTATE.ordinal(), new MessageHandler() {
+			UPDATE_BTOBJECT_MOTIONSTATE message=new UPDATE_BTOBJECT_MOTIONSTATE();
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
@@ -554,9 +555,13 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	}
 	
-	public void updatePhysicsObject(BtObject btObject,UPDATE_BTRIGIDBODY message){
+	public void updatePhysicsObject(BtObject btObject,UPDATE_BTOBJECT_MOTIONSTATE message){
+		//btMotionState tempMotionState =new btMotionState();
+	
+		//btObject.getRigidBody().setMotionState(tempMotionState);
 		tempMatrix4.set(message.getTransformVal());
 		btObject.getRigidBody().setWorldTransform(tempMatrix4);
+		//btObject.getMotionState().setWorldTransform(tempMatrix4);
 		
 		tempVector3.x=message.getLinearVelocityX();
 		tempVector3.y=message.getLinearVelocityY();

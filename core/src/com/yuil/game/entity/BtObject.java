@@ -1,5 +1,7 @@
 package com.yuil.game.entity;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
@@ -7,6 +9,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
 import com.badlogic.gdx.utils.Disposable;
+import com.yuil.game.entity.attribute.Attribute;
 
 public class BtObject extends PhysicsObject implements Disposable{
 	//ModelInstance instance;
@@ -15,6 +18,7 @@ public class BtObject extends PhysicsObject implements Disposable{
 	btCollisionShape collisionShape;
 	btRigidBodyConstructionInfo  rigidBodyConstructionInfo;
 	public Object userData;
+	public HashMap<Integer, Attribute> Attributes=new HashMap<Integer, Attribute>();
 	
 	private Vector3 position=new Vector3();
 
