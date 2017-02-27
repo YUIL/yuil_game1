@@ -62,7 +62,7 @@ public class BtObjectFactory {
 		return btObject;
 	}
 
-	public BtObject createRenderableGround() {
+	public RenderableBtObject createRenderableGround() {
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 200));
 		return createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
 	}

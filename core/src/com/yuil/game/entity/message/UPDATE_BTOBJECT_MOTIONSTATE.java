@@ -1,5 +1,7 @@
 package com.yuil.game.entity.message;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.yuil.game.entity.BtObject;
 import com.yuil.game.net.message.Message;
@@ -159,4 +161,14 @@ public class UPDATE_BTOBJECT_MOTIONSTATE implements Message {
 		return type;
 	}
 
+	@Override
+	public String toString() {
+		return "UPDATE_BTOBJECT_MOTIONSTATE [type=" + type + ", id=" + id + ", transformVal="
+				+ Arrays.toString(transformVal) + ", linearVelocityX=" + linearVelocityX + ", linearVelocityY="
+				+ linearVelocityY + ", linearVelocityZ=" + linearVelocityZ + ", angularVelocityX=" + angularVelocityX
+				+ ", angularVelocityY=" + angularVelocityY + ", angularVelocityZ=" + angularVelocityZ + "]";
+	}
+
+	
+	
 }

@@ -29,11 +29,9 @@ import com.yuil.game.entity.PhysicsObject;
 import com.yuil.game.entity.PhysicsWorld;
 import com.yuil.game.entity.PhysicsWorldBuilder;
 import com.yuil.game.entity.RenderableBtObject;
-import com.yuil.game.entity.message.ADD_BALL;
-import com.yuil.game.entity.message.EntityMessageType;
+import com.yuil.game.entity.attribute.AttributeType;
+import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.message.*;
-import com.yuil.game.entity.message.TEST;
-import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
@@ -75,7 +73,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	long interval=100;
 	long nextTime=0;
 	
-	Random random=new Random();
+	Random random=new Random(System.currentTimeMillis());
 	
 	long playerId;
 	BtObject playerObject;
@@ -101,7 +99,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		lights.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.2f, 0.2f, 0.2f, 1.f));
 		lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, -1f, -0.7f));
 		
-		physicsWorldBuilder =new PhysicsWorldBuilder();
+		physicsWorldBuilder =new PhysicsWorldBuilder(true);
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 	
@@ -210,15 +208,14 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			return;
 		}
 		int typeOrdinal = MessageUtil.getType(data.array());
+		//System.out.println("typeOrdinal"+typeOrdinal);
 		messageHandlerMap.get(typeOrdinal).handle(data);
 	}
 	void checkKeyBoardStatus(){
 		
 		if (Gdx.input.isKeyJustPressed(Keys.Q)) {
 			keyboardStatus.setqJustPressed(true);
-			System.out.println("friction:"+playerObject.getRigidBody().getFriction());
-			System.out.println("LinearFactor:"+playerObject.getRigidBody().getLinearFactor());
-			System.out.println("AngularVelocity:"+playerObject.getRigidBody().getAngularVelocity());
+			System.out.println("getLinearVelocity().z:"+playerObject.getRigidBody().getLinearVelocity().z);
 			
 			System.out.println();
 		}else if (Gdx.input.isKeyPressed(Keys.Q)==false&& keyboardStatus.isqJustPressed()) {
@@ -327,7 +324,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		if(isLogin){
 			//sound.play();
 			if (playerId==0){
-				ADD_PLAYER add_player=new ADD_PLAYER();
+				playerId=random.nextLong();
+				C2S_ADD_PLAYER add_player=new C2S_ADD_PLAYER();
+				add_player.setId(playerId);
 				sendSingleMessage(add_player);
 			}
 		}else{
@@ -344,7 +343,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			temp_update_liner_velocity_message.setX(10);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
-			temp_update_liner_velocity_message.setId(playerId);
+			temp_update_liner_velocity_message.setId(playerObject.getId());
 			sendSingleMessage(temp_update_liner_velocity_message);
 
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
@@ -360,7 +359,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
-			temp_update_liner_velocity_message.setId(playerId);
+			temp_update_liner_velocity_message.setId(playerObject.getId());
 			sendSingleMessage(temp_update_liner_velocity_message);
 			
 
@@ -381,7 +380,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			temp_update_liner_velocity_message.setX(-10);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
-			temp_update_liner_velocity_message.setId(playerId);
+			temp_update_liner_velocity_message.setId(playerObject.getId());
 			sendSingleMessage(temp_update_liner_velocity_message);
 			
 
@@ -397,7 +396,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
-			temp_update_liner_velocity_message.setId(playerId);
+			temp_update_liner_velocity_message.setId(playerObject.getId());
 			sendSingleMessage(temp_update_liner_velocity_message);
 			
 
@@ -427,11 +426,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	protected void spaceJustPressedAction() {
 		if(playerId!=0&&playerObject!=null){
+
 			if(playerObject.getPosition().y<0.7f){
 				temp_update_liner_velocity_message.setX(NO_CHANGE);
 				temp_update_liner_velocity_message.setY(10);
 				temp_update_liner_velocity_message.setZ(NO_CHANGE);
-				temp_update_liner_velocity_message.setId(playerId);
+				temp_update_liner_velocity_message.setId(playerObject.getId());
 				sendSingleMessage(temp_update_liner_velocity_message);
 				
 
@@ -468,14 +468,21 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	}
 	
 	void initMessageHandle(){
-		messageHandlerMap.put(EntityMessageType.ADD_PLAYER.ordinal(), new MessageHandler() {
-			ADD_PLAYER message=new ADD_PLAYER();
+		messageHandlerMap.put(EntityMessageType.S2C_ADD_PLAYER.ordinal(), new MessageHandler() {
+			S2C_ADD_PLAYER message=new S2C_ADD_PLAYER();
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
-				System.out.println("added player");
-				playerId=message.getId();
+				if(physicsWorld.getPhysicsObjects().get(message.getObjectId())==null){
+					BtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
+					btObject.setId(message.getObjectId());
+					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
+					physicsWorld.addPhysicsObject(btObject);
+					if(message.getId()==playerId){
+						playerObject=btObject;
+					}
+				}
 			}
 		});
 		messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
@@ -495,10 +502,10 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 				message.set(src);
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
-					RenderableBtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
-					btObject1.setId(message.getId());
+					//RenderableBtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
+					//btObject1.setId(message.getId());
 					
-					physicsWorld.addPhysicsObject(btObject1);
+					//physicsWorld.addPhysicsObject(btObject1);
 				}
 				
 			}
@@ -527,18 +534,20 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		
 		messageHandlerMap.put(EntityMessageType.UPDATE_BTOBJECT_MOTIONSTATE.ordinal(), new MessageHandler() {
 			UPDATE_BTOBJECT_MOTIONSTATE message=new UPDATE_BTOBJECT_MOTIONSTATE();
+			C2S_ENQUIRE_BTOBJECT c2s_ENQUIRE_BTOBJECT_message=new C2S_ENQUIRE_BTOBJECT();
+
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
 				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
 				if(btObject==null){
-					BtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
-					btObject1.setId(message.getId());
-					physicsWorld.addPhysicsObject(btObject1);
-					updatePhysicsObject(btObject1,message);
+					sendSingleMessage(c2s_ENQUIRE_BTOBJECT_message);
 				}else{
+					System.out.println("mmm:"+message.getLinearVelocityZ());
 					updatePhysicsObject(btObject,message);
+					System.out.println("nnn:"+btObject.getRigidBody().getLinearVelocity().z);
+
 				}
 			}
 		});

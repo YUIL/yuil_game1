@@ -8,19 +8,19 @@ import com.yuil.game.net.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-public class ADD_PLAYER implements Message {
-	public final int type=EntityMessageType.ADD_PLAYER.ordinal();
+public class S2C_ADD_PLAYER implements Message {
+	public final int type=EntityMessageType.S2C_ADD_PLAYER.ordinal();
 	long id=0;
-	
+	long objectId;
 	long time=0;
 	
 	
-	public ADD_PLAYER() {
+	public S2C_ADD_PLAYER() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	
-	public ADD_PLAYER(ByteBuf src) {
+	public S2C_ADD_PLAYER(ByteBuf src) {
 		super();
 		this.set(src);
 		// TODO Auto-generated constructor stub
@@ -34,12 +34,22 @@ public class ADD_PLAYER implements Message {
 		this.id = id;
 	}
 
+	
+
+	public long getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(long objectId) {
+		this.objectId = objectId;
+	}
 
 	@Override
 	public Message set(ByteBuf buf) {
 		// TODO Auto-generated method stub
 		buf.readByte();
 		this.setId(buf.readLong());
+		this.setObjectId(buf.readLong());
 		return this;
 	}
 
@@ -57,10 +67,10 @@ public class ADD_PLAYER implements Message {
 		
 		return dest;*/
 		
-		ByteBuf buf=UnpooledByteBufAllocator.DEFAULT.heapBuffer(8+Message.TYPE_LENGTH);
+		ByteBuf buf=UnpooledByteBufAllocator.DEFAULT.heapBuffer(8+8+Message.TYPE_LENGTH);
 		buf.writeByte(this.type);
 		buf.writeLong(this.id);
-	
+		buf.writeLong(this.objectId);
 		return buf;
 	}
 

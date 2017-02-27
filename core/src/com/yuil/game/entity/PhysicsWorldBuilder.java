@@ -6,18 +6,25 @@ import com.badlogic.gdx.math.Vector3;
 public class PhysicsWorldBuilder {
 	public BtObjectFactory btObjectFactory;
 	
-	public PhysicsWorldBuilder() {
+	public PhysicsWorldBuilder(boolean haveDefaultModel) {
 		super();
-		btObjectFactory=new BtObjectFactory(true);
+		btObjectFactory=new BtObjectFactory(haveDefaultModel);
 	}
 	
-	public BtObject createDefaultBall(int mass,float x,float y,float z){
-		return btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(), mass, x, y, z);
+	public BtObject createDefaultBall(float x,float y,float z){
+		return btObjectFactory.createBtObject(btObjectFactory.getDefaultSphereShape(), 1, x, y, z);
 	}
-	public RenderableBtObject createDefaultRenderableBall(int mass,float x,float y,float z){
-		return btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), mass, x, y, z);
+	public RenderableBtObject createDefaultRenderableBall(float x,float y,float z){
+		return btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, x, y, z);
 	}
 
+	public BtObject createDefaultGround(){
+		return btObjectFactory.createGround();
+	}
+	public RenderableBtObject createDefaultRenderableGround(){
+		return btObjectFactory.createRenderableGround();
+	}
+	
 	public BtObject createObstacleBall(float radius ,int mass,Vector3 position){
 		return btObjectFactory.createBall(radius, mass, position);
 	}

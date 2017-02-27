@@ -77,7 +77,7 @@ public class RigidBodyTestScreen extends Screen2D{
 		lights.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.2f, 0.2f, 0.2f, 1.f));
 		lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, -1f, -0.7f));
 		
-		physicsWorldBuilder =new PhysicsWorldBuilder();
+		physicsWorldBuilder =new PhysicsWorldBuilder(true);
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 	
@@ -225,7 +225,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void zJustPressedAction() {
-		testBtObject=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10, -10);
+		testBtObject=physicsWorldBuilder.createDefaultRenderableBall(0, 10, -10);
 		physicsWorld.addPhysicsObject(testBtObject);
 	}
 
