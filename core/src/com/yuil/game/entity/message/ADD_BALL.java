@@ -15,7 +15,6 @@ public class ADD_BALL implements Message {
 	float y;
 	float z;
 	
-	long time=0;
 	
 	
 	public ADD_BALL() {
@@ -98,7 +97,7 @@ public class ADD_BALL implements Message {
 
 	@Override
 	public String toString() {
-		return "ADD_BALL [type=" + type + ", id=" + id + ", x=" + x + ", y=" + y + ", z=" + z + ", time=" + time + "]";
+		return "ADD_BALL [type=" + type + ", id=" + id + ", x=" + x + ", y=" + y + ", z=" + z + "]";
 	}
 	
 	
