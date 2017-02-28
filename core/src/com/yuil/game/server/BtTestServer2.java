@@ -61,6 +61,8 @@ public class BtTestServer2 implements MessageListener {
 	
 	Random random=new Random(System.currentTimeMillis());
 	List<Player> playerList=new ArrayList<Player>();
+	List<BtObject> obstacleBtObjectList=new LinkedList<BtObject>();
+
 	Vector3 tempVector3=new Vector3(0,0,-20);
 	Matrix4 tempMatrix4=new Matrix4();
 	
@@ -70,11 +72,12 @@ public class BtTestServer2 implements MessageListener {
 	ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
 	ContactListener contactListener;
-	REMOVE_BTOBJECT REMOVE_BTOBJECT_message=new REMOVE_BTOBJECT();
+	REMOVE_BTOBJECT remove_BTOBJECT_message=new REMOVE_BTOBJECT();
 	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY=new UPDATE_BTOBJECT_MOTIONSTATE();
 	public static Queue<BtObject>  updateBtObjectMotionStateBroadCastQueue=new ConcurrentLinkedDeque<BtObject>();
 	
-	BtObjectSpawner obstacleBallSpawner=new BtObjectSpawner(5000) {
+	
+	BtObjectSpawner obstacleBallSpawner=new BtObjectSpawner(1000) {
 		Vector3 v3=new Vector3();
 		Color color=new Color();
 		S2C_ADD_OBSTACLE message=new S2C_ADD_OBSTACLE();
@@ -107,6 +110,7 @@ public class BtTestServer2 implements MessageListener {
 			message.setB(color.b);
 			message.setA(color.a);
 			broadCastor.broadCast_SINGLE_MESSAGE(message, false);
+			obstacleBtObjectList.add(btObject);
 		}
 		
 		
@@ -260,6 +264,15 @@ public class BtTestServer2 implements MessageListener {
 						}
 					}
 					
+					for (Iterator iterator = obstacleBtObjectList.iterator(); iterator.hasNext();) {
+						BtObject btObject = (BtObject) iterator.next();
+						if (btObject.getPosition().z>0){
+							physicsWorld.removePhysicsObject(btObject);
+							remove_BTOBJECT_message.setId(btObject.getId());
+							iterator.remove();
+							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+						}
+					}
 					
 					for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
 						UPDATE_BTOBJECT_MOTIONSTATE message=updatePhysicsObjectQueue.poll();

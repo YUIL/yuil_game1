@@ -558,7 +558,11 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
-				physicsWorld.removePhysicsObject(physicsWorld.getPhysicsObjects().get(message.getId()));
+				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
+				if(btObject!=null){
+					physicsWorld.removePhysicsObject(physicsWorld.getPhysicsObjects().get(message.getId()));
+					System.out.println("remove");
+				}
 			}
 		});
 		
