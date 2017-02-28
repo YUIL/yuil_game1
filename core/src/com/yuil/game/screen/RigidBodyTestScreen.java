@@ -225,7 +225,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void zJustPressedAction() {
-		testBtObject=physicsWorldBuilder.createDefaultRenderableBall(0, 10, -10);
+		testBtObject=physicsWorldBuilder.createObstacleRenderableBall(1, 1, new Vector3(0,0,0),new Color(0f,1f,0f,1f));
 		physicsWorld.addPhysicsObject(testBtObject);
 	}
 

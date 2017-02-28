@@ -1,9 +1,13 @@
 package com.yuil.game.entity;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 public abstract class BtObjectSpawner {
 	public long interval;//millionsecond
 	public long nextSpawnTime;
-	
+	public static Queue<BtObject>  reuseQueue=new ConcurrentLinkedDeque<BtObject>();
+
 	
 	
 	public BtObjectSpawner(long interval) {

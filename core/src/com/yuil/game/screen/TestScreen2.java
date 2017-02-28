@@ -3,12 +3,15 @@ package com.yuil.game.screen;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -30,6 +33,7 @@ import com.yuil.game.entity.PhysicsWorld;
 import com.yuil.game.entity.PhysicsWorldBuilder;
 import com.yuil.game.entity.RenderableBtObject;
 import com.yuil.game.entity.attribute.AttributeType;
+import com.yuil.game.entity.attribute.DamagePoint;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.gui.GuiFactory;
@@ -51,6 +55,9 @@ import io.netty.buffer.ByteBuf;
 
 public class TestScreen2 extends Screen2D implements MessageListener{
 	
+	
+	Queue<S2C_ADD_OBSTACLE> createObstacleQueue =new  ConcurrentLinkedQueue<S2C_ADD_OBSTACLE>();
+
 	boolean turnLeft=true;
 	long nextTurnTime=0;
 	
@@ -125,6 +132,28 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	public void render(float delta) {
 		checkKeyBoardStatus();
 		
+		while(!createObstacleQueue.isEmpty()){
+			S2C_ADD_OBSTACLE message=createObstacleQueue.poll();
+			C2S_UPDATE_BTOBJECT_MOTIONSTATE c2s_UPDATE_BTOBJECT_MOTIONSTATE_message=new C2S_UPDATE_BTOBJECT_MOTIONSTATE();
+			Color color=new Color();
+			Vector3 v3=new Vector3();
+				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
+					v3.x=0;
+					v3.y=-100;
+					v3.z=0;
+					color.set(message.getR(), message.getG(), message.getB(), message.getA());
+					//System.out.println("color.g:"+message.getG());
+					BtObject btObject=physicsWorldBuilder.createObstacleRenderableBall(message.getRadius(), 1, v3, color);
+					btObject.setId(message.getId());
+					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
+					btObject.Attributes.put(AttributeType.Color.ordinal(), new com.yuil.game.entity.attribute.Color(color));
+					physicsWorld.addPhysicsObject(btObject);
+					c2s_UPDATE_BTOBJECT_MOTIONSTATE_message.setId(message.getId());
+					sendSingleMessage(c2s_UPDATE_BTOBJECT_MOTIONSTATE_message);
+				}
+				
+			
+		}
 /*		if(System.currentTimeMillis()>nextTurnTime){
 			aJustUppedAction();
 			nextTurnTime=System.currentTimeMillis()+100;
@@ -474,6 +503,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
+				System.out.println("recv addplayer");
 				if(physicsWorld.getPhysicsObjects().get(message.getObjectId())==null){
 					BtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
 					btObject.setId(message.getObjectId());
@@ -494,18 +524,18 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			}
 		});
 		
-		messageHandlerMap.put(EntityMessageType.ADD_BALL.ordinal(), new MessageHandler() {
-			ADD_BALL message=new ADD_BALL();
+		messageHandlerMap.put(EntityMessageType.S2C_ADD_OBSTACLE.ordinal(), new MessageHandler() {
+			S2C_ADD_OBSTACLE message=new S2C_ADD_OBSTACLE();
+			C2S_UPDATE_BTOBJECT_MOTIONSTATE c2s_UPDATE_BTOBJECT_MOTIONSTATE_message=new C2S_UPDATE_BTOBJECT_MOTIONSTATE();
+			Color color=new Color();
+			Vector3 v3=new Vector3();
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 
 				message.set(src);
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
-					//RenderableBtObject btObject1=physicsWorldBuilder.createDefaultRenderableBall(1, 0, 10000, 0);
-					//btObject1.setId(message.getId());
-					
-					//physicsWorld.addPhysicsObject(btObject1);
+					createObstacleQueue.add(message);
 				}
 				
 			}
@@ -542,11 +572,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				message.set(src);
 				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
 				if(btObject==null){
+					c2s_ENQUIRE_BTOBJECT_message.setId(message.getId());
 					sendSingleMessage(c2s_ENQUIRE_BTOBJECT_message);
 				}else{
-					System.out.println("mmm:"+message.getLinearVelocityZ());
+					//System.out.println("mmm:"+message.getLinearVelocityZ());
 					updatePhysicsObject(btObject,message);
-					System.out.println("nnn:"+btObject.getRigidBody().getLinearVelocity().z);
+					//System.out.println("nnn:"+btObject.getRigidBody().getLinearVelocity().z);
 
 				}
 			}

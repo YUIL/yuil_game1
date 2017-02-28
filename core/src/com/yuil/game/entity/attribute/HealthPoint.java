@@ -14,7 +14,7 @@ public class HealthPoint implements Attribute {
 	@Override
 	public Integer getType() {
 		// TODO Auto-generated method stub
-		return 0;
+		return type;
 	}
 
 }
