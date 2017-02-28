@@ -1,4 +1,4 @@
-package com.yuil.game.entity;
+package com.yuil.game.entity.physics;
 
 import java.util.HashMap;
 
@@ -14,7 +14,6 @@ import com.yuil.game.entity.attribute.Attribute;
 public class BtObject extends PhysicsObject implements Disposable{
 	//ModelInstance instance;
 	btRigidBody rigidBody;
-	btDefaultMotionState motionState;
 	btCollisionShape collisionShape;
 	btRigidBodyConstructionInfo  rigidBodyConstructionInfo;
 	public Object userData;
@@ -32,7 +31,6 @@ public class BtObject extends PhysicsObject implements Disposable{
 		super();
 		this.id=id;
 		this.rigidBody = rigidBody;
-		this.motionState = motionState;
 		this.collisionShape = collisionShape;
 		this.rigidBodyConstructionInfo = rigidBodyConstructionInfo;
 		
@@ -52,17 +50,6 @@ public class BtObject extends PhysicsObject implements Disposable{
 
 	public void setPosition(Vector3 position) {
 		this.rigidBody.getWorldTransform().setTranslation(position);
-	}
-
-	public btDefaultMotionState getMotionState() {
-		return motionState;
-	}
-
-
-
-
-	public void setMotionState(btDefaultMotionState motionState) {
-		this.motionState = motionState;
 	}
 
 
@@ -113,11 +100,10 @@ public class BtObject extends PhysicsObject implements Disposable{
 	public  void dispose() {
 		// TODO Auto-generated method stub
 		synchronized (this) {
-			motionState.dispose();
+			rigidBody.getMotionState().dispose();
 			rigidBodyConstructionInfo.dispose();
 			collisionShape.dispose();
 			rigidBody.dispose();
-			this.motionState=null;
 			this.rigidBodyConstructionInfo=null;
 			this.collisionShape=null;
 			this.rigidBody=null;
@@ -126,7 +112,7 @@ public class BtObject extends PhysicsObject implements Disposable{
 
 	@Override
 	public String toString() {
-		return "BtObject [rigidBody=" + rigidBody + ", motionState=" + motionState + ", collisionShape="
+		return "BtObject [rigidBody=" + rigidBody + ", collisionShape="
 				+ collisionShape + ", rigidBodyConstructionInfo=" + rigidBodyConstructionInfo + ", userData=" + userData
 				+ ", position=" + position + "]";
 	}

@@ -14,15 +14,15 @@ import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.yuil.game.entity.BtObject;
-import com.yuil.game.entity.BtObjectFactory;
-import com.yuil.game.entity.BtWorld;
 import com.yuil.game.entity.message.ADD_BALL;
 import com.yuil.game.entity.message.APPLY_FORCE;
 import com.yuil.game.entity.message.EntityMessageType;
 import com.yuil.game.entity.message.REMOVE_BTOBJECT;
 import com.yuil.game.entity.message.TEST;
 import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
+import com.yuil.game.entity.physics.BtObject;
+import com.yuil.game.entity.physics.BtObjectFactory;
+import com.yuil.game.entity.physics.BtWorld;
 import com.yuil.game.net.MessageListener;
 import com.yuil.game.net.NetSocket;
 import com.yuil.game.net.Session;
@@ -60,7 +60,7 @@ public class BtTestServer implements MessageListener {
 	}
 
 	public BtTestServer() {
-		physicsWorld.addPhysicsObject(btObjectFactory.createGround());
+		//physicsWorld.addPhysicsObject(btObjectFactory.createGround());
 		
 		try {
 			netSocket = new UdpSocket(9091);

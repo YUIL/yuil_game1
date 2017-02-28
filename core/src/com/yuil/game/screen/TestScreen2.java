@@ -25,17 +25,18 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
-import com.yuil.game.entity.BtObject;
-import com.yuil.game.entity.BtObjectFactory;
-import com.yuil.game.entity.BtWorld;
-import com.yuil.game.entity.PhysicsObject;
-import com.yuil.game.entity.PhysicsWorld;
-import com.yuil.game.entity.PhysicsWorldBuilder;
-import com.yuil.game.entity.RenderableBtObject;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
+import com.yuil.game.entity.attribute.GameObjectType;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.message.*;
+import com.yuil.game.entity.physics.BtObject;
+import com.yuil.game.entity.physics.BtObjectFactory;
+import com.yuil.game.entity.physics.BtWorld;
+import com.yuil.game.entity.physics.PhysicsObject;
+import com.yuil.game.entity.physics.PhysicsWorld;
+import com.yuil.game.entity.physics.PhysicsWorldBuilder;
+import com.yuil.game.entity.physics.RenderableBtObject;
 import com.yuil.game.gui.GuiFactory;
 import com.yuil.game.input.ActorInputListenner;
 import com.yuil.game.input.InputManager;
@@ -145,8 +146,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					//System.out.println("color.g:"+message.getG());
 					BtObject btObject=physicsWorldBuilder.createObstacleRenderableBall(message.getRadius(), 1, v3, color);
 					btObject.setId(message.getId());
+					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectType(com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()));
 					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
-					btObject.Attributes.put(AttributeType.Color.ordinal(), new com.yuil.game.entity.attribute.Color(color));
+					btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
 					physicsWorld.addPhysicsObject(btObject);
 					c2s_UPDATE_BTOBJECT_MOTIONSTATE_message.setId(message.getId());
 					sendSingleMessage(c2s_UPDATE_BTOBJECT_MOTIONSTATE_message);
@@ -184,9 +186,13 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			}
 		}else{
 			//System.out.println("x:"+playerObject.getPosition().x);
-			camera.position.set(playerObject.getPosition().x, playerObject.getPosition().y+2f, playerObject.getPosition().z+5);
-			//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
-			camera.update();
+			try {
+				camera.position.set(playerObject.getPosition().x+1, playerObject.getPosition().y+2f, playerObject.getPosition().z+1);
+				//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
+				camera.update();
+			} catch (Exception e) {
+				System.out.println("object已被刪除");
+			}
 		}
 		modelBatch.begin(camera);
 
@@ -557,11 +563,16 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
+
 				message.set(src);
 				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
 				if(btObject!=null){
+					OwnerPlayerId ownerPlayerId=(OwnerPlayerId) btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
+					if(ownerPlayerId!=null){
+						playerId=0;
+						playerObject=null;
+					}
 					physicsWorld.removePhysicsObject(physicsWorld.getPhysicsObjects().get(message.getId()));
-					System.out.println("remove");
 				}
 			}
 		});

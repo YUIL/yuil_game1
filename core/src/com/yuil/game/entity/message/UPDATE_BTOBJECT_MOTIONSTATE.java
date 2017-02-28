@@ -3,7 +3,7 @@ package com.yuil.game.entity.message;
 import java.util.Arrays;
 
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.yuil.game.entity.BtObject;
+import com.yuil.game.entity.physics.BtObject;
 import com.yuil.game.net.message.Message;
 
 import io.netty.buffer.ByteBuf;

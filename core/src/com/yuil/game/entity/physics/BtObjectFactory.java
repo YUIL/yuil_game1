@@ -1,4 +1,4 @@
-package com.yuil.game.entity;
+package com.yuil.game.entity.physics;
 
 import java.util.Random;
 
@@ -66,16 +66,16 @@ public class BtObjectFactory {
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 200));
 		return createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
 	}
-	
+	/*
 	public BtObject createGround() {
-		return createGround(200, 0, 200);
-	}
+		return createGround(20, 0, 200);
+	}*//*
 	public BtObject createGround(float x, float y,float z) {
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(x,y,z));
 		BtObject btObject=new BtObject();
 		initBtObject(btObject, collisionShape, 0, 0, 0, 0);
 		return btObject;
-	}
+	}*/
 
 	public RenderableBtObject createRenderableBtObject(Model model, btCollisionShape collisionShape, float mass, float x, float y,
 			float z) {
@@ -92,21 +92,19 @@ public class BtObjectFactory {
 
 	public void initBtObject(BtObject btObject, btCollisionShape collisionShape, float mass, float x, float y,float z){
 		Vector3 inertia = new Vector3();
-		collisionShape.calculateLocalInertia(mass, inertia);
 
+		collisionShape.calculateLocalInertia(mass, inertia);
 		btRigidBodyConstructionInfo rigidBodyConstructionInfo = new btRigidBodyConstructionInfo(mass, null,
 				collisionShape, inertia);
 		btDefaultMotionState motionState = new btDefaultMotionState();
-
 		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1, 1, 1)));
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
-		rigidBody.setFriction(0f);
+		//rigidBody.setFriction(0f);
 		
 		btObject.setId(random.nextLong());
 		btObject.setRigidBody(rigidBody);
-		btObject.setMotionState(motionState);
 		btObject.setCollisionShape(collisionShape);
 		btObject.setRigidBodyConstructionInfo(rigidBodyConstructionInfo);
 	}

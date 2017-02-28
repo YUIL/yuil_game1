@@ -1,4 +1,4 @@
-package com.yuil.game.entity;
+package com.yuil.game.entity.physics;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;

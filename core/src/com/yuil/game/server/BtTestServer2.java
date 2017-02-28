@@ -22,16 +22,17 @@ import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.yuil.game.entity.BtObject;
-import com.yuil.game.entity.BtObjectFactory;
-import com.yuil.game.entity.BtObjectSpawner;
-import com.yuil.game.entity.BtWorld;
-import com.yuil.game.entity.PhysicsWorldBuilder;
 import com.yuil.game.entity.attribute.Attribute;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
+import com.yuil.game.entity.attribute.GameObjectType;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.message.*;
+import com.yuil.game.entity.physics.BtObject;
+import com.yuil.game.entity.physics.BtObjectFactory;
+import com.yuil.game.entity.physics.BtObjectSpawner;
+import com.yuil.game.entity.physics.BtWorld;
+import com.yuil.game.entity.physics.PhysicsWorldBuilder;
 import com.yuil.game.net.MessageListener;
 import com.yuil.game.net.NetSocket;
 import com.yuil.game.net.Session;
@@ -47,62 +48,63 @@ import com.yuil.game.util.Log;
 import io.netty.buffer.ByteBuf;
 
 public class BtTestServer2 implements MessageListener {
-	final float NO_CHANGE=1008611;
+	final float NO_CHANGE = 1008611;
 	NetSocket netSocket;
 	BroadCastor broadCastor;
 	BtWorld physicsWorld = new BtWorld();
-	PhysicsWorldBuilder physicsWorldBuilder=new PhysicsWorldBuilder(false);
+	PhysicsWorldBuilder physicsWorldBuilder = new PhysicsWorldBuilder(false);
 	volatile Thread gameWorldThread;
 
+	// Queue<UPDATE_BTOBJECT_MOTIONSTATE> updatePhysicsObjectQueue=new
+	// ConcurrentLinkedQueue<UPDATE_BTOBJECT_MOTIONSTATE>();
+	// Queue<APPLY_FORCE> applyForceQueue=new
+	// ConcurrentLinkedQueue<APPLY_FORCE>();
 
+	Random random = new Random(System.currentTimeMillis());
+	List<Player> playerList = new ArrayList<Player>();
+	List<BtObject> obstacleBtObjectList = new LinkedList<BtObject>();
 
-	Queue<UPDATE_BTOBJECT_MOTIONSTATE> updatePhysicsObjectQueue=new  ConcurrentLinkedQueue<UPDATE_BTOBJECT_MOTIONSTATE>();
-	//Queue<APPLY_FORCE> applyForceQueue=new  ConcurrentLinkedQueue<APPLY_FORCE>();
-	
-	Random random=new Random(System.currentTimeMillis());
-	List<Player> playerList=new ArrayList<Player>();
-	List<BtObject> obstacleBtObjectList=new LinkedList<BtObject>();
+	Vector3 tempVector3 = new Vector3(0, 0, -20);
+	Matrix4 tempMatrix4 = new Matrix4();
 
-	Vector3 tempVector3=new Vector3(0,0,-20);
-	Matrix4 tempMatrix4=new Matrix4();
-	
-	//BtObjectFactory btObjectFactory = new BtObjectFactory(false);
+	// BtObjectFactory btObjectFactory = new BtObjectFactory(false);
 	Map<Integer, MessageHandler> messageHandlerMap = new HashMap<Integer, MessageHandler>();
 	MessageProcessor messageProcessor;
 	ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
 	ContactListener contactListener;
-	REMOVE_BTOBJECT remove_BTOBJECT_message=new REMOVE_BTOBJECT();
-	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY=new UPDATE_BTOBJECT_MOTIONSTATE();
-	public static Queue<BtObject>  updateBtObjectMotionStateBroadCastQueue=new ConcurrentLinkedDeque<BtObject>();
-	
-	
-	BtObjectSpawner obstacleBallSpawner=new BtObjectSpawner(1000) {
-		Vector3 v3=new Vector3();
-		Color color=new Color();
-		S2C_ADD_OBSTACLE message=new S2C_ADD_OBSTACLE();
+	REMOVE_BTOBJECT remove_BTOBJECT_message = new REMOVE_BTOBJECT();
+	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY = new UPDATE_BTOBJECT_MOTIONSTATE();
+	public static Queue<BtObject> updateBtObjectMotionStateBroadCastQueue = new ConcurrentLinkedDeque<BtObject>();
+
+	BtObjectSpawner obstacleBallSpawner = new BtObjectSpawner(1000) {
+		Vector3 v3 = new Vector3();
+		Color color = new Color();
+		S2C_ADD_OBSTACLE message = new S2C_ADD_OBSTACLE();
+
 		@Override
 		public void spawn() {
 			// TODO Auto-generated method stub
-			//physicsWorld.addPhysicsObjectQueue.
-			v3.x=-10+random.nextInt(20);
-			v3.y=1;
-			v3.z=-190;
-			float radius=(random.nextInt(10000)/10000f)*3;
-			BtObject btObject=physicsWorldBuilder.createObstacleBall(radius, 1, v3);
+			// physicsWorld.addPhysicsObjectQueue.
+			v3.x = -10 + random.nextInt(20);
+			v3.y = 1;
+			v3.z = -190;
+			float radius = (random.nextInt(10000) / 10000f) * 3;
+			BtObject btObject = physicsWorldBuilder.createObstacleBall(radius, 1, v3);
+			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectType(com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()));
 			btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
-			color.set(random.nextInt(255)/255f, random.nextInt(255)/255f, random.nextInt(255)/255f, 1);
-			btObject.Attributes.put(AttributeType.Color.ordinal(), new com.yuil.game.entity.attribute.Color(color));
-			
-			v3.x=0;
-			v3.y=0;
-			v3.z=10;
+			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
+			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
+
+			v3.x = 0;
+			v3.y = 0;
+			v3.z = 10;
 			btObject.getRigidBody().setLinearVelocity(v3);
-			
-			long id=random.nextLong();
+
+			long id = random.nextLong();
 			btObject.setId(id);
 			physicsWorld.addPhysicsObject(btObject);
-			
+
 			message.setId(id);
 			message.setRadius(radius);
 			message.setR(color.r);
@@ -112,79 +114,72 @@ public class BtTestServer2 implements MessageListener {
 			broadCastor.broadCast_SINGLE_MESSAGE(message, false);
 			obstacleBtObjectList.add(btObject);
 		}
-		
-		
-	};
-	
-	public class MyContactListener extends ContactListener {
-		Queue<BtObject> removeQueue=new LinkedList<BtObject>();
-		Vector3 v3=new Vector3();
-	    @Override
-	    public void onContactStarted (btCollisionObject colObj0, btCollisionObject colObj1) {
-	    	if(colObj0 instanceof btRigidBody){
-	    		
-	    		BtObject btObject=(BtObject)(((btRigidBody)colObj0).userData);
-	    		if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
-	    			//System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
-	    			v3.set(btObject.getRigidBody().getLinearVelocity());
-	    			v3.z=-10;
-	    			btObject.getRigidBody().setLinearVelocity(v3);
-	    		}
-	    		updateBtObjectMotionStateBroadCastQueue.add(btObject);
-	    	}
-	    	
-	    	if(colObj1 instanceof btRigidBody){
-	    	
-	    		BtObject btObject=(BtObject)(((btRigidBody)colObj1).userData);
-	    		if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
-	    			//System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
-	    			v3.set(btObject.getRigidBody().getLinearVelocity());
-	    			v3.z=-10;
-	    			btObject.getRigidBody().setLinearVelocity(v3);
-	    		}
-	    		updateBtObjectMotionStateBroadCastQueue.add(btObject);
-	    	}
-	    	
-	    	/*
-	    	if(colObj0 instanceof btRigidBody&&colObj1 instanceof btRigidBody){
-	    		BtObject btObject0=(BtObject)(((btRigidBody)colObj0).userData);
-	    		BtObject btObject1=(BtObject)(((btRigidBody)colObj1).userData);
-				if (btObject0.userData instanceof Bullet && btObject1.userData instanceof AliveObject) {
-					beAttack((Bullet)btObject0.userData, btObject1);
-				}
-				if (btObject0.userData instanceof AliveObject && btObject1.userData instanceof Bullet) {
-					beAttack((Bullet)btObject1.userData, btObject0);
-				}
-				
-	    	}*/
-	    	while(!removeQueue.isEmpty()){
-				physicsWorld.removePhysicsObject(removeQueue.poll());
-	    	}
-	    }
-	    public void onContactProcessed(btCollisionObject colObj0, btCollisionObject colObj1) {
-	    }
-	    public void onContactEnded(btCollisionObject colObj0, btCollisionObject colObj1) {
-	    }
 
-	    /**
-	     * @param bullet
-	     * @param btObject
-	     * @return 是否删除
-	     *//*
-	    private boolean beAttack(Bullet bullet ,BtObject btObject){
-	    	AliveObject aliveObject=(AliveObject)btObject.userData;
-			if(aliveObject.getH()>bullet.getAttack()){
-				aliveObject.setH(aliveObject.getH()-bullet.getAttack());
-				btObjectBroadCastQueue.add(btObject);
-				return false;
-			}else{
-				REMOVE_BTOBJECT_message.setId(btObject.getId());
-				broadCastor.broadCast_SINGLE_MESSAGE(REMOVE_BTOBJECT_message.get(),false);
-				removeQueue.add(btObject);
-				return true;
+	};
+
+	public class MyContactListener extends ContactListener {
+		Vector3 v3 = new Vector3();
+		REMOVE_BTOBJECT remove_BTOBJECT_message=new REMOVE_BTOBJECT();
+		
+		@Override
+		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
+			if (colObj0 instanceof btRigidBody && colObj1 instanceof btRigidBody ) {
+				BtObject btObject0=(BtObject) (((btRigidBody) colObj0).userData);
+				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
+				handleBtObject(btObject0);
+				handleBtObject(btObject1);
+				
+				
+				
+					GameObjectType gameObjectType0=(GameObjectType)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+					GameObjectType gameObjectType1=(GameObjectType)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+
+					if(gameObjectType != null){
+						if(gameObjectType.getGameObjectType()==com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()){
+							System.out.println("asdasds");
+							physicsWorld.removePhysicsObject(btObject);
+							remove_BTOBJECT_message.setId(btObject.getId());
+							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+						}
+					}
+				
 			}
-	    }*/
+
+		}
+
+		void handleBtObject(BtObject btObject){
+			if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null) {
+				// System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
+				v3.set(btObject.getRigidBody().getLinearVelocity());
+				v3.z = -10;
+				//btObject.getRigidBody().setLinearVelocity(v3);
+				updateBtObjectMotionStateBroadCastQueue.add(btObject);
+
+			}
+		}
+		
+		public void onContactProcessed(btCollisionObject colObj0, btCollisionObject colObj1) {
+		}
+
+		public void onContactEnded(btCollisionObject colObj0, btCollisionObject colObj1) {
+		}
+
+		/**
+		 * @param bullet
+		 * @param btObject
+		 * @return 是否删除
+		 *//*
+			 * private boolean beAttack(Bullet bullet ,BtObject btObject){
+			 * AliveObject aliveObject=(AliveObject)btObject.userData;
+			 * if(aliveObject.getH()>bullet.getAttack()){
+			 * aliveObject.setH(aliveObject.getH()-bullet.getAttack());
+			 * btObjectBroadCastQueue.add(btObject); return false; }else{
+			 * REMOVE_BTOBJECT_message.setId(btObject.getId());
+			 * broadCastor.broadCast_SINGLE_MESSAGE(REMOVE_BTOBJECT_message.get(
+			 * ),false); removeQueue.add(btObject); return true; } }
+			 */
 	}
+
 	public static void main(String[] args) {
 		BtTestServer2 btTestServer = new BtTestServer2();
 		btTestServer.start();
@@ -192,9 +187,9 @@ public class BtTestServer2 implements MessageListener {
 
 	public BtTestServer2() {
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.createDefaultGround());
-		
-		contactListener=new MyContactListener();
-		
+
+		contactListener = new MyContactListener();
+
 		try {
 			netSocket = new UdpSocket(9091);
 		} catch (BindException e) {
@@ -221,85 +216,56 @@ public class BtTestServer2 implements MessageListener {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			nextUpdateTime=System.currentTimeMillis();
+			nextUpdateTime = System.currentTimeMillis();
 			while (true) {
-				if (System.currentTimeMillis() >= nextUpdateTime  ) {
-					obstacleBallSpawner.update();
-					for (Iterator iterator = playerList.iterator(); iterator.hasNext();) {
-						Player player = (Player) iterator.next();
-						BtObject btObject=physicsWorld.getPhysicsObjects().get(player.btObjectId);
-						if (btObject!=null){
-							//System.out.println(btObject.getPosition().z);
-							//if(btObject.getRigidBody().getLinearVelocity().z>-0.3){
-								//tempVector3.set(0,0,-20);
-								//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
-								//BtTestServer2.btObjectBroadCastQueue.add(btObject);
+				if (System.currentTimeMillis() >= nextUpdateTime) {
+					obstacleBallSpawner.update();// 刷障碍物体
 
-							//}
-							if(btObject.getPosition().z<-199){
-								btObject.getRigidBody().getWorldTransform(tempMatrix4);
-								tempMatrix4.setTranslation(btObject.getPosition().x,btObject.getPosition().y,-20);
-								btObject.getRigidBody().setWorldTransform(tempMatrix4);
-								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
-							}
-							if(Math.abs(btObject.getPosition().x)>19){
-								final float offset=0.01f;
-								if(btObject.getRigidBody().getLinearVelocity().x>0){
-									tempMatrix4.set(btObject.getTransform());
-									tempMatrix4.setTranslation(19-offset, btObject.getPosition().y, btObject.getPosition().z);
-								}else{
-									tempMatrix4.set(btObject.getTransform());
-									tempMatrix4.setTranslation(-19+offset, btObject.getPosition().y, btObject.getPosition().z);
-								}
-								btObject.getRigidBody().setWorldTransform(tempMatrix4);
-								tempVector3.set(btObject.getRigidBody().getLinearVelocity());
-								tempVector3.x=tempVector3.x*-0.5f;
-								btObject.getRigidBody().setLinearVelocity(tempVector3);
-								
-							
-								
-								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
+					for (BtObject btObject : physicsWorld.getPhysicsObjects().values()) {
+						// System.out.println(btObject.rigidBody.getWorldTransform());
 
-							}
-						}
-					}
-					
-					for (Iterator iterator = obstacleBtObjectList.iterator(); iterator.hasNext();) {
-						BtObject btObject = (BtObject) iterator.next();
-						if (btObject.getPosition().z>0){
+						btObject.getRigidBody().getWorldTransform().getTranslation(tempVector3);
+						if (tempVector3.y < -100) {// 所有物体的死亡高度判断
 							physicsWorld.removePhysicsObject(btObject);
 							remove_BTOBJECT_message.setId(btObject.getId());
-							iterator.remove();
 							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+						} else if (btObject.Attributes.get(AttributeType.DAMAGE_POINT.ordinal()) != null) {
+							// 检查障碍物位置,超过边界则删除
+							if (tempVector3.z > -10) {
+								physicsWorld.removePhysicsObject(btObject);
+								remove_BTOBJECT_message.setId(btObject.getId());
+								broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+							}
+						}else if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null){
+							// 检查playerObjects位置，超过边界返回起始点
+							//System.out.println(btObject.getPosition());
+							if (tempVector3.z < -199) {
+								btObject.getRigidBody().getWorldTransform(tempMatrix4);
+								tempMatrix4.setTranslation(btObject.getPosition().x, btObject.getPosition().y, -20);
+								btObject.getRigidBody().setWorldTransform(tempMatrix4);
+								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
+							}
 						}
 					}
-					
-					for (int i = 0; i < updatePhysicsObjectQueue.size(); i++) {
-						UPDATE_BTOBJECT_MOTIONSTATE message=updatePhysicsObjectQueue.poll();
-						BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
-						if (btObject!=null){
-							updatePhysicsObject(btObject,message);
-						}	
-					}
-					
-					nextUpdateTime+=interval;
-					physicsWorld.update(interval/1000f);//更新物理世界
-					
-					//向连接的客户端发送btObjectMotionstate同步消息
+				
+					nextUpdateTime += interval;
+					physicsWorld.update(interval / 1000f);// 更新物理世界
+
+					// 向连接的客户端发送btObjectMotionstate同步消息
 					for (int i = 0; i < updateBtObjectMotionStateBroadCastQueue.size(); i++) {
-						BtObject btObject=updateBtObjectMotionStateBroadCastQueue.poll();
-						if (btObject.getRigidBody()!=null) {
-							//System.out.println("update");
+						BtObject btObject = updateBtObjectMotionStateBroadCastQueue.poll();
+						if (btObject.getRigidBody() != null) {
+							// System.out.println("update");
 							update_BTRIGIDBODY.set(btObject);
-							//System.out.println(update_BTRIGIDBODY.toString());
+							// System.out.println(update_BTRIGIDBODY.toString());
 							broadCastor.broadCast_SINGLE_MESSAGE(update_BTRIGIDBODY, true);
 						}
 					}
 					// broadCastor.broadCast_GAME_MESSAGE(data, false);
-					
-				}else{
+
+				} else {
 					try {
-						Thread.sleep(nextUpdateTime-System.currentTimeMillis());
+						Thread.sleep(nextUpdateTime - System.currentTimeMillis());
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -313,31 +279,34 @@ public class BtTestServer2 implements MessageListener {
 	class MessageProcessor extends com.yuil.game.net.MessageProcessor {
 		public MessageProcessor() {
 			messageHandlerMap.put(EntityMessageType.C2S_ADD_PLAYER.ordinal(), new MessageHandler() {
-				C2S_ADD_PLAYER message=new C2S_ADD_PLAYER();
-				S2C_ADD_PLAYER s2c_ADD_PLAYER_message=new S2C_ADD_PLAYER();
+				C2S_ADD_PLAYER message = new C2S_ADD_PLAYER();
+				S2C_ADD_PLAYER s2c_ADD_PLAYER_message = new S2C_ADD_PLAYER();
+
 				@Override
 				public void handle(ByteBuf src) {
 					message.set(src);
 					// TODO Auto-generated method stub
-					long objectId=random.nextLong();
+					long objectId = random.nextLong();
 					s2c_ADD_PLAYER_message.setId(message.getId());
 					s2c_ADD_PLAYER_message.setObjectId(objectId);
-					
-					BtObject btObject=physicsWorldBuilder.createDefaultBall(5,10,0);
-					
-					btObject.setId(objectId);
-					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
-					physicsWorld.addPhysicsObject(btObject);
-					
-					playerList.add(new Player(message.getId(),objectId));
-					
-					tempVector3.set(btObject.getRigidBody().getLinearVelocity().x,btObject.getRigidBody().getLinearVelocity().y,-10f);
-					btObject.getRigidBody().setLinearVelocity(tempVector3);
-					
-					broadCastor.broadCast_SINGLE_MESSAGE(s2c_ADD_PLAYER_message, false);
-		    		updateBtObjectMotionStateBroadCastQueue.add(btObject);
 
-					//BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
+					BtObject btObject = physicsWorldBuilder.createDefaultBall(5, 10, 0);
+
+					btObject.setId(objectId);
+					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),
+							new OwnerPlayerId(message.getId()));
+					physicsWorld.addPhysicsObject(btObject);
+
+					playerList.add(new Player(message.getId(), objectId));
+
+					tempVector3.set(btObject.getRigidBody().getLinearVelocity().x,
+							btObject.getRigidBody().getLinearVelocity().y, -10f);
+					btObject.getRigidBody().setLinearVelocity(tempVector3);
+
+					broadCastor.broadCast_SINGLE_MESSAGE(s2c_ADD_PLAYER_message, false);
+					updateBtObjectMotionStateBroadCastQueue.add(btObject);
+
+					// BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
 				}
 			});
 			messageHandlerMap.put(EntityMessageType.ADD_BTOBJECT.ordinal(), new MessageHandler() {
@@ -350,69 +319,75 @@ public class BtTestServer2 implements MessageListener {
 
 			messageHandlerMap.put(EntityMessageType.C2S_UPDATE_BTOBJECT_MOTIONSTATE.ordinal(), new MessageHandler() {
 				C2S_UPDATE_BTOBJECT_MOTIONSTATE message = new C2S_UPDATE_BTOBJECT_MOTIONSTATE();
-				UPDATE_BTOBJECT_MOTIONSTATE update_BTOBJECT_MOTIONSTATE_message=new UPDATE_BTOBJECT_MOTIONSTATE();
+				UPDATE_BTOBJECT_MOTIONSTATE update_BTOBJECT_MOTIONSTATE_message = new UPDATE_BTOBJECT_MOTIONSTATE();
+
 				@Override
 				public void handle(ByteBuf src) {
 					// TODO Auto-generated method stub
 					message.set(src);
-					BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
-					if(btObject!=null){
+					BtObject btObject = physicsWorld.getPhysicsObjects().get(message.getId());
+					if (btObject != null) {
 						update_BTOBJECT_MOTIONSTATE_message.set(btObject);
-						netSocket.send(SINGLE_MESSAGE.get(update_BTOBJECT_MOTIONSTATE_message.get().array()), session, false);
+						netSocket.send(SINGLE_MESSAGE.get(update_BTOBJECT_MOTIONSTATE_message.get().array()), session,
+								false);
 					}
 				}
 			});
 			messageHandlerMap.put(EntityMessageType.UPDATE_LINEAR_VELOCITY.ordinal(), new MessageHandler() {
-				UPDATE_LINEAR_VELOCITY message=new UPDATE_LINEAR_VELOCITY();
+				UPDATE_LINEAR_VELOCITY message = new UPDATE_LINEAR_VELOCITY();
+
 				@Override
 				public void handle(ByteBuf src) {
 					message.set(src);
-					BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
-					
-					if (btObject!=null){
+					BtObject btObject = physicsWorld.getPhysicsObjects().get(message.getId());
+
+					if (btObject != null) {
 						tempVector3.set(btObject.getRigidBody().getLinearVelocity());
-						if(message.getX()!=NO_CHANGE){
-							tempVector3.x=message.getX();
+						if (message.getX() != NO_CHANGE) {
+							tempVector3.x = message.getX();
 						}
-						if(message.getY()!=NO_CHANGE){
-							tempVector3.y=message.getY();
+						if (message.getY() != NO_CHANGE) {
+							tempVector3.y = message.getY();
 						}
-						if(message.getZ()!=NO_CHANGE){
-							tempVector3.z=message.getZ();
+						if (message.getZ() != NO_CHANGE) {
+							tempVector3.z = message.getZ();
 						}
-						//btObject.getRigidBody().applyForce(tempVector3, btObject.getPosition());
-						
+						// btObject.getRigidBody().applyForce(tempVector3,
+						// btObject.getPosition());
+
 						btObject.getRigidBody().setLinearVelocity(tempVector3);
 						BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
-						
+
 					}
 				}
 			});
-			
+
 			messageHandlerMap.put(EntityMessageType.C2S_ENQUIRE_BTOBJECT.ordinal(), new MessageHandler() {
-				C2S_ENQUIRE_BTOBJECT message =new C2S_ENQUIRE_BTOBJECT();
-				S2C_ADD_PLAYER s2c_ADD_PLAYER_message=new S2C_ADD_PLAYER();
+				C2S_ENQUIRE_BTOBJECT message = new C2S_ENQUIRE_BTOBJECT();
+				S2C_ADD_PLAYER s2c_ADD_PLAYER_message = new S2C_ADD_PLAYER();
+
 				@Override
 				public void handle(ByteBuf src) {
 					message.set(src);
-					BtObject btObject=physicsWorld.getPhysicsObjects().get(message.getId());
-					if(btObject!=null){
-						Attribute attribute =btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
-						if(attribute!=null){
-							s2c_ADD_PLAYER_message.setId(((OwnerPlayerId)attribute).getPlayerId());
+					BtObject btObject = physicsWorld.getPhysicsObjects().get(message.getId());
+					if (btObject != null) {
+						Attribute attribute = btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
+						if (attribute != null) {
+							s2c_ADD_PLAYER_message.setId(((OwnerPlayerId) attribute).getPlayerId());
 							s2c_ADD_PLAYER_message.setObjectId(message.getId());
 							netSocket.send(SINGLE_MESSAGE.get(s2c_ADD_PLAYER_message.get().array()), session, false);
 						}
 					}
 				}
 			});
-			
+
 			messageHandlerMap.put(EntityMessageType.TEST.ordinal(), new MessageHandler() {
-				TEST message =new TEST();
+				TEST message = new TEST();
+
 				@Override
 				public void handle(ByteBuf src) {
 					message.set(src);
-					
+
 					netSocket.send(SINGLE_MESSAGE.get(message.get().array()), session, false);
 				}
 			});
@@ -459,30 +434,30 @@ public class BtTestServer2 implements MessageListener {
 		threadPool.execute(messageProcessor);
 	}
 
-
-	
-	public void updatePhysicsObject(UPDATE_BTOBJECT_MOTIONSTATE message) {
-		// TODO Auto-generated method stub
-		this.updatePhysicsObjectQueue.add(message);
-	}
-
+	/*
+	 * public void updatePhysicsObject(UPDATE_BTOBJECT_MOTIONSTATE message) { //
+	 * TODO Auto-generated method stub
+	 * this.updatePhysicsObjectQueue.add(message); }
+	 */
 	public void updateLinearVelocity(UPDATE_LINEAR_VELOCITY message) {
 		// TODO Auto-generated method stub
-	
+
 	}
-	
-	public void updatePhysicsObject(BtObject btObject,UPDATE_BTOBJECT_MOTIONSTATE message){
-		tempMatrix4.set(message.getTransformVal());
-		btObject.getRigidBody().setWorldTransform(tempMatrix4);
-		
-		tempVector3.x=message.getLinearVelocityX();
-		tempVector3.y=message.getLinearVelocityY();
-		tempVector3.z=message.getLinearVelocityZ();
-		btObject.getRigidBody().setLinearVelocity(tempVector3);
-		
-		tempVector3.x=message.getAngularVelocityX();
-		tempVector3.y=message.getAngularVelocityY();
-		tempVector3.z=message.getAngularVelocityZ();
-		btObject.getRigidBody().setAngularVelocity(tempVector3);
-	}
+
+	/*
+	 * public void updatePhysicsObject(BtObject
+	 * btObject,UPDATE_BTOBJECT_MOTIONSTATE message){
+	 * tempMatrix4.set(message.getTransformVal());
+	 * btObject.getRigidBody().setWorldTransform(tempMatrix4);
+	 * 
+	 * tempVector3.x=message.getLinearVelocityX();
+	 * tempVector3.y=message.getLinearVelocityY();
+	 * tempVector3.z=message.getLinearVelocityZ();
+	 * btObject.getRigidBody().setLinearVelocity(tempVector3);
+	 * 
+	 * tempVector3.x=message.getAngularVelocityX();
+	 * tempVector3.y=message.getAngularVelocityY();
+	 * tempVector3.z=message.getAngularVelocityZ();
+	 * btObject.getRigidBody().setAngularVelocity(tempVector3); }
+	 */
 }

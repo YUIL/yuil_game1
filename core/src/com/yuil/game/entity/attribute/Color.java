@@ -1,7 +1,7 @@
 package com.yuil.game.entity.attribute;
 
 public class Color implements Attribute {
-	public final Integer type=AttributeType.Color.ordinal();
+	public final Integer type=AttributeType.COLOR.ordinal();
 	com.badlogic.gdx.graphics.Color color;
 	
 

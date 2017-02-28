@@ -1,10 +1,13 @@
-package com.yuil.game.entity;
+package com.yuil.game.entity.physics;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 
 public class PhysicsWorldBuilder {
 	public BtObjectFactory btObjectFactory;
+	Vector3 tempVector = new Vector3();
 	
 	public PhysicsWorldBuilder(boolean haveDefaultModel) {
 		super();
@@ -19,7 +22,10 @@ public class PhysicsWorldBuilder {
 	}
 
 	public BtObject createDefaultGround(){
-		return btObjectFactory.createGround();
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 200));
+		BtObject btObject=new BtObject();
+		btObjectFactory.initBtObject(btObject, collisionShape, 0, 0, 0, 0);
+		return btObject;
 	}
 	public RenderableBtObject createDefaultRenderableGround(){
 		return btObjectFactory.createRenderableGround();

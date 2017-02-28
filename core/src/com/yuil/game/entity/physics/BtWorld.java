@@ -1,4 +1,4 @@
-package com.yuil.game.entity;
+package com.yuil.game.entity.physics;
 
 import java.util.Map;
 import java.util.Queue;
