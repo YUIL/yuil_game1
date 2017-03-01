@@ -25,8 +25,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.yuil.game.entity.attribute.Attribute;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
-import com.yuil.game.entity.attribute.GameObjectType;
+import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
+import com.yuil.game.entity.gameobject.GameObjectType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.physics.BtObject;
 import com.yuil.game.entity.physics.BtObjectFactory;
@@ -76,6 +77,7 @@ public class BtTestServer2 implements MessageListener {
 	REMOVE_BTOBJECT remove_BTOBJECT_message = new REMOVE_BTOBJECT();
 	UPDATE_BTOBJECT_MOTIONSTATE update_BTRIGIDBODY = new UPDATE_BTOBJECT_MOTIONSTATE();
 	public static Queue<BtObject> updateBtObjectMotionStateBroadCastQueue = new ConcurrentLinkedDeque<BtObject>();
+	public static Queue<BtObject> removeBtObjectQueue = new ConcurrentLinkedDeque<BtObject>();
 
 	BtObjectSpawner obstacleBallSpawner = new BtObjectSpawner(1000) {
 		Vector3 v3 = new Vector3();
@@ -91,7 +93,7 @@ public class BtTestServer2 implements MessageListener {
 			v3.z = -190;
 			float radius = (random.nextInt(10000) / 10000f) * 3;
 			BtObject btObject = physicsWorldBuilder.createObstacleBall(radius, 1, v3);
-			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectType(com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()));
+			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
 			btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
 			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
 			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
@@ -128,12 +130,18 @@ public class BtTestServer2 implements MessageListener {
 				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
 				handleBtObject(btObject0);
 				handleBtObject(btObject1);
-				
-				
-				
-					GameObjectType gameObjectType0=(GameObjectType)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
-					GameObjectType gameObjectType1=(GameObjectType)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+				GameObjectTypeAttribute gameObjectType0=(GameObjectTypeAttribute)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+				GameObjectTypeAttribute gameObjectType1=(GameObjectTypeAttribute)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
 
+				if (gameObjectType0!=null&&gameObjectType1!=null) {
+					if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()){
+						removeBtObjectQueue.add(btObject1);
+					}else if(gameObjectType0.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.PLAYER.ordinal()){
+						removeBtObjectQueue.add(btObject0);
+					}
+				}
+				
+				/*
 					if(gameObjectType != null){
 						if(gameObjectType.getGameObjectType()==com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()){
 							System.out.println("asdasds");
@@ -141,7 +149,7 @@ public class BtTestServer2 implements MessageListener {
 							remove_BTOBJECT_message.setId(btObject.getId());
 							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
 						}
-					}
+					}*/
 				
 			}
 
@@ -152,7 +160,7 @@ public class BtTestServer2 implements MessageListener {
 				// System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
 				v3.set(btObject.getRigidBody().getLinearVelocity());
 				v3.z = -10;
-				//btObject.getRigidBody().setLinearVelocity(v3);
+				btObject.getRigidBody().setLinearVelocity(v3);
 				updateBtObjectMotionStateBroadCastQueue.add(btObject);
 
 			}
@@ -221,15 +229,30 @@ public class BtTestServer2 implements MessageListener {
 				if (System.currentTimeMillis() >= nextUpdateTime) {
 					obstacleBallSpawner.update();// 刷障碍物体
 
+					while (!removeBtObjectQueue.isEmpty()) {
+						BtObject btObject=removeBtObjectQueue.poll();
+						if(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
+							System.out.println("remove a player!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						}
+						physicsWorld.removePhysicsObject(btObject);
+						remove_BTOBJECT_message.setId(btObject.getId());
+						broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+						
+					}
+					
 					for (BtObject btObject : physicsWorld.getPhysicsObjects().values()) {
 						// System.out.println(btObject.rigidBody.getWorldTransform());
 
 						btObject.getRigidBody().getWorldTransform().getTranslation(tempVector3);
 						if (tempVector3.y < -100) {// 所有物体的死亡高度判断
+
+							if(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
+								System.out.println("remove a player!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+							}
 							physicsWorld.removePhysicsObject(btObject);
 							remove_BTOBJECT_message.setId(btObject.getId());
 							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
-						} else if (btObject.Attributes.get(AttributeType.DAMAGE_POINT.ordinal()) != null) {
+						} else if (((GameObjectTypeAttribute)(btObject.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()))).getGameObjectType() ==GameObjectType.OBSTACLE.ordinal()) {
 							// 检查障碍物位置,超过边界则删除
 							if (tempVector3.z > -10) {
 								physicsWorld.removePhysicsObject(btObject);
@@ -293,8 +316,8 @@ public class BtTestServer2 implements MessageListener {
 					BtObject btObject = physicsWorldBuilder.createDefaultBall(5, 10, 0);
 
 					btObject.setId(objectId);
-					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),
-							new OwnerPlayerId(message.getId()));
+					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
+					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),new OwnerPlayerId(message.getId()));
 					physicsWorld.addPhysicsObject(btObject);
 
 					playerList.add(new Player(message.getId(), objectId));

@@ -27,8 +27,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
-import com.yuil.game.entity.attribute.GameObjectType;
+import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
+import com.yuil.game.entity.gameobject.GameObjectType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.physics.BtObject;
 import com.yuil.game.entity.physics.BtObjectFactory;
@@ -146,7 +147,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					//System.out.println("color.g:"+message.getG());
 					BtObject btObject=physicsWorldBuilder.createObstacleRenderableBall(message.getRadius(), 1, v3, color);
 					btObject.setId(message.getId());
-					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectType(com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()));
+					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
 					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
 					btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
 					physicsWorld.addPhysicsObject(btObject);
@@ -187,7 +188,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		}else{
 			//System.out.println("x:"+playerObject.getPosition().x);
 			try {
-				camera.position.set(playerObject.getPosition().x+1, playerObject.getPosition().y+2f, playerObject.getPosition().z+1);
+				camera.position.set(playerObject.getPosition().x, playerObject.getPosition().y+2f, playerObject.getPosition().z+5);
 				//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
 				camera.update();
 			} catch (Exception e) {
@@ -513,6 +514,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				if(physicsWorld.getPhysicsObjects().get(message.getObjectId())==null){
 					BtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
 					btObject.setId(message.getObjectId());
+					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
 					physicsWorld.addPhysicsObject(btObject);
 					if(message.getId()==playerId){
@@ -569,6 +571,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				if(btObject!=null){
 					OwnerPlayerId ownerPlayerId=(OwnerPlayerId) btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
 					if(ownerPlayerId!=null){
+						System.out.println("remove myself");
 						playerId=0;
 						playerObject=null;
 					}

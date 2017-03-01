@@ -1,11 +1,11 @@
 package com.yuil.game.entity.attribute;
 
-public class GameObjectType implements Attribute {
+public class GameObjectTypeAttribute implements Attribute {
 	public final Integer type=AttributeType.GMAE_OBJECT_TYPE.ordinal();
 	public int gameObjectType;
 	
 	
-	public GameObjectType(int gameObjectType) {
+	public GameObjectTypeAttribute(int gameObjectType) {
 		super();
 		this.gameObjectType=gameObjectType;
 	}
