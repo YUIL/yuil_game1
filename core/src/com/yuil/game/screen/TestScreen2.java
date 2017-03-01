@@ -570,7 +570,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
 				if(btObject!=null){
 					OwnerPlayerId ownerPlayerId=(OwnerPlayerId) btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
-					if(ownerPlayerId!=null){
+					if(ownerPlayerId!=null&&ownerPlayerId.getPlayerId()==playerId){
 						System.out.println("remove myself");
 						playerId=0;
 						playerObject=null;
