@@ -29,6 +29,8 @@ public class BtObjectFactory {
 	Random random=new Random();
 
 	public Model defaultBallModel;
+	public Model defaultBoxModel;
+
 	public Model defaultGroundModel;
 	public Model defaultPlayerModel;
 
@@ -38,6 +40,11 @@ public class BtObjectFactory {
 					10, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
 							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 					Usage.Position | Usage.Normal);
+			
+			defaultBoxModel=modelBuilder.createBox(1, 1, 1, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
+							ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+					Usage.Position | Usage.Normal);
+			
 			defaultGroundModel = modelBuilder.createRect(20f, 0f, -200f, -20f, 0f, -200f, -20f, 0f, 20f, 20f, 0f, 20f, 0,
 					1,
 					0, new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.4f, 0.6f, 1)),
@@ -97,7 +104,7 @@ public class BtObjectFactory {
 		btRigidBodyConstructionInfo rigidBodyConstructionInfo = new btRigidBodyConstructionInfo(mass, null,
 				collisionShape, inertia);
 		btDefaultMotionState motionState = new btDefaultMotionState();
-		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1, 1, 1)));
+		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), collisionShape.getLocalScaling()));
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
@@ -136,11 +143,11 @@ public class BtObjectFactory {
 		return new btCylinderShape(tempVector.set(0.5f,1f,0.5f));
 	}
 
-	public BtObject createBtObject(btCollisionShape defaultSphereShape, int mass, float x,
+	public BtObject createBtObject(btCollisionShape collisioneShape, int mass, float x,
 			float y, float z) {
 		// TODO Auto-generated method stub
 		BtObject btObject=new BtObject();
-		initBtObject(btObject, defaultSphereShape, mass, x, y, z);
+		initBtObject(btObject, collisioneShape, mass, x, y, z);
 		return btObject;
 	}
 	

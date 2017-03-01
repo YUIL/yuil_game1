@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
 import com.yuil.game.entity.gameobject.GameObjectType;
@@ -22,6 +23,14 @@ public class PhysicsWorldBuilder {
 	}
 	public RenderableBtObject createDefaultRenderableBall(float x,float y,float z){
 		return btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBallModel,btObjectFactory.getDefaultSphereShape(), 1, x, y, z);
+	}
+	
+	public RenderableBtObject createDefaultRenderableBox(float x,float y,float z){
+		RenderableBtObject renderableBtObject;
+		btCollisionShape collisionShape = new btBoxShape(new Vector3(5, 5,5));
+	//	collisionShape.setLocalScaling(new Vector3(5, 5,5));
+		renderableBtObject=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBoxModel,collisionShape, 1, x, y, z);
+		return renderableBtObject;
 	}
 
 	public BtObject createDefaultGround(){

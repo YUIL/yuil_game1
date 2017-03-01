@@ -133,9 +133,6 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		}
 		collisionDetect();
 		collisionWorld.stepSimulation(delta,5);
-		
-
-		
 	}
 	
 

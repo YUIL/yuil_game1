@@ -50,7 +50,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	
 	KeyboardStatus keyboardStatus=new KeyboardStatus();
 	
-	BtObject testBtObject;
+	RenderableBtObject testBtObject;
 	
 	public PerspectiveCamera camera;
 	CameraInputController camController;
@@ -112,6 +112,18 @@ public class RigidBodyTestScreen extends Screen2D{
 		for (PhysicsObject physicsObject : physicsWorld.getPhysicsObjects().values()) {
 			ModelInstance modelInstance=((RenderableBtObject)physicsObject).getInstance();
 			((BtObject)physicsObject).getRigidBody().getWorldTransform(modelInstance.transform);
+			//System.out.println("!!!!!!!!!!!!!");
+			//System.out.println(modelInstance.transform);
+			//System.out.println(((BtObject)physicsObject).getRigidBody().getWorldTransform());
+			
+			//System.out.println("!!!!!!!!");
+			//System.out.println(modelInstance.transform);
+			//modelInstance.transform.scl(new Vector3(5, 5, 5));
+
+			modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+			//modelInstance.transform.translate(translation)
+			//System.out.println(modelInstance.transform);
+
 			modelBatch.render(modelInstance,lights);
 		}
 		modelBatch.end();
@@ -225,7 +237,13 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void zJustPressedAction() {
-		testBtObject=physicsWorldBuilder.createObstacleRenderableBall(1, 1, new Vector3(0,0,0),new Color(0f,1f,0f,1f));
+		//testBtObject=physicsWorldBuilder.createObstacleRenderableBall(1, 1, new Vector3(0,0,0),new Color(0f,1f,0f,1f));
+		testBtObject=physicsWorldBuilder.createDefaultRenderableBox(0,10, 0);
+		//testBtObject.getRigidBody().getWorldTransform(tempMatrix4);
+		//tempMatrix4.scale(5, 5, 5);
+		//testBtObject.getRigidBody().setWorldTransform(tempMatrix4);
+		System.out.println(testBtObject.getRigidBody().getWorldTransform());
+
 		physicsWorld.addPhysicsObject(testBtObject);
 	}
 
@@ -240,7 +258,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void aJustPressedAction() {
-		System.out.println(testBtObject.getRigidBody().getInvMass());
+		System.out.println(testBtObject.getRigidBody().getWorldTransform());	
 	}
 
 	protected void aJustUppedAction() {
