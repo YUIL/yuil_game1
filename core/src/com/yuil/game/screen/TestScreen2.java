@@ -2,6 +2,7 @@ package com.yuil.game.screen;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -201,16 +203,25 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			ModelInstance modelInstance=((RenderableBtObject)physicsObject).getInstance();
 			((BtObject)physicsObject).getRigidBody().getWorldTransform(modelInstance.transform);
 
-	/*		GameObjectTypeAttribute gameObjectType=(GameObjectTypeAttribute)(((BtObject)physicsObject).Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
-
+			GameObjectTypeAttribute gameObjectType=(GameObjectTypeAttribute)(((BtObject)physicsObject).Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+/*
 			if (gameObjectType!=null) {
 				if (gameObjectType.getGameObjectType()==GameObjectType.GROUND.ordinal()){
 					
 				}else{
-					modelInstance.transform.scale(2, 2, 2);
+					System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				}
 			}*/
+			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+			//modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			
+			for (Iterator<Node> iterator=modelInstance.nodes.iterator(); iterator.hasNext();) {
+				Node node =iterator.next();
+				node.globalTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				
+			}
+			//modelInstance.transform.scl(2);
+			//System.out.println(modelInstance);
 			modelBatch.render(modelInstance,lights);
 		}
 		modelBatch.end();

@@ -28,6 +28,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
@@ -138,7 +139,10 @@ public class RigidBodyTestScreen extends Screen2D{
 					//modelInstance.transform.scale(2, 2, 2);
 				}
 			}else{
-				modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				//System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling().set(2, 4, 4));
+
 			}
 			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.transform.translate(translation)
@@ -284,7 +288,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void aJustPressedAction() {
-		testBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(4,4,4));
+		testBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(0.5f,0.5f,0.5f));
 		testBtObject.getRigidBody().translate(tempVector3.set(0,10,0));
 	}
 
@@ -309,6 +313,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	protected void spaceJustPressedAction() {
 		tempVector3.set(testBtObject.getRigidBody().getLinearVelocity());
 		tempVector3.y=10;
+		tempVector3.z=2;
 		testBtObject.getRigidBody().setLinearVelocity(tempVector3);
 		
 	}
@@ -361,14 +366,25 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 	
 	RenderableBtObject createTestObject(){
+		Vector3 tempVector = new Vector3();
+
 		RenderableBtObject testObject;
 		Model model=modelBuilder.createBox(2, 2, 2, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
 				ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
-		Usage.Position | Usage.Normal);
-		Vector3 tempVector = new Vector3();
+				Usage.Position | Usage.Normal);
+		/*	Vector3 tempVector = new Vector3();
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(1,1,1));
-		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
+		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);*/
 		//testObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
+		
+	/*	Model model = modelBuilder.createSphere(1, 1, 1, 10,
+				10, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
+						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+				Usage.Position | Usage.Normal);*/
+		btSphereShape collisionShape = new btSphereShape(0.5f);
+		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
+		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(2f,2f,2f));
+
 		return testObject;
 		
 	}

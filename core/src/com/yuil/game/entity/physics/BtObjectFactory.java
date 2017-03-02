@@ -109,7 +109,7 @@ public class BtObjectFactory {
 		btRigidBodyConstructionInfo rigidBodyConstructionInfo = new btRigidBodyConstructionInfo(mass, null,
 				collisionShape, inertia);
 		btDefaultMotionState motionState = new btDefaultMotionState();
-		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), collisionShape.getLocalScaling()));
+		motionState.setWorldTransform(new Matrix4(new Vector3(x, y, z), new Quaternion(), new Vector3(1,1,1)));
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
@@ -159,17 +159,21 @@ public class BtObjectFactory {
 	
 	public RenderableBtObject createRenderableBall(float radius,float mass,Vector3 position,Color color){
 	
-		Model model = modelBuilder.createSphere(radius*2, radius*2, radius*2, 10,
+		Model model = modelBuilder.createSphere(1, 1, 1, 10,
 				10, new Material(ColorAttribute.createDiffuse(color),
 						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 				Usage.Position | Usage.Normal);
 
-		btCollisionShape collisionShape = new btSphereShape(radius);
-		return createRenderableBtObject(model, collisionShape, mass, position.x,position.y, position.z);
+		btCollisionShape collisionShape = new btSphereShape(0.5f);
+		RenderableBtObject renderableBtObject=createRenderableBtObject(model, collisionShape, mass, position.x,position.y, position.z);
+		renderableBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(radius,radius,radius));
+
+		return  renderableBtObject;
 	}
 	public BtObject createBall(float radius,float mass,Vector3 position){
 		BtObject btObject=new BtObject();
-		btCollisionShape collisionShape = new btSphereShape(radius);
+		btCollisionShape collisionShape = new btSphereShape(1);
+		collisionShape.setLocalScaling(new Vector3(radius,radius,radius));
 		initBtObject(btObject,collisionShape, mass, position.x,position.y, position.z);
 		return btObject;
 	}

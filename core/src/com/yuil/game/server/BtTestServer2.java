@@ -91,6 +91,7 @@ public class BtTestServer2 implements MessageListener {
 			v3.x = -10 + random.nextInt(20);
 			v3.y = 1;
 			v3.z = -190;
+			//float radius = (random.nextInt(10000) / 10000f) * 3;
 			float radius = (random.nextInt(10000) / 10000f) * 3;
 			BtObject btObject = physicsWorldBuilder.createObstacleBall(radius, 1, v3);
 			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
