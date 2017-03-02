@@ -89,8 +89,8 @@ public class RigidBodyTestScreen extends Screen2D{
 		
 		physicsWorldBuilder =new PhysicsWorldBuilder(true);
 		physicsWorld = new BtWorld();
-		//physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
-		createGround();
+		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
+		//physicsWorld.addPhysicsObject(createGround());
 		
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
@@ -134,9 +134,11 @@ public class RigidBodyTestScreen extends Screen2D{
 
 			if (gameObjectType!=null) {
 				if (gameObjectType.getGameObjectType()==GameObjectType.GROUND.ordinal()){
-					
+					//modelInstance.transform.translate(tempVector3.set(0,-0.1f,0));
 					//modelInstance.transform.scale(2, 2, 2);
 				}
+			}else{
+				modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			}
 			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.transform.translate(translation)
@@ -256,13 +258,19 @@ public class RigidBodyTestScreen extends Screen2D{
 
 	protected void zJustPressedAction() {
 		//testBtObject=physicsWorldBuilder.createObstacleRenderableBall(1, 1, new Vector3(0,0,0),new Color(0f,1f,0f,1f));
-		testBtObject=physicsWorldBuilder.createDefaultRenderableBox(0,10, 0);
-		//testBtObject.getRigidBody().getWorldTransform(tempMatrix4);
-		//tempMatrix4.scale(5, 5, 5);
-		//testBtObject.getRigidBody().setWorldTransform(tempMatrix4);
-		System.out.println(testBtObject.getRigidBody().getWorldTransform());
+		if(testBtObject==null){
 
-		physicsWorld.addPhysicsObject(testBtObject);
+			testBtObject=createTestObject();
+			
+			//testBtObject.getRigidBody().getWorldTransform(tempMatrix4);
+			//tempMatrix4.scale(5, 5, 5);
+			//testBtObject.getRigidBody().setWorldTransform(tempMatrix4);
+			System.out.println(testBtObject.getRigidBody().getWorldTransform());
+
+			physicsWorld.addPhysicsObject(testBtObject);
+		}else{
+			physicsWorld.addPhysicsObject(createTestObject());
+		}
 	}
 
 	protected void dJustPressedAction() {
@@ -276,7 +284,8 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 
 	protected void aJustPressedAction() {
-		System.out.println(testBtObject.getRigidBody().getWorldTransform());	
+		testBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(4,4,4));
+		testBtObject.getRigidBody().translate(tempVector3.set(0,10,0));
 	}
 
 	protected void aJustUppedAction() {
@@ -337,7 +346,7 @@ public class RigidBodyTestScreen extends Screen2D{
 		btObject.getRigidBody().setAngularVelocity(tempVector3);
 	}
 	
-	void createGround(){
+	RenderableBtObject createGround(){
 		RenderableBtObject ground;
 		Model model=modelBuilder.createRect(1f, 0f, -1f, -1f, 0f, -1f, -1f, 0f, 1f, 1f, 0f, 1f, 0,
 				1,
@@ -348,6 +357,20 @@ public class RigidBodyTestScreen extends Screen2D{
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(1,0,1));
 		ground=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 0, 0, 0, 0);
 		ground.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
-		physicsWorld.addPhysicsObject(ground);
+		return ground;
 	}
+	
+	RenderableBtObject createTestObject(){
+		RenderableBtObject testObject;
+		Model model=modelBuilder.createBox(2, 2, 2, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
+				ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+		Usage.Position | Usage.Normal);
+		Vector3 tempVector = new Vector3();
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(1,1,1));
+		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
+		//testObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
+		return testObject;
+		
+	}
+	
 }

@@ -27,7 +27,7 @@ public class PhysicsWorldBuilder {
 	
 	public RenderableBtObject createDefaultRenderableBox(float x,float y,float z){
 		RenderableBtObject renderableBtObject;
-		btBoxShape collisionShape = new btBoxShape(new Vector3(1, 1,1));
+		btBoxShape collisionShape = new btBoxShape(new Vector3(0.5f,0.5f,0.5f));
 		//collisionShape.setLocalScaling(new Vector3(5, 5,5));
 		renderableBtObject=btObjectFactory.createRenderableBtObject(btObjectFactory.defaultBoxModel,collisionShape, 1, x, y, z);
 		return renderableBtObject;
