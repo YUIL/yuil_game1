@@ -200,6 +200,16 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		for (PhysicsObject physicsObject : physicsWorld.getPhysicsObjects().values()) {
 			ModelInstance modelInstance=((RenderableBtObject)physicsObject).getInstance();
 			((BtObject)physicsObject).getRigidBody().getWorldTransform(modelInstance.transform);
+
+	/*		GameObjectTypeAttribute gameObjectType=(GameObjectTypeAttribute)(((BtObject)physicsObject).Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+
+			if (gameObjectType!=null) {
+				if (gameObjectType.getGameObjectType()==GameObjectType.GROUND.ordinal()){
+					
+				}else{
+					modelInstance.transform.scale(2, 2, 2);
+				}
+			}*/
 			
 			modelBatch.render(modelInstance,lights);
 		}

@@ -12,18 +12,28 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
+import com.yuil.game.entity.attribute.AttributeType;
+import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
+import com.yuil.game.entity.gameobject.GameObjectType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
 import com.yuil.game.entity.physics.BtObject;
@@ -43,7 +53,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	boolean turnLeft=true;
 	long nextTurnTime=0;
 	
-		
+	ModelBuilder modelBuilder = new ModelBuilder();
 	PhysicsWorldBuilder physicsWorldBuilder;
 	PhysicsWorld physicsWorld;
 	Environment lights;
@@ -79,8 +89,9 @@ public class RigidBodyTestScreen extends Screen2D{
 		
 		physicsWorldBuilder =new PhysicsWorldBuilder(true);
 		physicsWorld = new BtWorld();
-		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
-	
+		//physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
+		createGround();
+		
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
 		final float height = Gdx.graphics.getHeight();
@@ -119,10 +130,17 @@ public class RigidBodyTestScreen extends Screen2D{
 			//System.out.println("!!!!!!!!");
 			//System.out.println(modelInstance.transform);
 			//modelInstance.transform.scl(new Vector3(5, 5, 5));
+			GameObjectTypeAttribute gameObjectType=(GameObjectTypeAttribute)(((BtObject)physicsObject).Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
 
-			modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+			if (gameObjectType!=null) {
+				if (gameObjectType.getGameObjectType()==GameObjectType.GROUND.ordinal()){
+					
+					//modelInstance.transform.scale(2, 2, 2);
+				}
+			}
+			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.transform.translate(translation)
-			//System.out.println(modelInstance.transform);
+			//System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 
 			modelBatch.render(modelInstance,lights);
 		}
@@ -317,5 +335,19 @@ public class RigidBodyTestScreen extends Screen2D{
 		tempVector3.y=message.getAngularVelocityY();
 		tempVector3.z=message.getAngularVelocityZ();
 		btObject.getRigidBody().setAngularVelocity(tempVector3);
+	}
+	
+	void createGround(){
+		RenderableBtObject ground;
+		Model model=modelBuilder.createRect(1f, 0f, -1f, -1f, 0f, -1f, -1f, 0f, 1f, 1f, 0f, 1f, 0,
+				1,
+				0, new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.4f, 0.6f, 1)),
+						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(16f)),
+				Usage.Position | Usage.Normal);
+		Vector3 tempVector = new Vector3();
+		btCollisionShape collisionShape = new btBoxShape(tempVector.set(1,0,1));
+		ground=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 0, 0, 0, 0);
+		ground.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
+		physicsWorld.addPhysicsObject(ground);
 	}
 }

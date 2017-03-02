@@ -22,6 +22,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
 import com.sun.org.apache.bcel.internal.generic.Select;
+import com.yuil.game.entity.attribute.AttributeType;
+import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
+import com.yuil.game.entity.gameobject.GameObjectType;
 
 public class BtObjectFactory {
 	ModelBuilder modelBuilder = new ModelBuilder();
@@ -71,7 +74,9 @@ public class BtObjectFactory {
 
 	public RenderableBtObject createRenderableGround() {
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 200));
-		return createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
+		RenderableBtObject ground=createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
+		ground.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
+		return ground;
 	}
 	/*
 	public BtObject createGround() {
