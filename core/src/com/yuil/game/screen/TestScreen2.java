@@ -215,11 +215,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			
-			for (Iterator<Node> iterator=modelInstance.nodes.iterator(); iterator.hasNext();) {
-				Node node =iterator.next();
-				node.globalTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
-				
-			}
+			
 			//modelInstance.transform.scl(2);
 			//System.out.println(modelInstance);
 			modelBatch.render(modelInstance,lights);

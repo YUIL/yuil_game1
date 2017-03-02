@@ -138,8 +138,12 @@ public class RigidBodyTestScreen extends Screen2D{
 					//modelInstance.transform.translate(tempVector3.set(0,-0.1f,0));
 					//modelInstance.transform.scale(2, 2, 2);
 				}
-			}else{
+			}else{				
+				System.out.println("--------------");
 				modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				modelInstance.nodes.first().calculateLocalTransform();
+				System.out.println(modelInstance.nodes.first().scale);
+
 				//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				//System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling().set(2, 4, 4));
 
@@ -369,21 +373,21 @@ public class RigidBodyTestScreen extends Screen2D{
 		Vector3 tempVector = new Vector3();
 
 		RenderableBtObject testObject;
-		Model model=modelBuilder.createBox(2, 2, 2, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
-				ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
-				Usage.Position | Usage.Normal);
+		//Model model=modelBuilder.createBox(2, 2, 2, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
+		//		ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
+		//		Usage.Position | Usage.Normal);
 		/*	Vector3 tempVector = new Vector3();
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(1,1,1));
 		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);*/
 		//testObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
 		
-	/*	Model model = modelBuilder.createSphere(1, 1, 1, 10,
+		Model model = modelBuilder.createSphere(1, 1, 1, 10,
 				10, new Material(ColorAttribute.createDiffuse(new Color(0.7f, 0.1f, 0.1f, 1)),
 						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
-				Usage.Position | Usage.Normal);*/
+				Usage.Position | Usage.Normal);
 		btSphereShape collisionShape = new btSphereShape(0.5f);
 		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
-		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(2f,2f,2f));
+		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(5f,5f,5f));
 
 		return testObject;
 		

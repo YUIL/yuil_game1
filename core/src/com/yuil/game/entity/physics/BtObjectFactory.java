@@ -159,14 +159,14 @@ public class BtObjectFactory {
 	
 	public RenderableBtObject createRenderableBall(float radius,float mass,Vector3 position,Color color){
 	
-		Model model = modelBuilder.createSphere(1, 1, 1, 10,
+		Model model = modelBuilder.createSphere(radius*2,radius*2,radius*2, 10,
 				10, new Material(ColorAttribute.createDiffuse(color),
 						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 				Usage.Position | Usage.Normal);
 
-		btCollisionShape collisionShape = new btSphereShape(0.5f);
+		btCollisionShape collisionShape = new btSphereShape(radius);
 		RenderableBtObject renderableBtObject=createRenderableBtObject(model, collisionShape, mass, position.x,position.y, position.z);
-		renderableBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(radius,radius,radius));
+		//renderableBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(radius,radius,radius));
 
 		return  renderableBtObject;
 	}

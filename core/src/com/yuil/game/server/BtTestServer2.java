@@ -159,6 +159,7 @@ public class BtTestServer2 implements MessageListener {
 		void handleBtObject(BtObject btObject){
 			if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null) {
 				// System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
+				btObject.getRigidBody().getWorldTransform().
 				v3.set(btObject.getRigidBody().getLinearVelocity());
 				v3.z = -10;
 				btObject.getRigidBody().setLinearVelocity(v3);
