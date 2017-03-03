@@ -26,6 +26,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
@@ -88,7 +89,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	long playerId;
 	BtObject playerObject;
-	int vinearVelocityX=5;
+	int vinearVelocityX=10;
 	
 	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
 	
@@ -100,7 +101,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
 		super(game);
-		clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
+		//clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
+
+		clientSocket=new ClientSocket(9092,"uyuil.com",9091,this);
 		initMessageHandle();
 		
 		GuiFactory guiFactory = new GuiFactory();
@@ -122,6 +125,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			camera = new PerspectiveCamera(67f, 3f * width / height, 3f);
 		else
 			camera = new PerspectiveCamera(67f, 3f, 3f * height / width);
+		camera.far=200;
 		camera.position.set(10f, 10f, 10f);
 		camera.lookAt(0, 0, 0);
 		camera.update();
@@ -148,7 +152,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					v3.z=0;
 					color.set(message.getR(), message.getG(), message.getB(), message.getA());
 					//System.out.println("color.g:"+message.getG());
-					BtObject btObject=physicsWorldBuilder.createObstacleRenderableBall(message.getRadius(), 1, v3, color);
+					BtObject btObject=physicsWorldBuilder.createRenderableBall(message.getRadius(), message.getRadius(), v3, color);
 					btObject.setId(message.getId());
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
 					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
@@ -531,9 +535,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
 				message.set(src);
+				hideGameOver();
 				System.out.println("recv addplayer");
 				if(physicsWorld.getPhysicsObjects().get(message.getObjectId())==null){
-					BtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
+					RenderableBtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
+					ColorAttribute ca=(ColorAttribute)(((RenderableBtObject)btObject).getInstance().nodes.get(0).parts.get(0).material.get(ColorAttribute.Diffuse));
+					ca.color.set(0.2f, 1f, 0.3f, 1);
 					btObject.setId(message.getObjectId());
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
@@ -557,9 +564,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		
 		messageHandlerMap.put(EntityMessageType.S2C_ADD_OBSTACLE.ordinal(), new MessageHandler() {
 			S2C_ADD_OBSTACLE message=new S2C_ADD_OBSTACLE();
-			C2S_UPDATE_BTOBJECT_MOTIONSTATE c2s_UPDATE_BTOBJECT_MOTIONSTATE_message=new C2S_UPDATE_BTOBJECT_MOTIONSTATE();
-			Color color=new Color();
-			Vector3 v3=new Vector3();
+			
 			@Override
 			public void handle(ByteBuf src) {
 				// TODO Auto-generated method stub
@@ -594,7 +599,8 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				if(btObject!=null){
 					OwnerPlayerId ownerPlayerId=(OwnerPlayerId) btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
 					if(ownerPlayerId!=null&&ownerPlayerId.getPlayerId()==playerId){
-						System.out.println("remove myself");
+						//System.out.println("remove myself");
+						showGameOver();
 						playerId=0;
 						playerObject=null;
 					}
@@ -616,6 +622,15 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					c2s_ENQUIRE_BTOBJECT_message.setId(message.getId());
 					sendSingleMessage(c2s_ENQUIRE_BTOBJECT_message);
 				}else{
+
+					if (!btObject.getRigidBody().isActive()){
+						btObject.getRigidBody().activate();
+					}
+					if(playerObject!=null){
+						if(message.getId()==playerObject.getId()){
+							System.out.println(message.getLinearVelocityX());
+						}
+					}
 					//System.out.println("mmm:"+message.getLinearVelocityZ());
 					updatePhysicsObject(btObject,message);
 					//System.out.println("nnn:"+btObject.getRigidBody().getLinearVelocity().z);
@@ -654,4 +669,15 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		tempVector3.z=message.getAngularVelocityZ();
 		btObject.getRigidBody().setAngularVelocity(tempVector3);
 	}
+	
+	void showGameOver(){
+		Label console=stage.getRoot().findActor("console");
+		console.setPosition(320, 230);
+		console.setText("Game Over");
+	}
+	void hideGameOver(){
+		Label console=stage.getRoot().findActor("console");
+		console.setPosition(-300, 200);
+	}
 }
+

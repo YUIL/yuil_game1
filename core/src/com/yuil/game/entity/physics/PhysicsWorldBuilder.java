@@ -46,10 +46,10 @@ public class PhysicsWorldBuilder {
 		return btObject;
 	}
 	
-	public BtObject createObstacleBall(float radius ,int mass,Vector3 position){
+	public BtObject createBall(float radius ,float mass,Vector3 position){
 		return btObjectFactory.createBall(radius, mass, position);
 	}
-	public RenderableBtObject createObstacleRenderableBall(float radius ,int mass,Vector3 position,Color color){
+	public RenderableBtObject createRenderableBall(float radius ,float mass,Vector3 position,Color color){
 		return btObjectFactory.createRenderableBall(radius, mass, position, color);
 	}
 

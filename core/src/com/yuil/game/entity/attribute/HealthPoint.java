@@ -4,6 +4,12 @@ public class HealthPoint implements Attribute {
 	public final Integer type=AttributeType.HEALTH_POINT.ordinal();
 	public long healthPoint;
 	
+	
+	
+	public HealthPoint(long healthPoint) {
+		super();
+		this.healthPoint = healthPoint;
+	}
 	public long getHealthPoint() {
 		return healthPoint;
 	}
