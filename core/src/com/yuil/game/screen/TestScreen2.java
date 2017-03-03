@@ -152,6 +152,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
 					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
 					btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
+					//btObject.getRigidBody().setContactCallbackFilter(GameObjectType.PLAYER.ordinal());
+					btObject.getRigidBody().setCollisionFlags(GameObjectType.GROUND.ordinal());
+
 					physicsWorld.addPhysicsObject(btObject);
 					c2s_UPDATE_BTOBJECT_MOTIONSTATE_message.setId(message.getId());
 					sendSingleMessage(c2s_UPDATE_BTOBJECT_MOTIONSTATE_message);
@@ -533,6 +536,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					btObject.setId(message.getObjectId());
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
+					btObject.getRigidBody().setCollisionFlags(GameObjectType.GROUND.ordinal());
 					physicsWorld.addPhysicsObject(btObject);
 					if(message.getId()==playerId){
 						playerObject=btObject;
