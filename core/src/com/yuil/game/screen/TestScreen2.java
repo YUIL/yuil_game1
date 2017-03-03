@@ -88,6 +88,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	long playerId;
 	BtObject playerObject;
+	int vinearVelocityX=5;
 	
 	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
 	
@@ -153,7 +154,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
 					btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
 					//btObject.getRigidBody().setContactCallbackFilter(GameObjectType.PLAYER.ordinal());
-					btObject.getRigidBody().setCollisionFlags(GameObjectType.GROUND.ordinal());
+					btObject.getRigidBody().setContactCallbackFilter(1<<GameObjectType.GROUND.ordinal());
 
 					physicsWorld.addPhysicsObject(btObject);
 					c2s_UPDATE_BTOBJECT_MOTIONSTATE_message.setId(message.getId());
@@ -215,7 +216,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				}
 			}*/
-			//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+			modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			
 			
@@ -396,14 +397,14 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		// TODO Auto-generated method stub
 		if(playerId!=0&&playerObject!=null){
 
-			temp_update_liner_velocity_message.setX(10);
+			temp_update_liner_velocity_message.setX(vinearVelocityX);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
 			temp_update_liner_velocity_message.setId(playerObject.getId());
 			sendSingleMessage(temp_update_liner_velocity_message);
 
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
-			tempVector3.x=10;
+			tempVector3.x=vinearVelocityX;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
 			
 		}
@@ -433,7 +434,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 //		btObject.setId(random.nextLong());
 //		physicsWorld.addPhysicsObject(btObject);
 		if(playerId!=0&&playerObject!=null){
-			temp_update_liner_velocity_message.setX(-10);
+			temp_update_liner_velocity_message.setX(vinearVelocityX*-1);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
 			temp_update_liner_velocity_message.setId(playerObject.getId());
@@ -441,7 +442,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			
 
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
-			tempVector3.x=-10;
+			tempVector3.x=vinearVelocityX*-1;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
 		}
 	}
@@ -536,7 +537,8 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					btObject.setId(message.getObjectId());
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
-					btObject.getRigidBody().setCollisionFlags(GameObjectType.GROUND.ordinal());
+					btObject.getRigidBody().setContactCallbackFilter(1<<GameObjectType.GROUND.ordinal());
+					System.out.println(1<<GameObjectType.GROUND.ordinal());
 					physicsWorld.addPhysicsObject(btObject);
 					if(message.getId()==playerId){
 						playerObject=btObject;

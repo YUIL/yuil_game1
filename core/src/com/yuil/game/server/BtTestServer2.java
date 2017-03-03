@@ -65,7 +65,7 @@ public class BtTestServer2 implements MessageListener {
 	List<Player> playerList = new ArrayList<Player>();
 	List<BtObject> obstacleBtObjectList = new LinkedList<BtObject>();
 
-	Vector3 tempVector3 = new Vector3(0, 0, -20);
+	Vector3 tempVector3 = new Vector3(0, 0, -40);
 	Matrix4 tempMatrix4 = new Matrix4();
 
 	// BtObjectFactory btObjectFactory = new BtObjectFactory(false);
@@ -79,7 +79,7 @@ public class BtTestServer2 implements MessageListener {
 	public static Queue<BtObject> updateBtObjectMotionStateBroadCastQueue = new ConcurrentLinkedDeque<BtObject>();
 	public static Queue<BtObject> removeBtObjectQueue = new ConcurrentLinkedDeque<BtObject>();
 
-	BtObjectSpawner obstacleBallSpawner = new BtObjectSpawner(1000) {
+	BtObjectSpawner obstacleBallSpawner = new BtObjectSpawner(300) {
 		Vector3 v3 = new Vector3();
 		Color color = new Color();
 		S2C_ADD_OBSTACLE message = new S2C_ADD_OBSTACLE();
@@ -101,7 +101,7 @@ public class BtTestServer2 implements MessageListener {
 
 			v3.x = 0;
 			v3.y = 0;
-			v3.z = 10;
+			v3.z = 20;
 			btObject.getRigidBody().setLinearVelocity(v3);
 
 			long id = random.nextLong();
@@ -160,11 +160,7 @@ public class BtTestServer2 implements MessageListener {
 			if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null) {
 				// System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
 				
-				v3.set(btObject.getRigidBody().getLinearVelocity());
-				v3.z = -10;
-				btObject.getRigidBody().setLinearVelocity(v3);
-				updateBtObjectMotionStateBroadCastQueue.add(btObject);
-
+				
 			}
 		}
 		
@@ -263,13 +259,27 @@ public class BtTestServer2 implements MessageListener {
 							}
 						}else if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null){
 							// 检查playerObjects位置，超过边界返回起始点
-							//System.out.println(btObject.getPosition());
+							//System.out.println(btObject.getPosition()+" Z:"+tempVector3.z);
+							if (tempVector3.z!=-40) {
+								//System.out.println("reset");
+								btObject.getRigidBody().getWorldTransform(tempMatrix4);
+								tempMatrix4.setTranslation(btObject.getPosition().x, btObject.getPosition().y, -40);
+								btObject.getRigidBody().setWorldTransform(tempMatrix4);
+								
+								tempVector3.set(btObject.getRigidBody().getLinearVelocity());
+								tempVector3.z = 0;
+								btObject.getRigidBody().setLinearVelocity(tempVector3);
+								updateBtObjectMotionStateBroadCastQueue.add(btObject);
+								
+								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
+							}
+							/*
 							if (tempVector3.z < -199) {
 								btObject.getRigidBody().getWorldTransform(tempMatrix4);
 								tempMatrix4.setTranslation(btObject.getPosition().x, btObject.getPosition().y, -20);
 								btObject.getRigidBody().setWorldTransform(tempMatrix4);
 								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
-							}
+							}*/
 						}
 					}
 				
@@ -315,7 +325,7 @@ public class BtTestServer2 implements MessageListener {
 					s2c_ADD_PLAYER_message.setId(message.getId());
 					s2c_ADD_PLAYER_message.setObjectId(objectId);
 
-					BtObject btObject = physicsWorldBuilder.createDefaultBall(5, 10, 0);
+					BtObject btObject = physicsWorldBuilder.createDefaultBall(5, 10, -40);
 
 					btObject.setId(objectId);
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
@@ -325,7 +335,7 @@ public class BtTestServer2 implements MessageListener {
 					playerList.add(new Player(message.getId(), objectId));
 
 					tempVector3.set(btObject.getRigidBody().getLinearVelocity().x,
-							btObject.getRigidBody().getLinearVelocity().y, -10f);
+							btObject.getRigidBody().getLinearVelocity().y, 0);
 					btObject.getRigidBody().setLinearVelocity(tempVector3);
 
 					broadCastor.broadCast_SINGLE_MESSAGE(s2c_ADD_PLAYER_message, false);
@@ -352,6 +362,7 @@ public class BtTestServer2 implements MessageListener {
 					message.set(src);
 					BtObject btObject = physicsWorld.getPhysicsObjects().get(message.getId());
 					if (btObject != null) {
+						System.out.println("uuuuu");
 						update_BTOBJECT_MOTIONSTATE_message.set(btObject);
 						netSocket.send(SINGLE_MESSAGE.get(update_BTOBJECT_MOTIONSTATE_message.get().array()), session,
 								false);

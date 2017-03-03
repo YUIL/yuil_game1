@@ -76,7 +76,7 @@ public class BtObjectFactory {
 		btCollisionShape collisionShape = new btBoxShape(tempVector.set(20, 0, 200));
 		RenderableBtObject ground=createRenderableBtObject(defaultGroundModel, collisionShape, 0, 0, 0, 0);
 		ground.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
-		ground.getRigidBody().setContactCallbackFilter(GameObjectType.GROUND.ordinal());
+		ground.getRigidBody().setCollisionFlags(1<<GameObjectType.GROUND.ordinal());
 
 		return ground;
 	}
@@ -115,7 +115,7 @@ public class BtObjectFactory {
 		btRigidBody rigidBody = new btRigidBody(rigidBodyConstructionInfo);
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
-		//rigidBody.setFriction(0f);
+		rigidBody.setFriction(0f);
 		
 		btObject.setId(random.nextLong());
 		btObject.setRigidBody(rigidBody);
@@ -161,14 +161,14 @@ public class BtObjectFactory {
 	
 	public RenderableBtObject createRenderableBall(float radius,float mass,Vector3 position,Color color){
 	
-		Model model = modelBuilder.createSphere(radius*2,radius*2,radius*2, 10,
+		Model model = modelBuilder.createSphere(2,2,2, 10,
 				10, new Material(ColorAttribute.createDiffuse(color),
 						ColorAttribute.createSpecular(Color.WHITE), FloatAttribute.createShininess(64f)),
 				Usage.Position | Usage.Normal);
 
-		btCollisionShape collisionShape = new btSphereShape(radius);
+		btCollisionShape collisionShape = new btSphereShape(1);
 		RenderableBtObject renderableBtObject=createRenderableBtObject(model, collisionShape, mass, position.x,position.y, position.z);
-		//renderableBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(radius,radius,radius));
+		renderableBtObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(radius,radius,radius));
 
 		return  renderableBtObject;
 	}
