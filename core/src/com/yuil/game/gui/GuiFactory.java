@@ -135,10 +135,16 @@ public class GuiFactory {
     protected void setActorAttribute(Actor actor, Element actorElm) {
         actor.setX(Float.parseFloat(actorElm.getChildByName("x").getText()));
         actor.setY(Float.parseFloat(actorElm.getChildByName("y").getText()));
-        Element e=actorElm.getChildByName("width");
+        Element e;
+        e=actorElm.getChildByName("width");
         if(e!=null){
-            actor.setWidth(width);
+            actor.setWidth(Float.parseFloat(e.getText()));
         }
+        e=actorElm.getChildByName("height");
+        if(e!=null){
+            actor.setHeight(Float.parseFloat(e.getText()));
+        }
+        
         actor.setName(actorElm.getAttribute("name"));
     }
 

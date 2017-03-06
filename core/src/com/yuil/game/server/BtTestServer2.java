@@ -119,7 +119,7 @@ public class BtTestServer2 implements MessageListener {
 			message.setG(color.g);
 			message.setB(color.b);
 			message.setA(color.a);
-			broadCastor.broadCast_SINGLE_MESSAGE(message, false);
+			broadCastor.broadCast_SINGLE_MESSAGE(message, true);
 			obstacleBtObjectList.add(btObject);
 		}
 

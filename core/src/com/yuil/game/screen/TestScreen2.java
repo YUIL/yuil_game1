@@ -101,9 +101,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
 		super(game);
-		//clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
+		clientSocket=new ClientSocket(9092,"127.0.0.1",9091,this);
 
-		clientSocket=new ClientSocket(9092,"uyuil.com",9091,this);
+		//clientSocket=new ClientSocket(9092,"uyuil.com",9091,this);
 		initMessageHandle();
 		
 		GuiFactory guiFactory = new GuiFactory();
@@ -202,7 +202,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
 				camera.update();
 			} catch (Exception e) {
-				System.out.println("object已被刪除");
+				//System.out.println("object已被刪除");
 			}
 		}
 		modelBatch.begin(camera);
@@ -416,7 +416,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	protected void dJustUppedAction() {
 		// TODO Auto-generated method stub
-		if(playerId!=0&&playerObject!=null){
+	/*	if(playerId!=0&&playerObject!=null){
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
@@ -427,7 +427,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
 			tempVector3.x=0;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
-		}
+		}*/
 	}
 
 	protected void aJustPressedAction() {
@@ -453,7 +453,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	protected void aJustUppedAction() {
 		// TODO Auto-generated method stub
-		if(playerId!=0&&playerObject!=null){
+	/*	if(playerId!=0&&playerObject!=null){
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
@@ -464,7 +464,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
 			tempVector3.x=0;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
-		}
+		}*/
 	}
 	
 	protected void wJustPressedAction() {
@@ -540,12 +540,12 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				if(physicsWorld.getPhysicsObjects().get(message.getObjectId())==null){
 					RenderableBtObject btObject=physicsWorldBuilder.createDefaultRenderableBall(5,10,0);
 					ColorAttribute ca=(ColorAttribute)(((RenderableBtObject)btObject).getInstance().nodes.get(0).parts.get(0).material.get(ColorAttribute.Diffuse));
-					ca.color.set(0.2f, 1f, 0.3f, 1);
+					ca.color.set(0.9f, 0.2f, 0.1f, 1);
 					btObject.setId(message.getObjectId());
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(), new OwnerPlayerId(message.getId()));
 					btObject.getRigidBody().setContactCallbackFilter(1<<GameObjectType.GROUND.ordinal());
-					System.out.println(1<<GameObjectType.GROUND.ordinal());
+					//System.out.println(1<<GameObjectType.GROUND.ordinal());
 					physicsWorld.addPhysicsObject(btObject);
 					if(message.getId()==playerId){
 						playerObject=btObject;
@@ -628,7 +628,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 					}
 					if(playerObject!=null){
 						if(message.getId()==playerObject.getId()){
-							System.out.println(message.getLinearVelocityX());
+							//System.out.println(message.getLinearVelocityX());
 						}
 					}
 					//System.out.println("mmm:"+message.getLinearVelocityZ());
