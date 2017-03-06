@@ -103,7 +103,9 @@ public class BtTestServer2 implements MessageListener {
 			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
 			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
 			
-			
+			btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.OBSTACLE.ordinal()));
+			btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.PLAYER.ordinal()));
+
 			v3.x = 0;
 			v3.y = 0;
 			v3.z = 40;
@@ -379,7 +381,10 @@ public class BtTestServer2 implements MessageListener {
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),new OwnerPlayerId(message.getId()));
 					btObject.Attributes.put(AttributeType.HEALTH_POINT.ordinal(),new HealthPoint(100));
-
+					btObject.getRigidBody().setCollisionFlags(1<<GameObjectType.PLAYER.ordinal());
+					btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
+					//System.out.println("asd:"+((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal())));
+					
 					physicsWorld.addPhysicsObject(btObject);
 
 					playerList.add(new Player(message.getId(), objectId));

@@ -416,7 +416,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	protected void dJustUppedAction() {
 		// TODO Auto-generated method stub
-	/*	if(playerId!=0&&playerObject!=null){
+		if(playerId!=0&&playerObject!=null){
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
@@ -427,7 +427,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
 			tempVector3.x=0;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
-		}*/
+		}
 	}
 
 	protected void aJustPressedAction() {
@@ -453,7 +453,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 
 	protected void aJustUppedAction() {
 		// TODO Auto-generated method stub
-	/*	if(playerId!=0&&playerObject!=null){
+		if(playerId!=0&&playerObject!=null){
 			temp_update_liner_velocity_message.setX(0);
 			temp_update_liner_velocity_message.setY(NO_CHANGE);
 			temp_update_liner_velocity_message.setZ(NO_CHANGE);
@@ -464,7 +464,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			tempVector3.set(playerObject.getRigidBody().getLinearVelocity());
 			tempVector3.x=0;
 			playerObject.getRigidBody().setLinearVelocity(tempVector3);
-		}*/
+		}
 	}
 	
 	protected void wJustPressedAction() {
