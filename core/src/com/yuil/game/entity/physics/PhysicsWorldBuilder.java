@@ -39,7 +39,7 @@ public class PhysicsWorldBuilder {
 		btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.GROUND.ordinal()));
 		
 		btObjectFactory.initBtObject(btObject, collisionShape, 0, 0, 0, 0);
-		btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.GROUND.ordinal()));
+		//btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.GROUND.ordinal()));
 
 		return btObject;
 	}

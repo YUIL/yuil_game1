@@ -26,14 +26,18 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
+import com.yuil.game.entity.attribute.HealthPoint;
 import com.yuil.game.entity.gameobject.GameObjectType;
 import com.yuil.game.entity.message.*;
 import com.yuil.game.entity.message.UPDATE_BTOBJECT_MOTIONSTATE;
@@ -57,6 +61,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	ModelBuilder modelBuilder = new ModelBuilder();
 	PhysicsWorldBuilder physicsWorldBuilder;
 	PhysicsWorld physicsWorld;
+	ContactListener contactListener;
 	Environment lights;
 	
 	KeyboardStatus keyboardStatus=new KeyboardStatus();
@@ -92,6 +97,7 @@ public class RigidBodyTestScreen extends Screen2D{
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 		//physicsWorld.addPhysicsObject(createGround());
+		contactListener=new MyContactListener();
 		
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
@@ -139,10 +145,10 @@ public class RigidBodyTestScreen extends Screen2D{
 					//modelInstance.transform.scale(2, 2, 2);
 				}
 			}else{				
-				System.out.println("--------------");
+				//System.out.println("--------------");
 				modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				modelInstance.nodes.first().calculateLocalTransform();
-				System.out.println(modelInstance.nodes.first().scale);
+				//System.out.println(modelInstance.nodes.first().scale);
 
 				//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				//System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling().set(2, 4, 4));
@@ -158,7 +164,23 @@ public class RigidBodyTestScreen extends Screen2D{
 		super.render(delta);
 	}
 
-	
+	public class MyContactListener extends ContactListener {
+		
+		@Override
+		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
+			System.out.println("onContactStarted");
+		}
+	    @Override
+	    public void onContactEnded (int userValue0, boolean match0, int userValue1, boolean match1) {
+	        if (match0) {
+	            // collision object 0 (userValue0) matches
+	        }
+	        if (match1) {
+	            // collision object 1 (userValue1) matches
+	        }
+	        System.out.println("onContactEnded()");
+	    }
+	}
 	void checkKeyBoardStatus(){
 		
 		if (Gdx.input.isKeyJustPressed(Keys.Q)) {

@@ -103,8 +103,8 @@ public class BtTestServer2 implements MessageListener {
 			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
 			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
 			
-			btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.OBSTACLE.ordinal()));
-			btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.PLAYER.ordinal()));
+			//btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.OBSTACLE.ordinal()));
+			//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.PLAYER.ordinal()));
 
 			v3.x = 0;
 			v3.y = 0;
@@ -142,6 +142,7 @@ public class BtTestServer2 implements MessageListener {
 
 				if (gameObjectType0!=null&&gameObjectType1!=null) {
 					if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()){
+						btObject0.getRigidBody().setIgnoreCollisionCheck(btObject1.getRigidBody(), true);
 						HealthPoint healthPoint=((HealthPoint)(btObject0.Attributes.get(AttributeType.HEALTH_POINT.ordinal())));
 						int demage=(int) Math.floor((btObject1.getRigidBody().getCollisionShape().getLocalScaling().x*10));
 						healthPoint.setHealthPoint(healthPoint.getHealthPoint()-demage);
@@ -154,6 +155,8 @@ public class BtTestServer2 implements MessageListener {
 						//contactPlayerQueue.add(btObject0);
 						removeBtObjectQueue.add(btObject1);
 					}else if(gameObjectType0.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.PLAYER.ordinal()){
+						btObject0.getRigidBody().setIgnoreCollisionCheck(btObject1.getRigidBody(), true);
+
 						HealthPoint healthPoint=((HealthPoint)(btObject1.Attributes.get(AttributeType.HEALTH_POINT.ordinal())));
 						int demage=(int) Math.floor((btObject0.getRigidBody().getCollisionShape().getLocalScaling().x*10));
 						healthPoint.setHealthPoint(healthPoint.getHealthPoint()-demage);
@@ -286,9 +289,10 @@ public class BtTestServer2 implements MessageListener {
 								broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
 							}
 						}else if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null){
-							// 检查playerObjects位置，超过边界返回起始点
-							//System.out.println(btObject.getPosition()+" Z:"+tempVector3.z);
 							
+							// 检查playerObjects位置，超过边界返回起始点
+						//	System.out.println(btObject.getPosition()+" Z:"+tempVector3.z);
+						//	System.out.println("velo:"+btObject.getRigidBody().getLinearVelocity());
 							/*
 							if (tempVector3.z < -199) {
 								btObject.getRigidBody().getWorldTransform(tempMatrix4);
@@ -381,8 +385,8 @@ public class BtTestServer2 implements MessageListener {
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),new OwnerPlayerId(message.getId()));
 					btObject.Attributes.put(AttributeType.HEALTH_POINT.ordinal(),new HealthPoint(100));
-					btObject.getRigidBody().setCollisionFlags(1<<GameObjectType.PLAYER.ordinal());
-					btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
+					//btObject.getRigidBody().setCollisionFlags(1<<GameObjectType.PLAYER.ordinal());
+					//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
 					//System.out.println("asd:"+((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal())));
 					
 					physicsWorld.addPhysicsObject(btObject);
