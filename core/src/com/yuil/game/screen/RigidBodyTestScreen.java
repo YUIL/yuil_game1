@@ -225,6 +225,16 @@ public class RigidBodyTestScreen extends Screen2D{
 			spaceJustUppedAction();
 		}
 		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum1JustPressed(true);
+			
+			sound.play(1,(0.5f+(1.5f* random.nextFloat())), 0);
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_1)==false&& keyboardStatus.isNum1JustPressed()) {
+			keyboardStatus.setNum1JustPressed(false);
+		}
+		
+		
 	}
 	void setupActorInput(){
 		stage.getRoot().findActor("A").addListener(new ActorInputListenner() {

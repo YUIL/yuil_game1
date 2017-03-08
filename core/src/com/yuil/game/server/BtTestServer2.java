@@ -285,8 +285,8 @@ public class BtTestServer2 implements MessageListener {
 							// 检查障碍物位置,超过边界则删除
 							if (tempVector3.z > -45) {
 								physicsWorld.removePhysicsObject(btObject);
-								remove_BTOBJECT_message.setId(btObject.getId());
-								broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+								//remove_BTOBJECT_message.setId(btObject.getId());
+								//broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
 							}
 						}else if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null){
 							

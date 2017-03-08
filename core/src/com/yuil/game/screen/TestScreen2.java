@@ -24,6 +24,9 @@ import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.ContactListener;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -31,6 +34,7 @@ import com.yuil.game.MyGame;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.DamagePoint;
 import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
+import com.yuil.game.entity.attribute.HealthPoint;
 import com.yuil.game.entity.attribute.OwnerPlayerId;
 import com.yuil.game.entity.gameobject.GameObjectType;
 import com.yuil.game.entity.message.*;
@@ -54,6 +58,7 @@ import com.yuil.game.net.message.MessageType;
 import com.yuil.game.net.message.MessageUtil;
 import com.yuil.game.net.message.SINGLE_MESSAGE;
 import com.yuil.game.net.udp.ClientSocket;
+import com.yuil.game.screen.RigidBodyTestScreen.MyContactListener;
 import com.yuil.game.util.Log;
 
 import io.netty.buffer.ByteBuf;
@@ -74,6 +79,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	PhysicsWorldBuilder physicsWorldBuilder;
 	PhysicsWorld physicsWorld;
 	Environment lights;
+	
+	ContactListener contactListener;
+
 	
 	KeyboardStatus keyboardStatus=new KeyboardStatus();
 	
@@ -118,6 +126,9 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 	
+		contactListener=new MyContactListener();
+
+		
 		// Set up the camera
 		final float width = Gdx.graphics.getWidth();
 		final float height = Gdx.graphics.getHeight();
@@ -136,7 +147,52 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		
 		nextTime=System.currentTimeMillis();
 	}
+public class MyContactListener extends ContactListener {
+		
+		@Override
+		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
+			if (colObj0 instanceof btRigidBody && colObj1 instanceof btRigidBody ) {
+				BtObject btObject0=(BtObject) (((btRigidBody) colObj0).userData);
+				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
+				
+				GameObjectTypeAttribute gameObjectType0=(GameObjectTypeAttribute)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+				GameObjectTypeAttribute gameObjectType1=(GameObjectTypeAttribute)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
 
+				if (gameObjectType0!=null&&gameObjectType1!=null) {
+					if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()){
+						System.out.println("coll");
+						//sound.play();
+					}else if(gameObjectType0.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.PLAYER.ordinal()){
+						System.out.println("coll");
+
+					//	sound.play();
+
+					}
+				}
+				
+				
+				/*
+					if(gameObjectType != null){
+						if(gameObjectType.getGameObjectType()==com.yuil.game.entity.gameobject.GameObjectType.OBSTACLE.ordinal()){
+							System.out.println("asdasds");
+							physicsWorld.removePhysicsObject(btObject);
+							remove_BTOBJECT_message.setId(btObject.getId());
+							broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+						}
+					}*/
+				
+			}		}
+	    @Override
+	    public void onContactEnded (int userValue0, boolean match0, int userValue1, boolean match1) {
+	        if (match0) {
+	            // collision object 0 (userValue0) matches
+	        }
+	        if (match1) {
+	            // collision object 1 (userValue1) matches
+	        }
+	        //System.out.println("onContactEnded()");
+	    }
+	}
 	@Override
 	public void render(float delta) {
 		checkKeyBoardStatus();
@@ -149,7 +205,7 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				if(physicsWorld.getPhysicsObjects().get(message.getId())==null){
 					v3.x=0;
 					v3.y=-100;
-					v3.z=0;
+					v3.z=-100;
 					color.set(message.getR(), message.getG(), message.getB(), message.getA());
 					//System.out.println("color.g:"+message.getG());
 					BtObject btObject=physicsWorldBuilder.createRenderableBall(message.getRadius(), message.getRadius(), v3, color);
@@ -223,7 +279,15 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 			modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			//modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 			
-			
+			if (((GameObjectTypeAttribute)(((BtObject)physicsObject).Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()))).getGameObjectType() ==GameObjectType.OBSTACLE.ordinal()) {
+				// 检查障碍物位置,超过边界则删除
+				//System.out.println("asdasd");
+				if (((BtObject)physicsObject).getPosition().z > -45) {
+					physicsWorld.removePhysicsObject(physicsObject);
+					//remove_BTOBJECT_message.setId(btObject.getId());
+					//broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
+				}
+			}
 			//modelInstance.transform.scl(2);
 			//System.out.println(modelInstance);
 			modelBatch.render(modelInstance,lights);
@@ -597,10 +661,13 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 				message.set(src);
 				BtObject btObject=(BtObject) physicsWorld.getPhysicsObjects().get(message.getId());
 				if(btObject!=null){
+
 					OwnerPlayerId ownerPlayerId=(OwnerPlayerId) btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal());
 					if(ownerPlayerId!=null&&ownerPlayerId.getPlayerId()==playerId){
 						//System.out.println("remove myself");
 						showGameOver();
+						sound.play(1,0.5f,0);
+
 						playerId=0;
 						playerObject=null;
 					}

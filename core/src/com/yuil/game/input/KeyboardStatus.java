@@ -29,9 +29,27 @@ public class KeyboardStatus {
 	boolean zJustPressed;
 	boolean spaceJustPressed;
 	
+	boolean num1JustPressed;
+	boolean num2JustPressed;
+	boolean num3JustPressed;
+	boolean num4JustPressed;
+	boolean num5JustPressed;
+	boolean num6JustPressed;
+	boolean num7JustPressed;
+	boolean num8JustPressed;
+	boolean num9JustPressed;
+	boolean num0JustPressed;
+
 	
 	boolean buttonAPressed;
 	boolean buttonDPressed;
+	
+	
+	
+	
+	
+	
+	
 	public boolean isaJustPressed() {
 		return aJustPressed;
 	}
@@ -188,18 +206,72 @@ public class KeyboardStatus {
 	public void setzJustPressed(boolean zJustPressed) {
 		this.zJustPressed = zJustPressed;
 	}
-	
 	public boolean isSpaceJustPressed() {
 		return spaceJustPressed;
 	}
 	public void setSpaceJustPressed(boolean spaceJustPressed) {
 		this.spaceJustPressed = spaceJustPressed;
-	}	
-	
-	
-	
-	
-	
+	}
+	public boolean isNum1JustPressed() {
+		return num1JustPressed;
+	}
+	public void setNum1JustPressed(boolean num1JustPressed) {
+		this.num1JustPressed = num1JustPressed;
+	}
+	public boolean isNum2JustPressed() {
+		return num2JustPressed;
+	}
+	public void setNum2JustPressed(boolean num2JustPressed) {
+		this.num2JustPressed = num2JustPressed;
+	}
+	public boolean isNum3JustPressed() {
+		return num3JustPressed;
+	}
+	public void setNum3JustPressed(boolean num3JustPressed) {
+		this.num3JustPressed = num3JustPressed;
+	}
+	public boolean isNum4JustPressed() {
+		return num4JustPressed;
+	}
+	public void setNum4JustPressed(boolean num4JustPressed) {
+		this.num4JustPressed = num4JustPressed;
+	}
+	public boolean isNum5JustPressed() {
+		return num5JustPressed;
+	}
+	public void setNum5JustPressed(boolean num5JustPressed) {
+		this.num5JustPressed = num5JustPressed;
+	}
+	public boolean isNum6JustPressed() {
+		return num6JustPressed;
+	}
+	public void setNum6JustPressed(boolean num6JustPressed) {
+		this.num6JustPressed = num6JustPressed;
+	}
+	public boolean isNum7JustPressed() {
+		return num7JustPressed;
+	}
+	public void setNum7JustPressed(boolean num7JustPressed) {
+		this.num7JustPressed = num7JustPressed;
+	}
+	public boolean isNum8JustPressed() {
+		return num8JustPressed;
+	}
+	public void setNum8JustPressed(boolean num8JustPressed) {
+		this.num8JustPressed = num8JustPressed;
+	}
+	public boolean isNum9JustPressed() {
+		return num9JustPressed;
+	}
+	public void setNum9JustPressed(boolean num9JustPressed) {
+		this.num9JustPressed = num9JustPressed;
+	}
+	public boolean isNum0JustPressed() {
+		return num0JustPressed;
+	}
+	public void setNum0JustPressed(boolean num0JustPressed) {
+		this.num0JustPressed = num0JustPressed;
+	}
 	public boolean isButtonAPressed() {
 		return buttonAPressed;
 	}
