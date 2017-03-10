@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <spawner>
+        <interval>1000</interval>
+        
+    </spawner>
+    
+</config>

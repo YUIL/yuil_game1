@@ -160,10 +160,10 @@ public class MyContactListener extends ContactListener {
 
 				if (gameObjectType0!=null&&gameObjectType1!=null) {
 					if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()){
-						System.out.println("coll");
+						//System.out.println("coll");
 						//sound.play();
 					}else if(gameObjectType0.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.PLAYER.ordinal()){
-						System.out.println("coll");
+						//System.out.println("coll");
 
 					//	sound.play();
 

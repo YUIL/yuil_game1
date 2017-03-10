@@ -1,5 +1,7 @@
 package com.yuil.game.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +15,14 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
@@ -83,49 +93,7 @@ public class BtTestServer2 implements MessageListener {
 
 	
 	
-	BtObjectSpawner obstacleBallSpawner = new BtObjectSpawner(200) {
-		Vector3 v3 = new Vector3();
-		Color color = new Color();
-		S2C_ADD_OBSTACLE message = new S2C_ADD_OBSTACLE();
-
-		@Override
-		public void spawn() {
-			// TODO Auto-generated method stub
-			// physicsWorld.addPhysicsObjectQueue.
-			v3.x = -18 + random.nextInt(36);
-			v3.y = 10+random.nextInt(50);
-			v3.z = -200;
-			//float radius = (random.nextInt(10000) / 10000f) * 3;
-			float radius = 0.5f+((random.nextInt(10000) / 10000f) * 3);
-			BtObject btObject = physicsWorldBuilder.createBall(radius, radius, v3);
-			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
-			btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
-			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
-			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
-			
-			//btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.OBSTACLE.ordinal()));
-			//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.PLAYER.ordinal()));
-
-			v3.x = 0;
-			v3.y = 0;
-			v3.z = 40;
-			btObject.getRigidBody().setLinearVelocity(v3);
-
-			long id = random.nextLong();
-			btObject.setId(id);
-			physicsWorld.addPhysicsObject(btObject);
-
-			message.setId(id);
-			message.setRadius(radius);
-			message.setR(color.r);
-			message.setG(color.g);
-			message.setB(color.b);
-			message.setA(color.a);
-			broadCastor.broadCast_SINGLE_MESSAGE(message, true);
-			obstacleBtObjectList.add(btObject);
-		}
-
-	};
+	BtObjectSpawner obstacleBallSpawner ;
 
 	public class MyContactListener extends ContactListener {
 		Vector3 v3 = new Vector3();
@@ -133,20 +101,21 @@ public class BtTestServer2 implements MessageListener {
 		
 		@Override
 		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
+			System.out.println("coll"+random.nextInt());
+
 			if (colObj0 instanceof btRigidBody && colObj1 instanceof btRigidBody ) {
 				BtObject btObject0=(BtObject) (((btRigidBody) colObj0).userData);
 				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
 				
 				GameObjectTypeAttribute gameObjectType0=(GameObjectTypeAttribute)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
 				GameObjectTypeAttribute gameObjectType1=(GameObjectTypeAttribute)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
-
 				if (gameObjectType0!=null&&gameObjectType1!=null) {
 					if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.OBSTACLE.ordinal()){
 						btObject0.getRigidBody().setIgnoreCollisionCheck(btObject1.getRigidBody(), true);
 						HealthPoint healthPoint=((HealthPoint)(btObject0.Attributes.get(AttributeType.HEALTH_POINT.ordinal())));
 						int demage=(int) Math.floor((btObject1.getRigidBody().getCollisionShape().getLocalScaling().x*10));
 						healthPoint.setHealthPoint(healthPoint.getHealthPoint()-demage);
-						//System.out.println("剩余生命："+healthPoint.getHealthPoint());
+						System.out.println("剩余生命："+healthPoint.getHealthPoint());
 
 						if(healthPoint.getHealthPoint()<=0){
 							removeBtObjectQueue.add(btObject0);
@@ -236,6 +205,8 @@ public class BtTestServer2 implements MessageListener {
 		netSocket.setMessageListener(this);
 		broadCastor = new BroadCastor(netSocket);
 		messageProcessor = new MessageProcessor();
+		
+		initConfig();
 	}
 
 	public void start() {
@@ -384,7 +355,7 @@ public class BtTestServer2 implements MessageListener {
 					btObject.setId(objectId);
 					btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
 					btObject.Attributes.put(AttributeType.OWNER_PLAYER_ID.ordinal(),new OwnerPlayerId(message.getId()));
-					btObject.Attributes.put(AttributeType.HEALTH_POINT.ordinal(),new HealthPoint(100));
+					btObject.Attributes.put(AttributeType.HEALTH_POINT.ordinal(),new HealthPoint(1000));
 					//btObject.getRigidBody().setCollisionFlags(1<<GameObjectType.PLAYER.ordinal());
 					//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
 					//System.out.println("asd:"+((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal())));
@@ -562,4 +533,80 @@ public class BtTestServer2 implements MessageListener {
 	 * tempVector3.z=message.getAngularVelocityZ();
 	 * btObject.getRigidBody().setAngularVelocity(tempVector3); }
 	 */
+	
+	void initConfig(){
+		 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+         DocumentBuilder db;
+         Document document = null;
+         File file=new File(".//config//config.xml");
+		try {
+			db = dbf.newDocumentBuilder();
+			document = db.parse(file);
+			
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+         NodeList spawners=document.getElementsByTagName("spawner");
+         
+         for (int i = 0; i < spawners.getLength(); i++) {
+        	 int interval=Integer.parseInt(spawners.item(i).getOwnerDocument().getElementsByTagName("interval").item(0).getTextContent());
+        	 obstacleBallSpawner= createSpawner(interval);
+		}
+        
+	}
+	
+	BtObjectSpawner createSpawner(int interval){
+		BtObjectSpawner spawner = new BtObjectSpawner(interval) {
+     		Vector3 v3 = new Vector3();
+     		Color color = new Color();
+     		S2C_ADD_OBSTACLE message = new S2C_ADD_OBSTACLE();
+
+     		@Override
+     		public void spawn() {
+     			// TODO Auto-generated method stub
+     			// physicsWorld.addPhysicsObjectQueue.
+     			//v3.x = -18 + random.nextInt(36);
+     			v3.x =0;
+     			v3.y = 10+random.nextInt(50);
+     			v3.z = -200;
+     			//float radius = (random.nextInt(10000) / 10000f) * 3;
+     			float radius = 0.5f+((random.nextInt(10000) / 10000f) * 3);
+     			BtObject btObject = physicsWorldBuilder.createBall(radius, radius, v3);
+     			btObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.OBSTACLE.ordinal()));
+     			btObject.Attributes.put(AttributeType.DAMAGE_POINT.ordinal(), new DamagePoint(1));
+     			color.set(random.nextInt(255) / 255f, random.nextInt(255) / 255f, random.nextInt(255) / 255f, 1);
+     			btObject.Attributes.put(AttributeType.COLOR.ordinal(), new com.yuil.game.entity.attribute.Color(color));
+     			
+     			//btObject.getRigidBody().setCollisionFlags((1<<GameObjectType.OBSTACLE.ordinal()));
+     			//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.PLAYER.ordinal()));
+
+     			v3.x = 0;
+     			v3.y = 0;
+     			v3.z = 40;
+     			btObject.getRigidBody().setLinearVelocity(v3);
+
+     			long id = random.nextLong();
+     			btObject.setId(id);
+     			physicsWorld.addPhysicsObject(btObject);
+
+     			message.setId(id);
+     			message.setRadius(radius);
+     			message.setR(color.r);
+     			message.setG(color.g);
+     			message.setB(color.b);
+     			message.setA(color.a);
+     			broadCastor.broadCast_SINGLE_MESSAGE(message, true);
+     			obstacleBtObjectList.add(btObject);
+     		}
+
+     	};
+     	return spawner;
+	}
 }
