@@ -671,6 +671,7 @@ public class MyContactListener extends ContactListener {
 						playerId=0;
 						playerObject=null;
 					}
+					System.out.println("remove position:"+btObject.getPosition());
 					physicsWorld.removePhysicsObject(physicsWorld.getPhysicsObjects().get(message.getId()));
 				}
 			}
