@@ -5,6 +5,11 @@ sourceCompatibility = 1.6
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
+dependencies{
+	compile files{'libs/gdx-bullet-1.6.4.jar'}
+	compile files{'libs/gdx-bullet-platform-1.6.4-natives-desktop.jar'}
+	compile files{'libs/netty-all-5.0.0.Alpha2.jar'}
+}
 
 eclipse.project {
     name = appName + "-core"

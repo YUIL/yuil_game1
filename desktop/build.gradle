@@ -44,3 +44,7 @@ task afterEclipseImport(description: "Post processing after project generation",
     printer.print(classpath)
   }
 }
+
+dependencies{
+	compile files{'libs/gdx-bullet-platform-1.6.4-natives-desktop.jar'}
+}

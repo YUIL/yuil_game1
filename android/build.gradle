@@ -16,6 +16,10 @@ android {
     }
 }
 
+dependencies{
+	compile files{'libs/gdx-bullet-1.6.4.jar'}
+	compile files{'libs/netty-all-5.0.0.Alpha2.jar'}
+}
 
 // called every time gradle gets executed, takes the native dependencies of
 // the natives configuration, and extracts them to the proper libs/ folders
