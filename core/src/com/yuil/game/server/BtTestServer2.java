@@ -578,7 +578,8 @@ public class BtTestServer2 implements MessageListener {
      			// physicsWorld.addPhysicsObjectQueue.
      			//v3.x = -18 + random.nextInt(36);
      			v3.x =0;
-     			v3.y = 10+random.nextInt(50);
+     			//v3.y = 10+random.nextInt(50);
+     			v3.y=11;
      			v3.z = -200;
      			float radius = 3;
      			//float radius = 0.5f+((random.nextInt(10000) / 10000f) * 3);
@@ -606,7 +607,7 @@ public class BtTestServer2 implements MessageListener {
      			message.setG(color.g);
      			message.setB(color.b);
      			message.setA(color.a);
-     			broadCastor.broadCast_SINGLE_MESSAGE(message, true);
+     			broadCastor.broadCast_SINGLE_MESSAGE(message, false);
      			obstacleBtObjectList.add(btObject);
      		}
 

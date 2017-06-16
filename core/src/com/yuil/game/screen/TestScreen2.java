@@ -450,6 +450,7 @@ public class MyContactListener extends ContactListener {
 			//sound.play();
 			if (playerId==0){
 				playerId=random.nextLong();
+				System.out.println("new id:"+playerId);
 				C2S_ADD_PLAYER add_player=new C2S_ADD_PLAYER();
 				add_player.setId(playerId);
 				sendSingleMessage(add_player);
