@@ -140,7 +140,7 @@ public class BtTestServer2 implements MessageListener {
 							removeBtObjectQueue.add(btObject1);
 
 						}
-						removeBtObjectQueue.add(btObject0);
+						updateBtObjectMotionStateBroadCastQueue.add(btObject0);
 					}
 				}
 				
@@ -164,8 +164,9 @@ public class BtTestServer2 implements MessageListener {
 		void handleBtObject(BtObject btObject){
 			if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null) {
 				// System.out.println(((OwnerPlayerId)(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()))).getPlayerId());
-				//contactPlayerQueue.add(btObject);
-
+				contactPlayerQueue.add(btObject);
+				v3.set(0, btObject.getRigidBody().getLinearVelocity().y, 0);
+				btObject.getRigidBody().setLinearVelocity(v3);
 			}
 		}
 		
@@ -226,17 +227,16 @@ public class BtTestServer2 implements MessageListener {
 
 	class WorldLogic implements Runnable {
 
-		int interval = 17;
-		long nextUpdateTime = 0;
+		int interval = 17;//更新间隔
+		long nextUpdateTime = 0;//下次更新的时间
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			nextUpdateTime = System.currentTimeMillis();
 			while (true) {
-				if (System.currentTimeMillis() >= nextUpdateTime) {
+				if (System.currentTimeMillis() >= nextUpdateTime) {//更新世界
 					obstacleBallSpawner.update();// 刷障碍物体
-
 					while (!removeBtObjectQueue.isEmpty()) {
 						BtObject btObject=removeBtObjectQueue.poll();
 						if(btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal())!=null){
@@ -247,10 +247,8 @@ public class BtTestServer2 implements MessageListener {
 						broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
 						
 					}
-					
 					for (BtObject btObject : physicsWorld.getPhysicsObjects().values()) {
 						// System.out.println(btObject.rigidBody.getWorldTransform());
-
 						if (!btObject.getRigidBody().isActive()){
 							btObject.getRigidBody().activate();
 						}
@@ -271,7 +269,6 @@ public class BtTestServer2 implements MessageListener {
 								//broadCastor.broadCast_SINGLE_MESSAGE(remove_BTOBJECT_message, false);
 							}
 						}else if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null){
-							
 							// 检查playerObjects位置，超过边界返回起始点
 						//	System.out.println(btObject.getPosition()+" Z:"+tempVector3.z);
 						//	System.out.println("velo:"+btObject.getRigidBody().getLinearVelocity());
@@ -282,9 +279,7 @@ public class BtTestServer2 implements MessageListener {
 								btObject.getRigidBody().setWorldTransform(tempMatrix4);
 								BtTestServer2.updateBtObjectMotionStateBroadCastQueue.add(btObject);
 							}*/
-							btObject.getRigidBody().getWorldTransform().getTranslation(tempVector3);
-
-							
+							/*btObject.getRigidBody().getWorldTransform().getTranslation(tempVector3);
 							if (tempVector3.z>-50) {
 								tempVector3.set(btObject.getRigidBody().getLinearVelocity());
 								tempVector3.z = -5;
@@ -296,15 +291,13 @@ public class BtTestServer2 implements MessageListener {
 								tempVector3.z = 0;
 							}
 							btObject.getRigidBody().setLinearVelocity(tempVector3);
-							updateBtObjectMotionStateBroadCastQueue.add(btObject);
+							updateBtObjectMotionStateBroadCastQueue.add(btObject);*/
 						}
 					}/*
 					while(!contactPlayerQueue.isEmpty()){
 						BtObject btObject=contactPlayerQueue.poll();
 						
 					}*/
-					
-					
 					nextUpdateTime += interval;
 					physicsWorld.update(interval / 1000f);// 更新物理世界
 
@@ -313,7 +306,6 @@ public class BtTestServer2 implements MessageListener {
 						BtObject btObject = updateBtObjectMotionStateBroadCastQueue.poll();
 						if (btObject.getRigidBody() != null) {
 							//System.out.println("btId:"+btObject.getId());
-
 							//System.out.println("send up velocity:"+btObject.getRigidBody().getLinearVelocity());
 							// System.out.println("update");
 							update_BTRIGIDBODY.set(btObject);
@@ -326,7 +318,6 @@ public class BtTestServer2 implements MessageListener {
 						//System.out.println(physicsWorld.getPhysicsObjects().get(recentPlayerObjectId).getPosition());
 					}
 					// broadCastor.broadCast_GAME_MESSAGE(data, false);
-
 				} else {
 					try {
 						Thread.sleep(nextUpdateTime - System.currentTimeMillis());
@@ -337,7 +328,6 @@ public class BtTestServer2 implements MessageListener {
 				}
 			}
 		}
-
 	}
 
 	class MessageProcessor extends com.yuil.game.net.MessageProcessor {
@@ -370,7 +360,7 @@ public class BtTestServer2 implements MessageListener {
 
 					tempVector3.set(btObject.getRigidBody().getLinearVelocity().x,
 							btObject.getRigidBody().getLinearVelocity().y, -5);
-					btObject.getRigidBody().setLinearVelocity(tempVector3);
+					//btObject.getRigidBody().setLinearVelocity(tempVector3);
 
 					broadCastor.broadCast_SINGLE_MESSAGE(s2c_ADD_PLAYER_message, false);
 					updateBtObjectMotionStateBroadCastQueue.add(btObject);

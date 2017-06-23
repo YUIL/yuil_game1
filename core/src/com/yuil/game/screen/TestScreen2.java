@@ -148,12 +148,15 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 		nextTime=System.currentTimeMillis();
 	}
 public class MyContactListener extends ContactListener {
-		
+		Vector3 v3 = new Vector3();
+
 		@Override
 		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
 			if (colObj0 instanceof btRigidBody && colObj1 instanceof btRigidBody ) {
 				BtObject btObject0=(BtObject) (((btRigidBody) colObj0).userData);
 				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
+				handleBtObject(btObject0);
+				handleBtObject(btObject1);
 				
 				GameObjectTypeAttribute gameObjectType0=(GameObjectTypeAttribute)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
 				GameObjectTypeAttribute gameObjectType1=(GameObjectTypeAttribute)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
@@ -181,7 +184,15 @@ public class MyContactListener extends ContactListener {
 						}
 					}*/
 				
-			}		}
+			}	
+		}
+		void handleBtObject(BtObject btObject){
+			if (btObject.Attributes.get(AttributeType.OWNER_PLAYER_ID.ordinal()) != null) {
+				v3.set(0, btObject.getRigidBody().getLinearVelocity().y, 0);
+				btObject.getRigidBody().setLinearVelocity(v3);
+			}
+		}
+		
 	    @Override
 	    public void onContactEnded (int userValue0, boolean match0, int userValue1, boolean match1) {
 	        if (match0) {
@@ -254,7 +265,7 @@ public class MyContactListener extends ContactListener {
 		}else{
 			//System.out.println("x:"+playerObject.getPosition().x);
 			try {
-				camera.position.set(playerObject.getPosition().x, playerObject.getPosition().y+2f, playerObject.getPosition().z+5);
+				camera.position.set(playerObject.getPosition().x, playerObject.getPosition().y+2f, playerObject.getPosition().z+10);
 				//camera.lookAt(playerObject.getPosition().x,playerObject.getPosition().y, playerObject.getPosition().z);
 				camera.update();
 			} catch (Exception e) {
@@ -552,7 +563,8 @@ public class MyContactListener extends ContactListener {
 	
 	protected void spaceJustPressedAction() {
 		if(playerId!=0&&playerObject!=null){
-
+			System.out.println("playerId:"+playerId);
+			System.out.println("ObjectId:"+playerObject.getId());
 			if(playerObject.getPosition().y<0.7f){
 				temp_update_liner_velocity_message.setX(NO_CHANGE);
 				temp_update_liner_velocity_message.setY(10);
