@@ -101,11 +101,14 @@ public class TestScreen2 extends Screen2D implements MessageListener{
 	
 	Sound sound=Gdx.audio.newSound(Gdx.files.internal("sound/bee.wav"));
 	
-	
 	Matrix4 tempMatrix4=new Matrix4();
 	Vector3 tempVector3=new Vector3();
+	
 	UPDATE_BTOBJECT_MOTIONSTATE temp_update_rigidbody_message;
 	UPDATE_LINEAR_VELOCITY temp_update_liner_velocity_message=new UPDATE_LINEAR_VELOCITY();
+	DO_ACTION temp_do_action_messge=new DO_ACTION();
+	
+	
 	boolean isLogin=false;
 	public TestScreen2(MyGame game) {
 		super(game);
@@ -390,71 +393,216 @@ public class MyContactListener extends ContactListener {
 			keyboardStatus.setSpaceJustPressed(true);
 			spaceJustPressedAction();
 
-		}else if (Gdx.input.isKeyPressed(Keys.SPACE)==false&& keyboardStatus.isdJustPressed()) {
+		}else if (Gdx.input.isKeyPressed(Keys.SPACE)==false&& keyboardStatus.isSpaceJustPressed()) {
 			keyboardStatus.setSpaceJustPressed(false);
 			spaceJustUppedAction();
 		}
 		
-	}
-	void setupActorInput(){
-		stage.getRoot().findActor("A").addListener(new ActorInputListenner() {
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				aJustUppedAction();
-			}
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_0)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum0JustPressed(true);
+			Num0JustPressedAction();
 
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				aJustPressedAction();
-				return true;
-			}
-		});
-		stage.getRoot().findActor("D").addListener(new ActorInputListenner() {
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				dJustUppedAction();
-			}
-
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				dJustPressedAction();
-				return true;
-			}
-		});
-		stage.getRoot().findActor("Z").addListener(new ActorInputListenner() {
-
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				zJustPressedAction();
-			}
-		});
-		stage.getRoot().findActor("X").addListener(new ActorInputListenner() {
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				delJustPressedAction();
-			}
-		});
-		stage.getRoot().findActor("G").addListener(new ActorInputListenner() {
-
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				//gameObjectId = Long.parseLong(((TextArea) stage.getRoot().findActor("userName")).getText());
-
-			}
-		});
-
-		stage.getRoot().findActor("W").addListener(new ActorInputListenner() {
-
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				wJustPressedAction() ;
-			}
-		});
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_0)==false&& keyboardStatus.isNum0JustPressed()) {
+			keyboardStatus.setNum0JustPressed(false);
+			Num0JustUppedAction();
+		}
 		
-		stage.getRoot().findActor("S").addListener(new ActorInputListenner() {
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum1JustPressed(true);
+			Num1JustPressedAction();
 
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				sJustPressedAction() ;
-			}
-		});
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_1)==false&& keyboardStatus.isNum1JustPressed()) {
+			keyboardStatus.setNum1JustPressed(false);
+			Num1JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_2)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum2JustPressed(true);
+			Num2JustPressedAction();
 
-		stage.getRoot().findActor("login").addListener(new ActorInputListenner() {
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-			}
-		});	
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_2)==false&& keyboardStatus.isNum2JustPressed()) {
+			keyboardStatus.setNum2JustPressed(false);
+			Num2JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_3)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum3JustPressed(true);
+			Num3JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_3)==false&& keyboardStatus.isNum3JustPressed()) {
+			keyboardStatus.setNum3JustPressed(false);
+			Num3JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_4)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum4JustPressed(true);
+			Num4JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_4)==false&& keyboardStatus.isNum4JustPressed()) {
+			keyboardStatus.setNum4JustPressed(false);
+			Num4JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_5)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum5JustPressed(true);
+			Num5JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_5)==false&& keyboardStatus.isNum5JustPressed()) {
+			keyboardStatus.setNum5JustPressed(false);
+			Num5JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_6)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum6JustPressed(true);
+			Num6JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_6)==false&& keyboardStatus.isNum6JustPressed()) {
+			keyboardStatus.setNum6JustPressed(false);
+			Num6JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_7)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum7JustPressed(true);
+			Num7JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_7)==false&& keyboardStatus.isNum7JustPressed()) {
+			keyboardStatus.setNum7JustPressed(false);
+			Num7JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum8JustPressed(true);
+			Num8JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_8)==false&& keyboardStatus.isNum8JustPressed()) {
+			keyboardStatus.setNum8JustPressed(false);
+			Num8JustUppedAction();
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) {
+			// game.getScreen().dispose();
+			keyboardStatus.setNum9JustPressed(true);
+			Num9JustPressedAction();
+
+		}else if (Gdx.input.isKeyPressed(Keys.NUM_9)==false&& keyboardStatus.isNum9JustPressed()) {
+			keyboardStatus.setNum9JustPressed(false);
+			Num9JustUppedAction();
+		}
+		
 	}
+	private void Num9JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num9JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num8JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num8JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num7JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num7JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num6JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num6JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num5JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num5JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num4JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num4JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num3JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num3JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num2JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num2JustPressedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num1JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num1JustPressedAction() {
+		// TODO Auto-generated method stub
+		if(playerId!=0&&playerObject!=null){
+			temp_do_action_messge.setPlayerId(playerId);
+			temp_do_action_messge.setActionId(1);
+			sendSingleMessage(temp_do_action_messge);   
+		}
+	}
+
+	private void Num0JustUppedAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void Num0JustPressedAction() {
+		// TODO Auto-generated method stub
+		System.out.println("asd");
+	}
+
 
 	protected void zJustPressedAction() {
 		if(isLogin){
@@ -595,6 +743,67 @@ public class MyContactListener extends ContactListener {
 		
 	}
 	
+	
+
+	void setupActorInput(){
+		stage.getRoot().findActor("A").addListener(new ActorInputListenner() {
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				aJustUppedAction();
+			}
+
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				aJustPressedAction();
+				return true;
+			}
+		});
+		stage.getRoot().findActor("D").addListener(new ActorInputListenner() {
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				dJustUppedAction();
+			}
+
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				dJustPressedAction();
+				return true;
+			}
+		});
+		stage.getRoot().findActor("Z").addListener(new ActorInputListenner() {
+
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				zJustPressedAction();
+			}
+		});
+		stage.getRoot().findActor("X").addListener(new ActorInputListenner() {
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				delJustPressedAction();
+			}
+		});
+		stage.getRoot().findActor("G").addListener(new ActorInputListenner() {
+
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				//gameObjectId = Long.parseLong(((TextArea) stage.getRoot().findActor("userName")).getText());
+
+			}
+		});
+
+		stage.getRoot().findActor("W").addListener(new ActorInputListenner() {
+
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				wJustPressedAction() ;
+			}
+		});
+		
+		stage.getRoot().findActor("S").addListener(new ActorInputListenner() {
+
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				sJustPressedAction() ;
+			}
+		});
+
+		stage.getRoot().findActor("login").addListener(new ActorInputListenner() {
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+			}
+		});	
+	}
 	
 	void sendSingleMessage(Message message){
 

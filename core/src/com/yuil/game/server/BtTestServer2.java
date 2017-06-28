@@ -448,6 +448,18 @@ public class BtTestServer2 implements MessageListener {
 				}
 			});
 
+			messageHandlerMap.put(EntityMessageType.DO_ACTION.ordinal(), new MessageHandler() {
+				DO_ACTION message = new DO_ACTION();
+
+				@Override
+				public void handle(ByteBuf src) {
+					message.set(src);
+					System.out.println(message.toString());
+					//netSocket.send(SINGLE_MESSAGE.get(message.get().array()), session, false);
+					
+				}
+			});
+			
 			messageHandlerMap.put(EntityMessageType.TEST.ordinal(), new MessageHandler() {
 				TEST message = new TEST();
 

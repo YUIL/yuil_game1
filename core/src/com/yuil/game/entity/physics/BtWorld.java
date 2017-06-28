@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.SWIGTYPE_p_f_r_btBroadphasePair_r_btCollisionDispatcher_r_q_const__btDispatcherInfo__void;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
@@ -101,6 +102,7 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		// Create the bullet world
 		collisionConfiguration = new btDefaultCollisionConfiguration();
 		dispatcher = new btCollisionDispatcher(collisionConfiguration);
+		
 		broadphase = new btDbvtBroadphase();
 		solver = new btSequentialImpulseConstraintSolver();
 		collisionWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);

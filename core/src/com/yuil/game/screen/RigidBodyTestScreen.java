@@ -34,6 +34,7 @@ import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import com.yuil.game.MyGame;
 import com.yuil.game.entity.attribute.AttributeType;
 import com.yuil.game.entity.attribute.GameObjectTypeAttribute;
@@ -145,12 +146,12 @@ public class RigidBodyTestScreen extends Screen2D{
 					//modelInstance.transform.scale(2, 2, 2);
 				}
 			}else{				
-				//System.out.println("--------------");
-				modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
-				modelInstance.nodes.first().calculateLocalTransform();
+				//System.out.println("---------((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling()----"+((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				//modelInstance.nodes.first().localTransform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				//modelInstance.nodes.first().calculateLocalTransform();
 				//System.out.println(modelInstance.nodes.first().scale);
 
-				//modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
+				modelInstance.transform.scl(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling());
 				//System.out.println(((BtObject)physicsObject).getRigidBody().getCollisionShape().getLocalScaling().set(2, 4, 4));
 
 			}
@@ -168,7 +169,20 @@ public class RigidBodyTestScreen extends Screen2D{
 		
 		@Override
 		public void onContactStarted(btCollisionObject colObj0, btCollisionObject colObj1) {
-			System.out.println("onContactStarted");
+		//	System.out.println("onContactStarted");
+			if (colObj0 instanceof btRigidBody && colObj1 instanceof btRigidBody ) {
+				BtObject btObject0=(BtObject) (((btRigidBody) colObj0).userData);
+				BtObject btObject1=(BtObject) (((btRigidBody) colObj1).userData);
+				
+				GameObjectTypeAttribute gameObjectType0=(GameObjectTypeAttribute)(btObject0.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+				GameObjectTypeAttribute gameObjectType1=(GameObjectTypeAttribute)(btObject1.Attributes.get(AttributeType.GMAE_OBJECT_TYPE.ordinal()));
+		//	System.out.println(gameObjectType0);
+		//	System.out.println(gameObjectType1);
+
+				if(gameObjectType0.getGameObjectType()==GameObjectType.PLAYER.ordinal()&&gameObjectType1.getGameObjectType()==GameObjectType.PLAYER.ordinal()){
+					System.out.println("ppp");
+				}
+			}
 		}
 	    @Override
 	    public void onContactEnded (int userValue0, boolean match0, int userValue1, boolean match1) {
@@ -301,13 +315,17 @@ public class RigidBodyTestScreen extends Screen2D{
 		if(testBtObject==null){
 
 			testBtObject=createTestObject();
+
 			
+			//btObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
+
 			//testBtObject.getRigidBody().getWorldTransform(tempMatrix4);
 			//tempMatrix4.scale(5, 5, 5);
 			//testBtObject.getRigidBody().setWorldTransform(tempMatrix4);
 			System.out.println(testBtObject.getRigidBody().getWorldTransform());
-
 			physicsWorld.addPhysicsObject(testBtObject);
+			testBtObject.getRigidBody().setLinearVelocity(new Vector3(0,0,2));
+
 		}else{
 			physicsWorld.addPhysicsObject(createTestObject());
 		}
@@ -419,8 +437,11 @@ public class RigidBodyTestScreen extends Screen2D{
 				Usage.Position | Usage.Normal);
 		btSphereShape collisionShape = new btSphereShape(0.5f);
 		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
-		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(5f,5f,5f));
-
+		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(1f,1f,1f));
+		testObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
+		testObject.getRigidBody().setContactCallbackFlag(1);
+		testObject.getRigidBody().setContactCallbackFilter(1);
+		//testObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
 		return testObject;
 		
 	}
