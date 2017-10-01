@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btCylinderShape;
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
@@ -116,6 +117,7 @@ public class BtObjectFactory {
 		rigidBody.setMotionState(motionState);
 		rigidBody.userData=btObject;
 		rigidBody.setFriction(0f);
+		rigidBody.setAngularFactor(0);
 		
 		btObject.setId(random.nextLong());
 		btObject.setRigidBody(rigidBody);

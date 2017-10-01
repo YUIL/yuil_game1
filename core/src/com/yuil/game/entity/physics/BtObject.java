@@ -18,6 +18,8 @@ public class BtObject extends PhysicsObject implements Disposable{
 	btRigidBodyConstructionInfo  rigidBodyConstructionInfo;
 	public Object userData;
 	public HashMap<Integer, Attribute> Attributes=new HashMap<Integer, Attribute>();
+	public short group=1;
+	public short mask=(short) 65535;
 	
 	private Vector3 position=new Vector3();
 
@@ -54,6 +56,38 @@ public class BtObject extends PhysicsObject implements Disposable{
 
 
 
+
+	public Object getUserData() {
+		return userData;
+	}
+
+	public void setUserData(Object userData) {
+		this.userData = userData;
+	}
+
+	public HashMap<Integer, Attribute> getAttributes() {
+		return Attributes;
+	}
+
+	public void setAttributes(HashMap<Integer, Attribute> attributes) {
+		Attributes = attributes;
+	}
+
+	public short getGroup() {
+		return group;
+	}
+
+	public void setGroup(short group) {
+		this.group = group;
+	}
+
+	public short getMask() {
+		return mask;
+	}
+
+	public void setMask(short mask) {
+		this.mask = mask;
+	}
 
 	public btRigidBodyConstructionInfo getRigidBodyConstructionInfo() {
 		return rigidBodyConstructionInfo;

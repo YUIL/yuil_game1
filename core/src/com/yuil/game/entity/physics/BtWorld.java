@@ -123,7 +123,7 @@ public class BtWorld extends PhysicsWorld implements Disposable{
 		for (int i = 0; i < addPhysicsObjectQueue.size(); i++) {
 			BtObject btObject=addPhysicsObjectQueue.poll();
 			getPhysicsObjects().put(btObject.getId(),btObject);
-			getCollisionWorld().addRigidBody(btObject.getRigidBody());
+			getCollisionWorld().addRigidBody(btObject.getRigidBody(),btObject.getGroup(),btObject.getMask());
 		}
 		for (int i = 0; i <  removePhysicsObjectQueue.size(); i++) {
 			BtObject btObject= removePhysicsObjectQueue.poll();

@@ -28,9 +28,16 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btGhostObject;
+import com.badlogic.gdx.physics.bullet.collision.btOverlapFilterCallback;
+import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject;
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btCharacterControllerInterface;
+import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -98,6 +105,10 @@ public class RigidBodyTestScreen extends Screen2D{
 		physicsWorld = new BtWorld();
 		physicsWorld.addPhysicsObject(physicsWorldBuilder.btObjectFactory.createRenderableGround());
 		//physicsWorld.addPhysicsObject(createGround());
+		
+		MyFilterCallback myFilterCallback=new MyFilterCallback();
+		//((BtWorld)physicsWorld).getCollisionWorld().getPairCache().setOverlapFilterCallback(myFilterCallback);
+		
 		contactListener=new MyContactListener();
 		
 		// Set up the camera
@@ -194,6 +205,16 @@ public class RigidBodyTestScreen extends Screen2D{
 	        }
 	        System.out.println("onContactEnded()");
 	    }
+	}
+	
+	public class MyFilterCallback extends btOverlapFilterCallback{
+		public boolean needBroadphaseCollision(btBroadphaseProxy proxy0,btBroadphaseProxy proxy1){
+			boolean collides=false;
+		
+			System.out.println("filter!");
+			return collides;
+		}
+		
 	}
 	void checkKeyBoardStatus(){
 		
@@ -324,10 +345,13 @@ public class RigidBodyTestScreen extends Screen2D{
 			//testBtObject.getRigidBody().setWorldTransform(tempMatrix4);
 			System.out.println(testBtObject.getRigidBody().getWorldTransform());
 			physicsWorld.addPhysicsObject(testBtObject);
-			testBtObject.getRigidBody().setLinearVelocity(new Vector3(0,0,2));
+			//((BtWorld)physicsWorld).getCollisionWorld().getDebugDrawer();
+			//testBtObject.getRigidBody().setLinearVelocity(new Vector3(0,0,2));
 
 		}else{
-			physicsWorld.addPhysicsObject(createTestObject());
+			BtObject bo=createTestObject();
+			//bo.getRigidBody().setIgnoreCollisionCheck(testBtObject.getRigidBody(), true);
+			physicsWorld.addPhysicsObject(bo);
 		}
 	}
 
@@ -420,6 +444,7 @@ public class RigidBodyTestScreen extends Screen2D{
 	}
 	
 	RenderableBtObject createTestObject(){
+		System.out.println("createTestObject");
 		Vector3 tempVector = new Vector3();
 
 		RenderableBtObject testObject;
@@ -439,11 +464,17 @@ public class RigidBodyTestScreen extends Screen2D{
 		testObject=physicsWorldBuilder.btObjectFactory.createRenderableBtObject(model, collisionShape, 1, 0, 10, 0);
 		testObject.getRigidBody().getCollisionShape().setLocalScaling(new Vector3(1f,1f,1f));
 		testObject.Attributes.put(AttributeType.GMAE_OBJECT_TYPE.ordinal(), new GameObjectTypeAttribute(GameObjectType.PLAYER.ordinal()));
-		testObject.getRigidBody().setContactCallbackFlag(1);
-		testObject.getRigidBody().setContactCallbackFilter(1);
+		//testObject.getRigidBody().setContactCallbackFlag(0);
+		//testObject.getRigidBody().setContactCallbackFilter(0);
+		
+		btPairCachingGhostObject ghostObject=new btPairCachingGhostObject();
+		ghostObject.setCollisionShape(new btSphereShape(9));
+		ghostObject.userData=testObject;
+		((BtWorld)physicsWorld).getCollisionWorld().addCollisionObject(ghostObject);
+		
+		System.out.println("asd:"+testObject.getRigidBody().getCollisionFlags());
 		//testObject.getRigidBody().setContactCallbackFilter((1<<GameObjectType.GROUND.ordinal())|(1<<GameObjectType.OBSTACLE.ordinal()));
 		return testObject;
-		
 	}
 	
 }
